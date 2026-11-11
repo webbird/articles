@@ -1,0 +1,266 @@
+{
+    "news_img": "5.0.32",
+    "section_id": 6,
+    "captured": "2026-11-11T17:17:56+00:00",
+    "urls": [
+        {
+            "name": "liste",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php",
+            "status": 200,
+            "file": "liste.html",
+            "bytes": 22508
+        },
+        {
+            "name": "liste-seite-2",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?p=5",
+            "status": 200,
+            "file": "liste-seite-2.html",
+            "bytes": 20909
+        },
+        {
+            "name": "liste-seite-3",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?p=10",
+            "status": 200,
+            "file": "liste-seite-3.html",
+            "bytes": 16626
+        },
+        {
+            "name": "liste-monat",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?m=9&y=2026&method=1",
+            "status": 200,
+            "file": "liste-monat.html",
+            "bytes": 20778
+        },
+        {
+            "name": "liste-ungueltig",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?p=abc&g=-1",
+            "status": 200,
+            "file": "liste-ungueltig.html",
+            "bytes": 16590
+        },
+        {
+            "name": "gruppe-aktuelles",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?g=7",
+            "status": 200,
+            "file": "gruppe-aktuelles.html",
+            "bytes": 21092
+        },
+        {
+            "name": "rss-gruppe-aktuelles",
+            "url": "http://localhost:4443/wbce/modules/news_img/rss.php?page_id=6&section_id=6&group_id=7",
+            "status": 200,
+            "file": "rss-gruppe-aktuelles.xml",
+            "bytes": 1733
+        },
+        {
+            "name": "gruppe-veranstaltungen",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?g=8",
+            "status": 200,
+            "file": "gruppe-veranstaltungen.html",
+            "bytes": 19027
+        },
+        {
+            "name": "rss-gruppe-veranstaltungen",
+            "url": "http://localhost:4443/wbce/modules/news_img/rss.php?page_id=6&section_id=6&group_id=8",
+            "status": 200,
+            "file": "rss-gruppe-veranstaltungen.xml",
+            "bytes": 1123
+        },
+        {
+            "name": "gruppe-archiv",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?g=9",
+            "status": 200,
+            "file": "gruppe-archiv.html",
+            "bytes": 17767
+        },
+        {
+            "name": "rss-gruppe-archiv",
+            "url": "http://localhost:4443/wbce/modules/news_img/rss.php?page_id=6&section_id=6&group_id=9",
+            "status": 200,
+            "file": "rss-gruppe-archiv.xml",
+            "bytes": 726
+        },
+        {
+            "name": "tag-region",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?tags=Region",
+            "status": 200,
+            "file": "tag-region.html",
+            "bytes": 15785
+        },
+        {
+            "name": "tag-saisonal",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?tags=Saisonal",
+            "status": 200,
+            "file": "tag-saisonal.html",
+            "bytes": 18320
+        },
+        {
+            "name": "tag-wichtig",
+            "url": "http://localhost:4443/wbce/pages/nwi-test.php?tags=Wichtig",
+            "status": 200,
+            "file": "tag-wichtig.html",
+            "bytes": 15944
+        },
+        {
+            "name": "detail-fruehlingskarte",
+            "url": "http://localhost:4443/wbce/pages/posts/fruehlingskarte-18.php",
+            "status": 200,
+            "file": "detail-fruehlingskarte.html",
+            "bytes": 18975
+        },
+        {
+            "name": "detail-fruehlingskarte-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/fruehlingskarte-18.php?g=7",
+            "status": 200,
+            "file": "detail-fruehlingskarte-in-gruppe.html",
+            "bytes": 19051
+        },
+        {
+            "name": "detail-spargelzeit-weinabend",
+            "url": "http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php",
+            "status": 200,
+            "file": "detail-spargelzeit-weinabend.html",
+            "bytes": 18305
+        },
+        {
+            "name": "detail-spargelzeit-weinabend-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php?g=8",
+            "status": 200,
+            "file": "detail-spargelzeit-weinabend-in-gruppe.html",
+            "bytes": 18289
+        },
+        {
+            "name": "detail-ohne-vorschaubild",
+            "url": "http://localhost:4443/wbce/pages/posts/ohne-vorschaubild-20.php",
+            "status": 200,
+            "file": "detail-ohne-vorschaubild.html",
+            "bytes": 18216
+        },
+        {
+            "name": "detail-ohne-vorschaubild-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/ohne-vorschaubild-20.php?g=7",
+            "status": 200,
+            "file": "detail-ohne-vorschaubild-in-gruppe.html",
+            "bytes": 18295
+        },
+        {
+            "name": "detail-ohne-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/ohne-gruppe-21.php",
+            "status": 200,
+            "file": "detail-ohne-gruppe.html",
+            "bytes": 18035
+        },
+        {
+            "name": "detail-archivbeitrag",
+            "url": "http://localhost:4443/wbce/pages/posts/archivbeitrag-22.php",
+            "status": 200,
+            "file": "detail-archivbeitrag.html",
+            "bytes": 18284
+        },
+        {
+            "name": "detail-archivbeitrag-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/archivbeitrag-22.php?g=9",
+            "status": 200,
+            "file": "detail-archivbeitrag-in-gruppe.html",
+            "bytes": 18178
+        },
+        {
+            "name": "detail-inaktiver-beitrag",
+            "url": "http://localhost:4443/wbce/pages/posts/inaktiver-beitrag-23.php",
+            "status": 404,
+            "file": "detail-inaktiver-beitrag.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-inaktiver-beitrag-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/inaktiver-beitrag-23.php?g=7",
+            "status": 404,
+            "file": "detail-inaktiver-beitrag-in-gruppe.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-geplanter-beitrag",
+            "url": "http://localhost:4443/wbce/pages/posts/geplanter-beitrag-24.php",
+            "status": 404,
+            "file": "detail-geplanter-beitrag.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-geplanter-beitrag-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/geplanter-beitrag-24.php?g=7",
+            "status": 404,
+            "file": "detail-geplanter-beitrag-in-gruppe.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-abgelaufener-beitrag",
+            "url": "http://localhost:4443/wbce/pages/posts/abgelaufener-beitrag-25.php",
+            "status": 404,
+            "file": "detail-abgelaufener-beitrag.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-abgelaufener-beitrag-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/abgelaufener-beitrag-25.php?g=8",
+            "status": 404,
+            "file": "detail-abgelaufener-beitrag-in-gruppe.html",
+            "bytes": 236
+        },
+        {
+            "name": "detail-meldung-eins",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-eins-26.php",
+            "status": 200,
+            "file": "detail-meldung-eins.html",
+            "bytes": 17841
+        },
+        {
+            "name": "detail-meldung-eins-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-eins-26.php?g=7",
+            "status": 200,
+            "file": "detail-meldung-eins-in-gruppe.html",
+            "bytes": 17929
+        },
+        {
+            "name": "detail-meldung-zwei",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php",
+            "status": 200,
+            "file": "detail-meldung-zwei.html",
+            "bytes": 18177
+        },
+        {
+            "name": "detail-meldung-zwei-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php?g=8",
+            "status": 200,
+            "file": "detail-meldung-zwei-in-gruppe.html",
+            "bytes": 18172
+        },
+        {
+            "name": "detail-meldung-drei",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-drei-28.php",
+            "status": 200,
+            "file": "detail-meldung-drei.html",
+            "bytes": 17840
+        },
+        {
+            "name": "detail-meldung-drei-in-gruppe",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-drei-28.php?g=7",
+            "status": 200,
+            "file": "detail-meldung-drei-in-gruppe.html",
+            "bytes": 17826
+        },
+        {
+            "name": "detail-meldung-vier",
+            "url": "http://localhost:4443/wbce/pages/posts/meldung-vier-29.php",
+            "status": 200,
+            "file": "detail-meldung-vier.html",
+            "bytes": 18089
+        },
+        {
+            "name": "rss",
+            "url": "http://localhost:4443/wbce/modules/news_img/rss.php?page_id=6&section_id=6",
+            "status": 200,
+            "file": "rss.xml",
+            "bytes": 3554
+        }
+    ]
+}

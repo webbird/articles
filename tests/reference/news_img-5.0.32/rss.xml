@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0">
+    <channel>
+        <title>NWI-Test</title>
+        <link>http://localhost:4443/wbce</link>
+        <description></description>
+        <language>de</language>
+        <copyright>Copyright 2026, WBCE 1.7.0 DEV</copyright>
+        <category>WBCE 1.7.0 DEV</category>
+        <item>
+            <title><![CDATA[Archivbeitrag in inaktiver Gruppe]]></title>
+            <description><![CDATA[<p>Kurztext zu Archivbeitrag in inaktiver Gruppe.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/archivbeitrag-22.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/archivbeitrag-22.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Ohne Gruppe]]></title>
+            <description><![CDATA[<p>Kurztext zu Ohne Gruppe.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/ohne-gruppe-21.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/ohne-gruppe-21.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Ohne Vorschaubild]]></title>
+            <description><![CDATA[<p>Kurztext zu Ohne Vorschaubild.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/ohne-vorschaubild-20.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/ohne-vorschaubild-20.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Spargelzeit & Weinabend: „Genuss“ mit "Zitat"]]></title>
+            <description><![CDATA[<p>Kurztext zu Spargelzeit &amp; Weinabend: „Genuss“ mit &quot;Zitat&quot;.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Frühlingskarte ist da]]></title>
+            <description><![CDATA[<p>Kurztext zu Frühlingskarte ist da.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/fruehlingskarte-18.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/fruehlingskarte-18.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Meldung vier]]></title>
+            <description><![CDATA[<p>Kurztext zu Meldung vier.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/meldung-vier-29.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/meldung-vier-29.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Meldung drei]]></title>
+            <description><![CDATA[<p>Kurztext zu Meldung drei.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/meldung-drei-28.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/meldung-drei-28.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Meldung zwei]]></title>
+            <description><![CDATA[<p>Kurztext zu Meldung zwei.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Meldung eins]]></title>
+            <description><![CDATA[<p>Kurztext zu Meldung eins.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/meldung-eins-26.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/meldung-eins-26.php</link>
+        </item>
+    </channel>
+</rss>

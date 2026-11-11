@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0">
+    <channel>
+        <title>NWI-Test</title>
+        <link>http://localhost:4443/wbce</link>
+        <description></description>
+        <language>de</language>
+        <copyright>Copyright 2026, WBCE 1.7.0 DEV</copyright>
+        <category>WBCE 1.7.0 DEV</category>
+        <item>
+            <title><![CDATA[Spargelzeit & Weinabend: „Genuss“ mit "Zitat"]]></title>
+            <description><![CDATA[<p>Kurztext zu Spargelzeit &amp; Weinabend: „Genuss“ mit &quot;Zitat&quot;.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/spargelzeit-weinabend-19.php</link>
+        </item>
+        <item>
+            <title><![CDATA[Meldung zwei]]></title>
+            <description><![CDATA[<p>Kurztext zu Meldung zwei.</p>]]></description>
+            <guid>http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php</guid>
+            <link>http://localhost:4443/wbce/pages/posts/meldung-zwei-27.php</link>
+        </item>
+    </channel>
+</rss>
