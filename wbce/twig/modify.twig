@@ -135,6 +135,7 @@
         <caption class="art-sr">{{ t('TAB_GROUPS') }}</caption>
         <thead><tr>
             <th scope="col"><span class="art-sr">{{ t('ORDER') }}</span></th>
+            <th scope="col"><span class="art-sr">{{ t('IMAGE') }}</span></th>
             <th scope="col">{{ t('TITLE') }}</th>
             <th scope="col" class="art-num">{{ t('TAB_ARTICLES') }}</th>
             <th scope="col">{{ t('STATUS') }}</th>
@@ -147,6 +148,7 @@
                     {% if not loop.first %}<button type="submit" form="art-group_up-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-icon" title="{{ t('MOVE_UP') }}">▲<span class="art-sr">{{ t('MOVE_UP') }}: {{ g.title }}</span></button>{% endif %}
                     {% if not loop.last %}<button type="submit" form="art-group_down-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-icon" title="{{ t('MOVE_DOWN') }}">▼<span class="art-sr">{{ t('MOVE_DOWN') }}: {{ g.title }}</span></button>{% endif %}
                 </td>
+                <td>{% if g.image and g.image.url %}<img src="{{ g.image.url }}" alt="" class="art-mini">{% endif %}</td>
                 <th scope="row"><a href="{{ g.url_edit }}">{{ g.title }}</a></th>
                 <td class="art-num">{{ g.articles }}</td>
                 <td><button type="submit" form="art-group_toggle-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-status art-status--{{ g.active ? 'visible' : 'inactive' }}"
@@ -158,20 +160,21 @@
                 </td>
             </tr>
         {% else %}
-            <tr><td colspan="5">{{ t('NO_GROUPS') }}</td></tr>
+            <tr><td colspan="6">{{ t('NO_GROUPS') }}</td></tr>
         {% endfor %}
         </tbody>
     </table>
     <p class="art-hint">{{ t('GROUP_HINT') }}</p>
 
-    <form class="art-form" action="{{ action }}" method="post">
+    <form class="art-form" action="{{ action }}" method="post" enctype="multipart/form-data">
         {% include '_hidden.twig' %}
         <input type="hidden" name="art_action" value="group_save">
         <input type="hidden" name="group_id" value="{{ group_form.group_id }}">
-        <fieldset>
+        <fieldset class="art-group-form">
             <legend>{{ group_form.group_id ? t('EDIT_GROUP') : t('ADD_GROUP') }}</legend>
             <label>{{ t('TITLE') }} <input type="text" name="title" value="{{ group_form.title }}" required maxlength="255"></label>
             <label><input type="checkbox" name="active" value="1"{% if group_form.active %} checked{% endif %}> {{ t('GROUP_ACTIVE') }}</label>
+            <div class="art-group-image">{% include '_image.twig' with {image: group_image, field: 'image', remove: 'image_remove'} %}</div>
             <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
             {% if group_form.group_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
         </fieldset>
@@ -237,6 +240,22 @@
             <p>{{ t('ACCESS_FILES_INFO') }}</p>
             <p class="art-muted">{{ t('ACCESS_FILES_STATE', maintenance.missing, maintenance.orphaned) }}</p>
             <button type="submit" class="art-button">{{ t('ACCESS_FILES_RUN') }}</button>
+        </form>
+        <form class="art-card" action="{{ action }}" method="post">
+            {% include '_hidden.twig' %}
+            <input type="hidden" name="art_action" value="images_rebuild">
+            <h3>{{ t('IMAGES_REBUILD') }}</h3>
+            <p>{{ t('IMAGES_REBUILD_INFO') }}</p>
+            <p class="art-muted">{{ t('IMAGES_STATE', maintenance.images) }}</p>
+            <button type="submit" class="art-button"{% if not maintenance.images %} disabled{% endif %}>{{ t('IMAGES_REBUILD_RUN') }}</button>
+        </form>
+        <form class="art-card" action="{{ action }}" method="post">
+            {% include '_hidden.twig' %}
+            <input type="hidden" name="art_action" value="articles_relink">
+            <h3>{{ t('RELINK') }}</h3>
+            <p>{{ t('RELINK_INFO', maintenance.dir) }}</p>
+            <p class="art-muted">{{ t('RELINK_STATE', maintenance.outside) }}</p>
+            {% if maintenance.outside %}<button type="submit" class="art-button" data-art-confirm="{{ t('CONFIRM_RELINK', maintenance.outside) }}">{{ t('RELINK_RUN') }}</button>{% endif %}
         </form>
         {% if maintenance.empty %}
         <form class="art-card" action="{{ action }}" method="post">

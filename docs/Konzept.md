@@ -39,16 +39,16 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] Aktivieren/Deaktivieren und Löschen einzeln
 - [x] Massenaktionen: kopieren und verschieben (je mit oder ohne Tags), auch in andere Sections und Seiten; löschen; aktivieren; deaktivieren; Gruppe setzen; Tags setzen; Start- oder Enddatum leeren; Verschieben in eine andere Section legt dort fehlende lokale Tags mit gleichem Namen und gleicher Farbe an und nutzt vorhandene
 - [x] Kopien sind inaktiv, ihre Bilder werden mitkopiert
-- [ ] Editor: Titel, Slug, Vorschaubild, Aktiv, Start und Ende, Tags, Gruppe inklusive Wechsel der Section, Kurztext, Langtext, Block 2 (fertig bis auf das Hochladen des Vorschaubilds, Phase 5)
+- [x] Editor: Titel, Slug, Vorschaubild, Aktiv, Start und Ende, Tags, Gruppe inklusive Wechsel der Section, Kurztext, Langtext, Block 2
 - [x] „Speichern“ und „Speichern und zurück“, dazu der Ansehen-Link aufs Frontend
-- [ ] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen (Phase 5; der Editor zeigt die Bilder bisher nur an)
-- [ ] Wartung: Access-Dateien erneuern, Artikel ins aktuelle Verzeichnis verschieben, Bildgrößen neu berechnen (Access-Dateien fertig, der Rest mit Phase 5)
+- [x] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen. Hochgeladen wird sofort pro Datei, ohne JS und bei neuen Artikeln mit „Speichern“
+- [x] Wartung: Access-Dateien erneuern, Artikel ins aktuelle Verzeichnis verschieben, Bildgrößen neu berechnen
 
 ### Backend: Gruppen, Tags, Einstellungen
 
-- [ ] Gruppen: anlegen, bearbeiten, löschen, sortieren, Bild, Aktiv-Schalter (fertig bis auf das Bild, Phase 5)
+- [x] Gruppen: anlegen, bearbeiten, löschen, sortieren, Bild, Aktiv-Schalter
 - [x] Tags: anlegen, bearbeiten, löschen, Hintergrund- und Schriftfarbe, global oder pro Section; globale Tags nur für Admins
-- [ ] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Auswahl aus den Bildern der Section), „nur für Admins“ (fertig bis auf das Standard-Vorschaubild, Phase 5)
+- [x] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Kopie des Vorschaubilds eines Artikels der Section), „nur für Admins“
 - [x] Wechsel von View oder Galerie lädt deren Vorgaben, Wechsel der Galerie nur nach Warnung
 - [ ] Import in leere Sections aus `news_img`, `articles`, News und Topics (Abschnitt 6) (aus `news_img` fertig, im Reiter „Wartung“; der Rest mit Phase 6)
 - [ ] Demo-Packs in leere Sections, mit Allowlist für Settings
@@ -149,7 +149,7 @@ Der Namespace ist `Articles\`, der Autoloader steht wie bei `reservations` in `b
 3. Jede Aktion nennt ihren Zieltyp. `Access` löst das Objekt auf dessen Seite auf und prüft sie. Bei Massenaktionen gilt das für jede ID, bei Kopieren und Verschieben auch für das Ziel.
 4. Schreibende Aktionen laufen nur per POST mit `checkFTAN()`, danach folgt ein Redirect (PRG).
 
-Damit gibt es keine Statusänderung per GET und kein IDKEY. Toggle, Löschen und Pfeile sind Formular-Buttons. Drag & Drop schickt die neue Reihenfolge als normales Formular ab, ebenfalls mit Redirect. Der Upload (Phase 5) nutzt denselben Einstieg und antwortet mit JSON.
+Damit gibt es keine Statusänderung per GET und kein IDKEY. Toggle, Löschen und Pfeile sind Formular-Buttons. Drag & Drop schickt die neue Reihenfolge als normales Formular ab, ebenfalls mit Redirect. Der Galerie-Upload (`gallery_upload`) nutzt denselben Einstieg und antwortet mit JSON. Vorschau-, Gruppen- und Standardbild gehen mit dem jeweiligen Formular mit. Ein abgelehntes Bild verhindert nicht, dass der Rest des Formulars gespeichert wird; die Meldung erscheint neben „Gespeichert“.
 
 Umgesetzt in Phase 4: `Access` (Rechte), `Backend` (Masken, Texte, Flash-Meldungen), `Groups`, `Tags`, `Settings::save()` und die Schreibmethoden in `Articles`. Die Masken liegen in `twig/`, Verhalten und Optik in `assets/backend_body.js` und `assets/backend.css`; WBCE bindet beide selbst ein.
 
@@ -197,7 +197,7 @@ Twig über `getTwig()` mit `setDefaultStrategy('html')`, wie in `reservations`. 
 | Eigene GD-Routine | Core: `claviska\SimpleImage`, Upload-Prüfung im Modul |
 | `jquery.slugit.js` | Einige Zeilen Vanilla JS |
 | jQuery-UI-Drag-&-Drop, `XBTooltip` | Vanilla JS |
-| dm-uploader | `nwi-uploader.js` aus `v6.0`, umbenannt |
+| dm-uploader | Uploader in `assets/backend_body.js`, nach dem Vorbild von `nwi-uploader.js` aus `v6.0` |
 | Fotorama, Masonry, Lightcase | Bleiben, nur Laufzeitdateien. Lightcase ohne `scss`, `bower.json`, `package.json` und Changelog; `vendor/jQuery/jquery.events.touch.js` wird noch gebraucht |
 
 Sprachen liegen in `languages/XX.php` mit dem Namespace `MOD_ARTICLES` und werden über `Lang::loadLanguage(__DIR__)` geladen. Die `TEXT_*`-Platzhalter kommen von dort.
@@ -230,13 +230,15 @@ Der Artikelordner hängt nicht an der Section, deshalb muss beim Verschieben ein
 
 **Einstellungen an einer Stelle.** Ein Block „Bildgrößen“ im normalen Modus: drei Zeilen mit Breite, Höhe und Zuschnitt, dazu der Hinweis, welche Bilder die Größe nutzen, und die maximale Upload-Größe. Der Expertenmodus versteckt keine Bildeinstellungen mehr. Vor dem Umsetzen kommt ein Mockup.
 
-**Upload.** Das Prüfrezept aus `news_img` 2026 gilt für alle Bildarten über eine Methode in `Images`:
+**Upload.** Das Prüfrezept aus `news_img` 2026 gilt für alle Bildarten über `Images::upload()` und `Images::store()`:
 
 1. Endungs-Whitelist für jpg, jpeg, gif, png, webp
-2. `getimagesize()`-Typ muss zur Endung passen
-3. Größenlimit
-4. Immer neu kodieren, auch das Original
+2. `getimagesize()`-Typ muss zur Endung passen, und die Datei muss sich dekodieren lassen (`GIF89a<?php …` besteht `getimagesize()`)
+3. Größenlimit, nur echte Uploads (`is_uploaded_file()`)
+4. Immer neu kodieren, auch das Original (Qualität 85, EXIF-Drehung wird angewendet)
 5. Fehler löschen die Datei wieder
+
+Umgesetzt in Phase 5 mit `claviska\SimpleImage` aus dem Core. Zuschneiden nimmt die Mitte und vergrößert nie: Ist das Bild kleiner als die Box, wird die größte Fläche im Seitenverhältnis der Box ausgeschnitten (`Images::cropBox()`). „Bildgrößen neu berechnen“ läuft in einem Request, etwa 0,1 bis 0,2 Sekunden pro Bild und Größe; bei mehreren tausend Bildern wäre eine Aufteilung in Etappen nötig.
 
 In `news_img` hat jeder Bildtyp eigenen Code, und Gruppenbilder werden nur anhand der Endung geprüft.
 

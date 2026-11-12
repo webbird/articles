@@ -172,6 +172,7 @@ final class Backend
             'groups'    => array_map(static fn (array $g): array => [
                 'id' => (int) $g['group_id'], 'title' => (string) $g['title'], 'active' => (int) $g['active'] === 1,
                 'articles' => (int) $g['articles'], 'url_edit' => $tabUrl('groups', ['art_id' => (int) $g['group_id']]),
+                'image' => self::imageInfo('/groups/' . (int) $g['group_id'], (string) $g['image']),
             ], $groups),
             'tags'      => array_map(static fn (array $t): array => [
                 'id' => (int) $t['tag_id'], 'title' => (string) $t['title'], 'color' => (string) $t['color'], 'text_color' => (string) $t['text_color'],
@@ -180,6 +181,8 @@ final class Backend
             ], $tags),
             'is_admin'  => $access->isAdmin(),
             'group_form' => $vars['old'] ?? ['group_id' => (int) ($editGroup['group_id'] ?? 0), 'title' => $editGroup['title'] ?? '', 'active' => (int) ($editGroup['active'] ?? 1) === 1],
+            'group_image' => $editGroup !== null ? self::imageInfo('/groups/' . (int) $editGroup['group_id'], (string) $editGroup['image']) : null,
+            'max_upload_mb' => self::mb((int) $settings['max_upload']),
             'tag_form'  => $vars['old'] ?? [
                 'tag_id' => (int) ($editTag['tag_id'] ?? 0), 'title' => $editTag['title'] ?? '', 'color' => $editTag['color'] ?? '',
                 'text_color' => $editTag['text_color'] ?? '', 'global' => (bool) ($editTag['global'] ?? false),
@@ -215,7 +218,12 @@ final class Backend
                 $sources[] = ['section_id' => (int) $s['section_id'], 'label' => ($s['menu_title'] ?: $s['page_title']) . ' (#' . (int) $s['section_id'] . ', ' . (int) $s['posts'] . ')'];
             }
         }
-        return ['missing' => $missing, 'orphaned' => $orphaned, 'empty' => $empty, 'sources' => $sources];
+        $images = Images::ofSection($db, $sectionId);
+        return [
+            'missing' => $missing, 'orphaned' => $orphaned, 'empty' => $empty, 'sources' => $sources,
+            'images' => count($images), 'outside' => count(Articles::outsideDir($db, $sectionId)),
+            'dir' => '/' . AccessFiles::dir($db, $sectionId, Articles::pageOf($db, $sectionId)) . '/',
+        ];
     }
 
     private static function editor(\Database $db, Access $access, array $vars, int $articleId): string
@@ -261,8 +269,11 @@ final class Backend
 
         $images = [];
         if ($article !== null) {
-            foreach ($db->fetchAll('SELECT `file`, `caption` FROM `{TP}mod_articles_images` WHERE `article_id` = ? ORDER BY `position`, `image_id`', [$articleId]) as $image) {
-                $images[] = ['url' => self::mediaUrl("/items/$articleId/thumb/" . $image['file']), 'caption' => (string) $image['caption']];
+            foreach ($db->fetchAll('SELECT `image_id`, `file`, `caption` FROM `{TP}mod_articles_images` WHERE `article_id` = ? ORDER BY `position`, `image_id`', [$articleId]) as $image) {
+                $images[] = [
+                    'id' => (int) $image['image_id'], 'file' => (string) $image['file'], 'caption' => (string) $image['caption'],
+                    'url' => self::mediaUrl("/items/$articleId/thumb/" . $image['file']),
+                ];
             }
         }
 
@@ -275,8 +286,10 @@ final class Backend
             'editor_teaser'  => $editor('teaser', (string) $form['teaser'], 200),
             'editor_content' => $editor('content', (string) $form['content'], 400),
             'editor_block2'  => (int) $settings['use_block2'] === 1 ? $editor('block2', (string) $form['block2'], 200) : '',
-            'preview'    => $article !== null && $article['image'] !== '' ? self::mediaUrl("/items/$articleId/preview/" . $article['image']) : '',
+            'preview'    => $article !== null ? self::imageInfo("/items/$articleId", (string) $article['image']) : null,
             'images'     => $images,
+            'max_upload' => (int) $settings['max_upload'],
+            'max_upload_mb' => self::mb((int) $settings['max_upload']),
             'url_view'   => $article !== null && is_file(AccessFiles::path((string) $article['link'])) ? Frontend::pageUrl((string) $article['link']) : '',
             'link_prefix' => '/' . AccessFiles::dir($db, $sectionId, $vars['page_id']) . '/',
             'link_suffix' => PAGE_SPACER . ($article === null ? '…' : $articleId),
@@ -285,11 +298,22 @@ final class Backend
 
     private static function settings(\Database $db, Access $access, array $vars): string
     {
-        $settings = Settings::get($db, $vars['section_id']);
+        $sectionId = $vars['section_id'];
+        $settings = Settings::get($db, $sectionId);
         // MB in the form, bytes in the table
         $form = $vars['old'] ?? ['max_upload' => (int) ceil((int) $settings['max_upload'] / 1048576)] + $settings;
+        $choices = [];
+        foreach ($db->fetchAll(
+            "SELECT i.`article_id`, i.`title`, i.`image` FROM `{TP}mod_articles_items` i WHERE i.`section_id` = ? AND i.`image` <> '' ORDER BY " . Articles::orderSql((int) $settings['sort_order']),
+            [$sectionId]
+        ) as $a) {
+            $choices[] = ['id' => (int) $a['article_id'], 'label' => $a['title'] . ': ' . $a['image']];
+        }
         return self::twig()->render('modify_settings.twig', $vars + [
             'form'      => $form,
+            'default_image' => self::imageInfo("/sections/$sectionId", (string) $settings['default_image']),
+            'image_choices' => $choices,
+            'max_upload_mb' => self::mb((int) $settings['max_upload']),
             'views'     => Settings::views(),
             'galleries' => Settings::GALLERIES,
             'orders'    => array_keys(Articles::ORDER),
@@ -303,12 +327,32 @@ final class Backend
         ]);
     }
 
+    /** Preview URL, file name and size of the original; null without an image. */
+    private static function imageInfo(string $folder, string $file): ?array
+    {
+        if ($file === '') {
+            return null;
+        }
+        $size = @getimagesize(\ARTICLES_MEDIA_PATH . "$folder/$file");
+        return [
+            'file' => $file,
+            'url'  => self::mediaUrl("$folder/preview/$file"),
+            'size' => $size === false ? '' : $size[0] . ' × ' . $size[1],
+        ];
+    }
+
+    private static function mb(int $bytes): string
+    {
+        return rtrim(rtrim(number_format($bytes / 1048576, 1, ',', ''), '0'), ',');
+    }
+
     private static function date(int $timestamp): string
     {
         return gmdate(DATE_FORMAT, $timestamp + (int) TIMEZONE);
     }
 
-    private static function mediaUrl(string $path): string
+    /** URL of a file below media/.articles, '' if it does not exist. */
+    public static function mediaUrl(string $path): string
     {
         return is_file(\ARTICLES_MEDIA_PATH . $path) ? WB_URL . MEDIA_DIRECTORY . '/.articles' . $path : '';
     }

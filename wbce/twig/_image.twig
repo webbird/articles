@@ -1,0 +1,10 @@
+{# One image with upload and remove: image (null or url/file/size), field, remove #}
+<div class="art-image">
+    {% if image and image.url %}<img src="{{ image.url }}" alt="" class="art-preview">{% else %}<span class="art-preview art-preview--empty">{{ t('NO_IMAGE') }}</span>{% endif %}
+    {% if image %}<small class="art-muted">{{ image.file }}{% if image.size %}<br>{{ t('ORIGINAL') }} {{ image.size }}{% endif %}</small>{% endif %}
+</div>
+<label class="art-field">{{ image ? t('IMAGE_REPLACE') : t('IMAGE_UPLOAD') }}
+    <input type="file" name="{{ field }}" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp">
+</label>
+{% if image %}<label><input type="checkbox" name="{{ remove }}" value="1"> {{ t('IMAGE_REMOVE') }}</label>{% endif %}
+<small class="art-muted">{{ t('UPLOAD_HINT', max_upload_mb) }}</small>

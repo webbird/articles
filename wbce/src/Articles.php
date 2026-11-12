@@ -1,8 +1,8 @@
 <?php
 /**
  * articles – Articles
- * Visibility and order of articles, removing everything that belongs to a section.
- * Saving, copying and moving follow with the backend (Phase 4).
+ * Visibility, order, saving, copying, moving and deleting of articles, and
+ * removing everything that belongs to a section.
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
@@ -263,6 +263,38 @@ final class Articles
             AccessFiles::remove($link);
             AccessFiles::sync($db, $id);
         }
+    }
+
+    /**
+     * Links of the section in the directory it uses now, e.g. after changing
+     * articles_dir. Old addresses stop working. Returns how many moved.
+     */
+    public static function relink(\Database $db, int $sectionId): int
+    {
+        $moved = [];
+        foreach (self::outsideDir($db, $sectionId) as $id => [$old, $new]) {
+            self::update($db, $id, ['link' => $new]);
+            $moved[$id] = $old;
+        }
+        foreach ($moved as $id => $old) {
+            AccessFiles::remove($old);
+            AccessFiles::sync($db, $id);
+        }
+        return count($moved);
+    }
+
+    /** @return array<int, array{string, string}> article id => old link, link in the current directory */
+    public static function outsideDir(\Database $db, int $sectionId): array
+    {
+        $dir = AccessFiles::dir($db, $sectionId, self::pageOf($db, $sectionId));
+        $outside = [];
+        foreach ($db->fetchAll('SELECT `article_id`, `title`, `link` FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId]) as $a) {
+            $link = AccessFiles::link($dir, self::slugOf($a), (int) $a['article_id']);
+            if ($link !== (string) $a['link']) {
+                $outside[(int) $a['article_id']] = [(string) $a['link'], $link];
+            }
+        }
+        return $outside;
     }
 
     /** @return list<int> */

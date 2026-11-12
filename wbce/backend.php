@@ -20,6 +20,7 @@ use Articles\AccessFiles;
 use Articles\Articles;
 use Articles\Backend;
 use Articles\Groups;
+use Articles\Images;
 use Articles\Import;
 use Articles\Settings;
 use Articles\Tags;
@@ -41,7 +42,7 @@ $ids = static fn (string $name): array => array_values(array_unique(array_filter
 
 /** Back to the backend; errors keep the form input for the next request. */
 $back = static function (array $params, string $success = '', array $errors = [], ?array $old = null, array $notes = []) use ($pageId, $sectionId, $admin): never {
-    if ($errors === []) {
+    if ($success !== '') {
         $admin->touchSection($sectionId);
     }
     Backend::flash($sectionId, array_filter(['success' => $success, 'errors' => $errors, 'old' => $old, 'notes' => $notes]));
@@ -57,6 +58,22 @@ $list = array_filter([
 ]);
 $saved = Backend::t('SAVED');
 $params = $list;
+
+/** Runs an image step; a refused upload becomes a message, the rest of the form is saved anyway. */
+$imageErrors = [];
+$image = static function (callable $step, string $name = '') use (&$imageErrors): void {
+    try {
+        $step();
+    } catch (DomainException $e) {
+        $imageErrors[] = ($name !== '' ? $name . ': ' : '') . Backend::t($e->getMessage());
+    }
+};
+$json = static function (int $status, array $data): never {
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data);
+    exit;
+};
 
 try {
     switch ($post('art_action')) {
@@ -93,10 +110,48 @@ try {
                 'block2' => (int) $settings['use_block2'] === 1 ? $old['block2'] : (string) ($current['block2'] ?? ''),
                 'tags' => Tags::available($db, $target, $old['tags']),
             ], $userId);
-            if ($target !== $sectionId) {
-                $back([], Backend::t('ARTICLE_MOVED'));
+
+            // Images after the article: a new article needs its id for the folder
+            $targetSettings = Settings::get($db, $target);
+            $sizes = Images::sizes($targetSettings);
+            $max = (int) $targetSettings['max_upload'];
+            $current = (string) $db->fetchValue('SELECT `image` FROM `{TP}mod_articles_items` WHERE `article_id` = ?', [$id]);
+            $image(static function () use ($db, $id, $current, $post, $max, $sizes): void {
+                $file = Images::replace("/items/$id", $current, Images::fileOf('image'), $post('image_remove') === '1', $max, $sizes);
+                if ($file !== $current) {
+                    Articles::exec($db, 'UPDATE `{TP}mod_articles_items` SET `image` = ? WHERE `article_id` = ?', [$file, $id]);
+                }
+            });
+            Images::saveGallery($db, $id, is_array($_POST['caption'] ?? null) ? $_POST['caption'] : [], $ids('image_order'), $ids('image_delete'));
+            foreach (Images::filesOf('gallery') as $file) {
+                $image(static fn () => Images::addToGallery($db, $id, $file, $max, $sizes), (string) $file['name']);
             }
-            $back($post('save_back') === '1' ? [] : ['art_view' => 'edit', 'art_id' => $id], $saved);
+            [$imageId, $direction] = array_pad(explode(':', $post('image_move'), 2), 2, '');
+            if ((int) $imageId > 0) {
+                Images::stepGallery($db, $id, (int) $imageId, $direction === 'up');
+            }
+
+            if ($target !== $sectionId) {
+                $back([], Backend::t('ARTICLE_MOVED'), $imageErrors);
+            }
+            $back($post('save_back') === '1' && $imageErrors === [] && $post('image_move') === '' ? [] : ['art_view' => 'edit', 'art_id' => $id], $saved, $imageErrors);
+
+        case 'gallery_upload':
+            // Called by the uploader per file; answers with JSON instead of a redirect
+            $id = (int) $post('article_id');
+            if (!$access->articles([$id], $sectionId)) {
+                $json(403, ['status' => 'error', 'message' => Backend::t('ERR_ACCESS')]);
+            }
+            $settings = Settings::get($db, $sectionId);
+            try {
+                $row = Images::addToGallery($db, $id, Images::fileOf('file') ?? [], (int) $settings['max_upload'], Images::sizes($settings));
+            } catch (DomainException $e) {
+                $json(400, ['status' => 'error', 'message' => Backend::t($e->getMessage())]);
+            }
+            $admin->touchSection($sectionId);
+            $json(200, ['status' => 'ok', 'image' => [
+                'id' => $row['image_id'], 'file' => $row['file'], 'url' => Backend::mediaUrl("/items/$id/thumb/" . $row['file']),
+            ]]);
 
         case 'article_toggle':
         case 'article_delete':
@@ -163,8 +218,16 @@ try {
             if ($old['title'] === '') {
                 $back(['art_tab' => 'groups'] + ($id ? ['art_id' => $id] : []), '', [Backend::t('ERR_TITLE_MISSING')], $old);
             }
-            Groups::save($db, $sectionId, $id, $old['title'], $old['active']);
-            $back(['art_tab' => 'groups'], $saved);
+            $id = Groups::save($db, $sectionId, $id, $old['title'], $old['active']);
+            $settings = Settings::get($db, $sectionId);
+            $current = (string) $db->fetchValue('SELECT `image` FROM `{TP}mod_articles_groups` WHERE `group_id` = ?', [$id]);
+            $image(static function () use ($db, $id, $current, $post, $settings): void {
+                $file = Images::replace("/groups/$id", $current, Images::fileOf('image'), $post('image_remove') === '1', (int) $settings['max_upload'], Images::sizes($settings));
+                if ($file !== $current) {
+                    Articles::exec($db, 'UPDATE `{TP}mod_articles_groups` SET `image` = ? WHERE `group_id` = ?', [$file, $id]);
+                }
+            });
+            $back(['art_tab' => 'groups'] + ($imageErrors === [] ? [] : ['art_id' => $id]), $saved, $imageErrors);
 
         case 'group_toggle':
         case 'group_delete':
@@ -207,14 +270,54 @@ try {
             if (!$access->settings($sectionId)) {
                 throw new DomainException('ERR_ACCESS');
             }
+            $before = Settings::get($db, $sectionId);
             Settings::save($db, $sectionId, array_filter($_POST, 'is_string'), $access->isAdmin());
-            $back($post('save_back') === '1' ? [] : $params, $saved);
+            $settings = Settings::get($db, $sectionId);
+            $sizes = Images::sizes($settings);
+
+            // Standard image: an upload wins over taking one from an article, then removing
+            $current = (string) $settings['default_image'];
+            $fromArticle = (int) $post('default_image_from');
+            $image(static function () use ($db, $sectionId, $current, $post, $settings, $sizes, $fromArticle): void {
+                $folder = "/sections/$sectionId";
+                $upload = Images::fileOf('default_image');
+                if (($upload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE && $fromArticle > 0) {
+                    $source = (string) $db->fetchValue(
+                        "SELECT `image` FROM `{TP}mod_articles_items` WHERE `article_id` = ? AND `section_id` = ? AND `image` <> ''",
+                        [$fromArticle, $sectionId]
+                    );
+                    $source !== '' || throw new DomainException('ERR_ACCESS');
+                    // a copy, so deleting the article does not take the standard image along
+                    $file = Images::store(ARTICLES_MEDIA_PATH . "/items/$fromArticle/$source", $source, $folder, Images::PREVIEW, $sizes);
+                    Images::remove($folder, $current, Images::PREVIEW);
+                } else {
+                    $file = Images::replace($folder, $current, $upload, $post('default_image_remove') === '1', (int) $settings['max_upload'], $sizes);
+                }
+                if ($file !== $current) {
+                    Articles::exec($db, 'UPDATE `{TP}mod_articles_settings` SET `default_image` = ? WHERE `section_id` = ?', [$file, $sectionId]);
+                }
+            });
+
+            $notes = array_keys(array_filter([
+                'NOTE_SIZES_CHANGED' => Images::sizes($before) !== $sizes,
+                'NOTE_DIR_CHANGED'   => $before['articles_dir'] !== $settings['articles_dir'],
+            ]));
+            $back($post('save_back') === '1' && $imageErrors === [] ? [] : $params, $saved, $imageErrors, null,
+                array_map(static fn (string $key): string => Backend::t($key), $notes));
 
         case 'access_files':
             foreach ($db->fetchAll('SELECT `article_id` FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId]) as $row) {
                 AccessFiles::sync($db, (int) $row['article_id']);
             }
             $back(['art_tab' => 'maintenance'], Backend::t('ACCESS_FILES_DONE'));
+
+        case 'images_rebuild':
+            [$done, $failed] = Images::rebuild($db, $sectionId);
+            $back(['art_tab' => 'maintenance'], Backend::t('IMAGES_REBUILT', $done), [], null,
+                array_map(static fn (string $path): string => Backend::t('IMAGE_FAILED', $path), $failed));
+
+        case 'articles_relink':
+            $back(['art_tab' => 'maintenance'], Backend::t('RELINK_DONE', Articles::relink($db, $sectionId)));
 
         case 'import_news_img':
             $params = ['art_tab' => 'maintenance'];

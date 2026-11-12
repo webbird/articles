@@ -74,9 +74,22 @@
 .art-backend .art-slug { display: flex; gap: .3em; align-items: center; flex-wrap: wrap; }
 .art-backend .art-slug input { flex: 1; min-width: 10em; }
 .art-backend .art-slug input[readonly] { background: #f1f3f5; }
-.art-backend .art-preview { display: block; max-width: 100%; margin: .3em 0; }
-.art-backend .art-gallery { display: flex; flex-wrap: wrap; gap: .8em; list-style: none; padding: 0; margin: 0; }
-.art-backend .art-gallery li { width: 8em; font-size: .85em; }
-.art-backend .art-gallery img { display: block; max-width: 100%; margin-bottom: .2em; }
+.art-backend .art-image { display: flex; gap: .8em; align-items: center; margin: 0 0 .6em; }
+.art-backend .art-preview { display: block; max-width: 8em; max-height: 8em; }
+.art-backend .art-preview--empty { width: 6em; height: 6em; display: flex; align-items: center; justify-content: center; text-align: center; background: #f1f3f5; color: var(--art-muted); font-size: .85em; }
+.art-backend .art-mini { display: block; width: 2.5em; height: 2.5em; object-fit: cover; }
+.art-backend .art-gallery-box { margin: 1em 0 0; }
+.art-backend .art-gallery { list-style: none; padding: 0; margin: 0 0 .8em; }
+.art-backend .art-gallery-item { display: flex; gap: .7em; align-items: center; padding: .35em 0; border-bottom: 1px solid var(--art-line); }
+.art-backend .art-gallery-item img, .art-backend .art-thumb-missing { width: 4em; height: 4em; object-fit: cover; flex: none; font-size: .75em; overflow: hidden; background: #f1f3f5; }
+.art-backend .art-caption { flex: 1; }
+.art-backend .art-caption input { width: 100%; box-sizing: border-box; }
+.art-backend .art-gallery-item .art-order { width: 3em; white-space: nowrap; }
+.art-backend .art-dropzone { border: 2px dashed var(--art-line); padding: .8em 1em; }
+.art-backend .art-dropzone.art-drop-active { border-color: var(--art-accent); background: #eef2f7; }
+.art-backend .art-dropzone label { display: block; font-weight: bold; margin: 0 0 .3em; }
+.art-backend .art-uploads { list-style: none; padding: 0; margin: .4em 0 0; font-size: .9em; }
+.art-backend .art-group-form > label, .art-backend .art-group-image { display: block; margin: 0 0 .6em; }
+.art-backend .art-default-image { display: grid; grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); gap: 1em; }
 .art-backend .art-sizes input[type="number"] { width: 6em; }
 @media (max-width: 800px) { .art-backend .art-editor-grid { grid-template-columns: 1fr; } }

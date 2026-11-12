@@ -6,10 +6,12 @@
     <h2>{{ exists ? t('EDIT_ARTICLE') : t('ADD_ARTICLE') }}</h2>
     {% include '_messages.twig' %}
 
-    <form class="art-form art-editor" action="{{ action }}" method="post">
+    <form class="art-form art-editor" action="{{ action }}" method="post" enctype="multipart/form-data">
         {% include '_hidden.twig' %}
         <input type="hidden" name="art_action" value="article_save">
         <input type="hidden" name="article_id" value="{{ form.article_id }}">
+        {# Enter in a text field presses the first submit button; that must be "save", not a gallery arrow #}
+        <button type="submit" class="art-sr" tabindex="-1" aria-hidden="true">{{ t('SAVE') }}</button>
 
         <div class="art-editor-grid">
             <div class="art-editor-main">
@@ -67,22 +69,51 @@
                     <small class="art-muted">{{ t('PLACEMENT_HINT') }}</small>
                 </fieldset>
 
-                <div class="art-card">
-                    <span class="art-label">{{ t('PREVIEW_IMAGE') }}</span>
-                    {% if preview %}<img src="{{ preview }}" alt="" class="art-preview">{% else %}<p class="art-muted">{{ t('NO_IMAGE') }}</p>{% endif %}
-                    <small class="art-muted">{{ t('IMAGES_LATER') }}</small>
-                </div>
+                <fieldset class="art-card">
+                    <legend>{{ t('PREVIEW_IMAGE') }}</legend>
+                    {% include '_image.twig' with {image: preview, field: 'image', remove: 'image_remove'} %}
+                </fieldset>
             </div>
         </div>
 
-        {% if images %}
-            <div class="art-field">
-                <span class="art-label">{{ t('GALLERY') }}</span>
-                <ul class="art-gallery">
-                    {% for image in images %}<li>{% if image.url %}<img src="{{ image.url }}" alt="">{% endif %}<span>{{ image.caption }}</span></li>{% endfor %}
-                </ul>
+        <fieldset class="art-card art-gallery-box">
+            <legend>{{ t('GALLERY') }} <span class="art-muted">· {{ t('IMAGE_COUNT', images|length) }}</span></legend>
+            <ol class="art-gallery" data-art-gallery>
+                {% for image in images %}
+                    <li class="art-gallery-item">
+                        <input type="hidden" name="image_order[]" value="{{ image.id }}">
+                        <span class="art-grip" aria-hidden="true">⋮⋮</span>
+                        {% if image.url %}<img src="{{ image.url }}" alt="">{% else %}<span class="art-thumb-missing">{{ image.file }}</span>{% endif %}
+                        <label class="art-caption"><span class="art-sr">{{ t('CAPTION') }}: {{ image.file }}</span>
+                            <input type="text" name="caption[{{ image.id }}]" value="{{ image.caption }}" maxlength="255" placeholder="{{ t('CAPTION') }}"></label>
+                        <span class="art-order">
+                            {% if not loop.first %}<button type="submit" name="image_move" value="{{ image.id }}:up" class="art-icon" title="{{ t('MOVE_UP') }}">▲<span class="art-sr">{{ t('MOVE_UP') }}: {{ image.file }}</span></button>{% endif %}
+                            {% if not loop.last %}<button type="submit" name="image_move" value="{{ image.id }}:down" class="art-icon" title="{{ t('MOVE_DOWN') }}">▼<span class="art-sr">{{ t('MOVE_DOWN') }}: {{ image.file }}</span></button>{% endif %}
+                        </span>
+                        <label class="art-danger"><input type="checkbox" name="image_delete[]" value="{{ image.id }}"> {{ t('DELETE') }}<span class="art-sr">: {{ image.file }}</span></label>
+                    </li>
+                {% endfor %}
+            </ol>
+            <div class="art-dropzone" data-art-uploader data-max="{{ max_upload }}"
+                 data-msg-size="{{ t('ERR_IMAGE_SIZE') }}" data-msg-type="{{ t('ERR_IMAGE_TYPE') }}" data-msg-failed="{{ t('ERR_IMAGE_UPLOAD') }}" data-msg-done="{{ t('UPLOAD_DONE') }}">
+                <label>{{ t('GALLERY_ADD') }}
+                    <input type="file" name="gallery[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp"{% if not exists %} data-art-new{% endif %}>
+                </label>
+                <small class="art-muted">{{ t('UPLOAD_HINT', max_upload_mb) }} {{ exists ? t('GALLERY_HINT') : t('GALLERY_HINT_NEW') }}</small>
+                <ul class="art-uploads" data-art-uploads aria-live="polite"></ul>
             </div>
-        {% endif %}
+            <template data-art-gallery-row>
+                <li class="art-gallery-item">
+                    <input type="hidden" name="image_order[]" value="">
+                    <span class="art-grip" aria-hidden="true">⋮⋮</span>
+                    <img src="" alt="">
+                    <label class="art-caption"><span class="art-sr">{{ t('CAPTION') }}</span>
+                        <input type="text" name="" value="" maxlength="255" placeholder="{{ t('CAPTION') }}"></label>
+                    <span class="art-order"></span>
+                    <label class="art-danger"><input type="checkbox" name="image_delete[]" value=""> {{ t('DELETE') }}</label>
+                </li>
+            </template>
+        </fieldset>
 
         <div class="art-buttons">
             <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>

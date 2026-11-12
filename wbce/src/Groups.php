@@ -2,7 +2,7 @@
 /**
  * articles – Groups
  * Groups of a section: list, save, delete, active switch, order.
- * The group image follows with the images (Phase 5).
+ * The group image is stored by backend.php through Images.
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
