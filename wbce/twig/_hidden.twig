@@ -1,0 +1,12 @@
+{# Fields every form of the section needs; the list keeps tab and filters #}
+<input type="hidden" name="page_id" value="{{ page_id }}">
+<input type="hidden" name="section_id" value="{{ section_id }}">
+{% if tab is defined %}
+    <input type="hidden" name="art_tab" value="{{ tab }}">
+    {% if filter is defined %}
+        {% if filter.group %}<input type="hidden" name="art_group" value="{{ filter.group }}">{% endif %}
+        {% if filter.status %}<input type="hidden" name="art_status" value="{{ filter.status }}">{% endif %}
+        {% if filter.q %}<input type="hidden" name="art_q" value="{{ filter.q }}">{% endif %}
+    {% endif %}
+{% endif %}
+{{ FTAN|raw }}

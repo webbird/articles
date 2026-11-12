@@ -1,0 +1,9 @@
+{% if errors %}
+    <div class="art-msg art-msg--error" role="alert">
+        <ul>{% for message in errors %}<li>{{ message }}</li>{% endfor %}</ul>
+    </div>
+{% elseif success %}
+    <div class="art-msg art-msg--success" role="status">{{ success }}
+        {% if notes is defined and notes %}<ul>{% for note in notes %}<li>{{ note }}</li>{% endfor %}</ul>{% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,259 @@
+{#
+    articles/twig/modify.twig – section backend with the tabs articles, groups, tags, maintenance
+#}
+<div class="mod_articles art-backend" data-art-section="{{ section_id }}">
+    <div class="art-head">
+        <nav class="art-tabs" aria-label="{{ t('TABS') }}">
+            {% for name, url in tab_urls %}
+                <a href="{{ url }}"{% if name == tab %} aria-current="page"{% endif %}>{{ t('TAB_' ~ name|upper) }}{% if counts[name] is defined %} <span class="art-count">{{ counts[name] }}</span>{% endif %}</a>
+            {% endfor %}
+        </nav>
+        <div class="art-head-actions">
+            {% if can_settings %}<a class="art-button" href="{{ url_settings }}">{{ t('SETTINGS') }}</a>{% endif %}
+            <a class="art-button art-button--primary" href="{{ url_new }}">{{ t('ADD_ARTICLE') }}</a>
+        </div>
+    </div>
+    {% include '_messages.twig' %}
+
+{% if tab == 'articles' %}
+    <form class="art-filter" method="get" action="{{ url_list|split('?')|first }}">
+        <input type="hidden" name="page_id" value="{{ page_id }}">
+        <input type="hidden" name="art_section" value="{{ section_id }}">
+        <input type="hidden" name="art_tab" value="articles">
+        <label>{{ t('GROUP') }}
+            <select name="art_group">
+                <option value="0">{{ t('ALL_GROUPS') }}</option>
+                <option value="-1"{% if filter.group == -1 %} selected{% endif %}>{{ t('NO_GROUP') }}</option>
+                {% for g in groups %}<option value="{{ g.id }}"{% if filter.group == g.id %} selected{% endif %}>{{ g.title }}</option>{% endfor %}
+            </select>
+        </label>
+        <label>{{ t('STATUS') }}
+            <select name="art_status">
+                <option value="">{{ t('ALL_STATUSES') }}</option>
+                {% for s in statuses %}<option value="{{ s }}"{% if filter.status == s %} selected{% endif %}>{{ t('STATUS_' ~ s|upper) }}</option>{% endfor %}
+            </select>
+        </label>
+        <label>{{ t('SEARCH_TITLE') }} <input type="search" name="art_q" value="{{ filter.q }}"></label>
+        <button type="submit" class="art-button">{{ t('FILTER') }}</button>
+        {% if filtered %}<a href="{{ url_tab }}">{{ t('FILTER_RESET') }}</a>{% endif %}
+    </form>
+
+    {# Row buttons point at these forms, so no form is nested in the bulk form #}
+    {% for name in ['article_toggle', 'article_delete', 'article_up', 'article_down'] %}
+        <form id="art-{{ name }}-{{ section_id }}" action="{{ action }}" method="post" hidden>
+            {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="{{ name }}">
+        </form>
+    {% endfor %}
+    <form id="art-reorder-{{ section_id }}" class="art-reorder" action="{{ action }}" method="post" hidden>
+        {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="article_reorder">
+    </form>
+
+    <form id="art-bulk-{{ section_id }}" action="{{ action }}" method="post">
+        {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="bulk">
+        <table class="art-table art-articles">
+            <caption class="art-sr">{{ t('TAB_ARTICLES') }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="art-check"><input type="checkbox" class="art-check-all" aria-label="{{ t('SELECT_ALL') }}"></th>
+                    {% if sortable %}<th scope="col"><span class="art-sr">{{ t('ORDER') }}</span></th>{% endif %}
+                    <th scope="col">{{ t('TITLE') }}</th>
+                    <th scope="col">{{ t('GROUP') }}</th>
+                    <th scope="col" class="art-num">{{ t('TAGS') }}</th>
+                    <th scope="col">{{ t('PERIOD') }}</th>
+                    <th scope="col">{{ t('STATUS') }}</th>
+                    <th scope="col"><span class="art-sr">{{ t('ACTIONS') }}</span></th>
+                </tr>
+            </thead>
+            <tbody{% if sortable %} class="art-sortable" data-art-reorder="art-reorder-{{ section_id }}"{% endif %}>
+            {% for a in articles %}
+                <tr data-art-id="{{ a.id }}"{% if a.status != 'visible' %} class="art-dim"{% endif %}>
+                    <td class="art-check"><input type="checkbox" name="ids[]" value="{{ a.id }}" aria-label="{{ t('SELECT') }}: {{ a.title }}"></td>
+                    {% if sortable %}
+                        <td class="art-order">
+                            <span class="art-grip" aria-hidden="true" title="{{ t('DRAG_TO_SORT') }}">⋮⋮</span>
+                            {% if not loop.first %}<button type="submit" form="art-article_up-{{ section_id }}" name="article_id" value="{{ a.id }}" class="art-icon" title="{{ t('MOVE_UP') }}">▲<span class="art-sr">{{ t('MOVE_UP') }}: {{ a.title }}</span></button>{% endif %}
+                            {% if not loop.last %}<button type="submit" form="art-article_down-{{ section_id }}" name="article_id" value="{{ a.id }}" class="art-icon" title="{{ t('MOVE_DOWN') }}">▼<span class="art-sr">{{ t('MOVE_DOWN') }}: {{ a.title }}</span></button>{% endif %}
+                        </td>
+                    {% endif %}
+                    <th scope="row"><a href="{{ a.url_edit }}">{{ a.title }}</a><br><small class="art-muted">{{ a.link }}</small></th>
+                    <td>{{ a.group }}</td>
+                    <td class="art-num">{{ a.tags }}</td>
+                    <td class="art-nowrap">{% if a.from %}{{ t('FROM') }} {{ a.from }}{% endif %}{% if a.from and a.until %}<br>{% endif %}{% if a.until %}{{ t('UNTIL') }} {{ a.until }}{% endif %}</td>
+                    <td>
+                        <button type="submit" form="art-article_toggle-{{ section_id }}" name="article_id" value="{{ a.id }}" class="art-status art-status--{{ a.status }}"
+                                title="{{ a.active ? t('DEACTIVATE') : t('ACTIVATE') }}">{{ t('STATUS_' ~ a.status|upper) }}<span class="art-sr">: {{ a.title }}, {{ a.active ? t('DEACTIVATE') : t('ACTIVATE') }}</span></button>
+                    </td>
+                    <td class="art-actions">
+                        <a href="{{ a.url_edit }}">{{ t('EDIT') }}<span class="art-sr">: {{ a.title }}</span></a>
+                        {% if a.status == 'visible' %}<a href="{{ a.url_view }}" target="_blank" rel="noopener">{{ t('VIEW') }}<span class="art-sr">: {{ a.title }}</span></a>{% endif %}
+                        <button type="submit" form="art-article_delete-{{ section_id }}" name="article_id" value="{{ a.id }}" class="art-link art-danger"
+                                data-art-confirm="{{ t('CONFIRM_DELETE_ARTICLE', a.title) }}">{{ t('DELETE') }}<span class="art-sr">: {{ a.title }}</span></button>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="{{ sortable ? 8 : 7 }}">{{ filtered ? t('NONE_FILTERED') : t('NO_ARTICLES') }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if not sortable and filtered %}<p class="art-hint">{{ t('SORT_HINT_FILTER') }}</p>{% endif %}
+
+        {% if articles %}
+        <fieldset class="art-bulk">
+            <legend>{{ t('BULK') }}</legend>
+            <label>{{ t('BULK_ACTION') }}
+                <select name="bulk_action" class="art-bulk-action">
+                    {% for b in bulk %}<option value="{{ b }}">{{ t('BULK_' ~ b|upper) }}</option>{% endfor %}
+                </select>
+            </label>
+            <label data-art-for="copy copy_with_tags move move_with_tags">{{ t('TARGET') }}
+                <select name="target">
+                    {% for target in targets %}<option value="{{ target.section_id }}"{% if target.section_id == section_id %} selected{% endif %}>{{ target.label }}</option>{% endfor %}
+                </select>
+            </label>
+            <label data-art-for="group">{{ t('GROUP') }}
+                <select name="group_id">
+                    <option value="0">{{ t('NO_GROUP') }}</option>
+                    {% for g in groups %}<option value="{{ g.id }}">{{ g.title }}</option>{% endfor %}
+                </select>
+            </label>
+            <fieldset data-art-for="tags" class="art-taglist">
+                <legend>{{ t('TAGS') }}</legend>
+                {% for tag in tags %}<label><input type="checkbox" name="tag_ids[]" value="{{ tag.id }}"> <span class="art-tag"{{ tag.style|raw }}>{{ tag.title }}</span></label>{% endfor %}
+            </fieldset>
+            <button type="submit" class="art-button" data-art-confirm-delete="{{ t('CONFIRM_DELETE_SELECTED') }}">{{ t('APPLY') }}</button>
+        </fieldset>
+        {% endif %}
+    </form>
+
+{% elseif tab == 'groups' %}
+    {% for name in ['group_toggle', 'group_delete', 'group_up', 'group_down'] %}
+        <form id="art-{{ name }}-{{ section_id }}" action="{{ action }}" method="post" hidden>
+            {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="{{ name }}">
+        </form>
+    {% endfor %}
+    <table class="art-table">
+        <caption class="art-sr">{{ t('TAB_GROUPS') }}</caption>
+        <thead><tr>
+            <th scope="col"><span class="art-sr">{{ t('ORDER') }}</span></th>
+            <th scope="col">{{ t('TITLE') }}</th>
+            <th scope="col" class="art-num">{{ t('TAB_ARTICLES') }}</th>
+            <th scope="col">{{ t('STATUS') }}</th>
+            <th scope="col"><span class="art-sr">{{ t('ACTIONS') }}</span></th>
+        </tr></thead>
+        <tbody>
+        {% for g in groups %}
+            <tr{% if not g.active %} class="art-dim"{% endif %}>
+                <td class="art-order">
+                    {% if not loop.first %}<button type="submit" form="art-group_up-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-icon" title="{{ t('MOVE_UP') }}">▲<span class="art-sr">{{ t('MOVE_UP') }}: {{ g.title }}</span></button>{% endif %}
+                    {% if not loop.last %}<button type="submit" form="art-group_down-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-icon" title="{{ t('MOVE_DOWN') }}">▼<span class="art-sr">{{ t('MOVE_DOWN') }}: {{ g.title }}</span></button>{% endif %}
+                </td>
+                <th scope="row"><a href="{{ g.url_edit }}">{{ g.title }}</a></th>
+                <td class="art-num">{{ g.articles }}</td>
+                <td><button type="submit" form="art-group_toggle-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-status art-status--{{ g.active ? 'visible' : 'inactive' }}"
+                            title="{{ g.active ? t('DEACTIVATE') : t('ACTIVATE') }}">{{ g.active ? t('GROUP_ACTIVE') : t('GROUP_INACTIVE') }}<span class="art-sr">: {{ g.title }}</span></button></td>
+                <td class="art-actions">
+                    <a href="{{ g.url_edit }}">{{ t('EDIT') }}<span class="art-sr">: {{ g.title }}</span></a>
+                    <button type="submit" form="art-group_delete-{{ section_id }}" name="group_id" value="{{ g.id }}" class="art-link art-danger"
+                            data-art-confirm="{{ t('CONFIRM_DELETE_GROUP', g.title) }}">{{ t('DELETE') }}<span class="art-sr">: {{ g.title }}</span></button>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5">{{ t('NO_GROUPS') }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="art-hint">{{ t('GROUP_HINT') }}</p>
+
+    <form class="art-form" action="{{ action }}" method="post">
+        {% include '_hidden.twig' %}
+        <input type="hidden" name="art_action" value="group_save">
+        <input type="hidden" name="group_id" value="{{ group_form.group_id }}">
+        <fieldset>
+            <legend>{{ group_form.group_id ? t('EDIT_GROUP') : t('ADD_GROUP') }}</legend>
+            <label>{{ t('TITLE') }} <input type="text" name="title" value="{{ group_form.title }}" required maxlength="255"></label>
+            <label><input type="checkbox" name="active" value="1"{% if group_form.active %} checked{% endif %}> {{ t('GROUP_ACTIVE') }}</label>
+            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+            {% if group_form.group_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+        </fieldset>
+    </form>
+
+{% elseif tab == 'tags' %}
+    <form id="art-tag_delete-{{ section_id }}" action="{{ action }}" method="post" hidden>
+        {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="tag_delete">
+    </form>
+    <table class="art-table">
+        <caption class="art-sr">{{ t('TAB_TAGS') }}</caption>
+        <thead><tr>
+            <th scope="col">{{ t('TAG') }}</th>
+            <th scope="col">{{ t('SCOPE') }}</th>
+            <th scope="col" class="art-num">{{ t('TAB_ARTICLES') }}</th>
+            <th scope="col"><span class="art-sr">{{ t('ACTIONS') }}</span></th>
+        </tr></thead>
+        <tbody>
+        {% for tag in tags %}
+            <tr>
+                <th scope="row"><span class="art-tag"{{ tag.style|raw }}>{{ tag.title }}</span></th>
+                <td>{{ tag.global ? t('TAG_GLOBAL') : t('TAG_LOCAL') }}</td>
+                <td class="art-num">{{ tag.articles }}</td>
+                <td class="art-actions">
+                    {% if tag.editable %}
+                        <a href="{{ tag.url_edit }}">{{ t('EDIT') }}<span class="art-sr">: {{ tag.title }}</span></a>
+                        <button type="submit" form="art-tag_delete-{{ section_id }}" name="tag_id" value="{{ tag.id }}" class="art-link art-danger"
+                                data-art-confirm="{{ t('CONFIRM_DELETE_TAG', tag.title) }}">{{ t('DELETE') }}<span class="art-sr">: {{ tag.title }}</span></button>
+                    {% else %}
+                        <span class="art-muted">{{ t('TAG_ADMINS_ONLY') }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">{{ t('NO_TAGS') }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <form class="art-form" action="{{ action }}" method="post">
+        {% include '_hidden.twig' %}
+        <input type="hidden" name="art_action" value="tag_save">
+        <input type="hidden" name="tag_id" value="{{ tag_form.tag_id }}">
+        <fieldset>
+            <legend>{{ tag_form.tag_id ? t('EDIT_TAG') : t('ADD_TAG') }}</legend>
+            <label>{{ t('TITLE') }} <input type="text" name="title" value="{{ tag_form.title }}" required maxlength="255" data-art-tag-title></label>
+            <label>{{ t('TAG_COLOR') }} <input type="text" name="color" value="{{ tag_form.color }}" placeholder="#314B68" size="9" data-art-tag-color></label>
+            <label>{{ t('TAG_TEXT_COLOR') }} <input type="text" name="text_color" value="{{ tag_form.text_color }}" placeholder="{{ t('AUTOMATIC') }}" size="9" data-art-tag-text></label>
+            {% if is_admin %}<label><input type="checkbox" name="global" value="1"{% if tag_form.global %} checked{% endif %}> {{ t('TAG_GLOBAL') }}</label>{% endif %}
+            <span class="art-tag art-tag-preview" aria-hidden="true">{{ tag_form.title ?: t('TAG') }}</span>
+            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+            {% if tag_form.tag_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+        </fieldset>
+        <p class="art-hint">{{ t('TAG_HINT') }}</p>
+    </form>
+
+{% elseif tab == 'maintenance' %}
+    <div class="art-cards">
+        <form class="art-card" action="{{ action }}" method="post">
+            {% include '_hidden.twig' %}
+            <input type="hidden" name="art_action" value="access_files">
+            <h3>{{ t('ACCESS_FILES') }}</h3>
+            <p>{{ t('ACCESS_FILES_INFO') }}</p>
+            <p class="art-muted">{{ t('ACCESS_FILES_STATE', maintenance.missing, maintenance.orphaned) }}</p>
+            <button type="submit" class="art-button">{{ t('ACCESS_FILES_RUN') }}</button>
+        </form>
+        {% if maintenance.empty %}
+        <form class="art-card" action="{{ action }}" method="post">
+            {% include '_hidden.twig' %}
+            <input type="hidden" name="art_action" value="import_news_img">
+            <h3>{{ t('IMPORT') }}</h3>
+            <p>{{ t('IMPORT_INFO') }}</p>
+            {% if maintenance.sources %}
+                <label>{{ t('IMPORT_SOURCE') }}
+                    <select name="source">{% for s in maintenance.sources %}<option value="{{ s.section_id }}">{{ s.label }}</option>{% endfor %}</select>
+                </label>
+                <button type="submit" class="art-button" data-art-confirm="{{ t('CONFIRM_IMPORT') }}">{{ t('IMPORT_RUN') }}</button>
+            {% else %}
+                <p class="art-muted">{{ t('IMPORT_NO_SOURCES') }}</p>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+{% endif %}
+</div>

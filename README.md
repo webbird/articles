@@ -40,9 +40,11 @@ New-Item -ItemType Junction -Path <wbce-verzeichnis>\modules\articles -Target <r
 
 Installiert wird im Backend unter Erweiterungen, im Bereich für per FTP hochgeladene Module (`install` manuell ausführen). `install.php` lässt sich gefahrlos wiederholen und legt fehlende Tabellen und Indizes an.
 
+Das Modul nie über die Modulverwaltung installieren oder aktualisieren, solange es per Junction eingebunden ist: Das schreibt direkt ins Repository.
+
 ## Import aus news_img
 
-Ziel ist ein leerer `articles`-Abschnitt. Die `news_img`-Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import.
+Im Backend steht der Import im Reiter „Wartung“, solange der Abschnitt leer ist. Für Tests geht er auch per Kommandozeile. Ziel ist ein leerer `articles`-Abschnitt. Die `news_img`-Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import.
 
 ```bash
 php tests/import/import_news_img.php <wbce-verzeichnis> <quell-section> <ziel-section> <ziel-page>

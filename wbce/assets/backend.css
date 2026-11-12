@@ -1,0 +1,82 @@
+/*
+ * articles – backend styles. Scoped to .art-backend; form controls keep the look
+ * of the backend theme.
+ */
+.art-backend { --art-line: #d6dae0; --art-muted: #5f6672; --art-accent: #314b68; margin: 0 0 1.5em; }
+.art-backend .art-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.art-backend .art-muted { color: var(--art-muted); }
+.art-backend .art-hint { color: var(--art-muted); font-size: .9em; margin: .4em 0 1em; }
+.art-backend .art-msg { padding: .6em 1em; margin: 0 0 1em; border-left: 4px solid; }
+.art-backend .art-msg ul { margin: .3em 0 0; padding-left: 1.2em; }
+.art-backend .art-msg--error { background: #fbeaea; border-color: #a32d2d; color: #5c1414; }
+.art-backend .art-msg--success { background: #e8f3ea; border-color: #2d7a3e; color: #173d1f; }
+
+.art-backend .art-head { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: flex-end; border-bottom: 1px solid var(--art-line); margin: 0 0 1em; }
+.art-backend .art-tabs { display: flex; flex-wrap: wrap; gap: .25em; flex: 1; }
+.art-backend .art-tabs a { padding: .5em .9em; text-decoration: none; color: var(--art-muted); border-bottom: 3px solid transparent; }
+.art-backend .art-tabs a[aria-current="page"] { color: inherit; border-bottom-color: var(--art-accent); font-weight: bold; }
+.art-backend .art-count { font-size: .85em; color: var(--art-muted); font-weight: normal; }
+.art-backend .art-head-actions { display: flex; gap: .5em; padding-bottom: .4em; }
+
+.art-backend .art-button { display: inline-block; padding: .35em .9em; border: 1px solid #9aa3ad; border-radius: 4px; background: #fff; color: inherit; text-decoration: none; cursor: pointer; font: inherit; }
+.art-backend .art-button:hover { background: #f1f3f5; }
+.art-backend .art-button--primary { background: var(--art-accent); border-color: var(--art-accent); color: #fff; }
+.art-backend .art-button--primary:hover { background: #24384f; }
+.art-backend .art-link, .art-backend .art-icon { background: none; border: 0; padding: 0 .2em; color: #1f5fa8; cursor: pointer; font: inherit; text-decoration: underline; }
+.art-backend .art-icon { text-decoration: none; color: var(--art-muted); }
+.art-backend .art-danger { color: #a32d2d; }
+
+.art-backend .art-filter { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: flex-end; margin: 0 0 .8em; }
+.art-backend .art-filter label { display: flex; flex-direction: column; font-size: .9em; }
+
+.art-backend .art-table { width: 100%; border-collapse: collapse; margin: 0 0 1em; }
+.art-backend .art-table th, .art-backend .art-table td { text-align: left; padding: .45em .5em; border-bottom: 1px solid var(--art-line); vertical-align: top; }
+.art-backend .art-table thead th { border-bottom-width: 2px; font-weight: bold; }
+.art-backend .art-table tbody th { font-weight: normal; }
+.art-backend .art-num { text-align: right; font-variant-numeric: tabular-nums; }
+.art-backend .art-nowrap, .art-backend .art-actions { white-space: nowrap; }
+.art-backend .art-actions > * + * { margin-left: .5em; }
+.art-backend .art-check { width: 1.5em; }
+.art-backend .art-order { white-space: nowrap; width: 4.5em; }
+.art-backend .art-grip { cursor: grab; color: var(--art-muted); padding-right: .3em; user-select: none; }
+.art-backend .art-dim th, .art-backend .art-dim td { color: var(--art-muted); }
+.art-backend .art-dragging { opacity: .5; }
+.art-backend .art-drop-before { box-shadow: inset 0 3px 0 var(--art-accent); }
+
+.art-backend .art-status { border: 0; border-radius: 3px; padding: .15em .6em; font: inherit; font-size: .85em; cursor: pointer; }
+.art-backend .art-status--visible { background: #e3f1e6; color: #1d5a2b; }
+.art-backend .art-status--inactive, .art-backend .art-status--hidden { background: #eceef1; color: #4b525c; }
+.art-backend .art-status--planned { background: #fbf0d9; color: #6e4a07; }
+.art-backend .art-status--expired { background: #fbe4e4; color: #7a1f1f; }
+
+.art-backend .art-tag { display: inline-block; padding: .1em .55em; border-radius: 3px; background: #eceef1; font-size: .9em; }
+.art-backend .art-taglist { display: flex; flex-wrap: wrap; gap: .3em .8em; border: 0; padding: 0; margin: .5em 0; }
+.art-backend .art-taglist legend { font-weight: bold; padding: 0 0 .3em; }
+
+.art-backend .art-bulk { display: flex; flex-wrap: wrap; gap: .6em 1em; align-items: flex-end; border: 1px solid var(--art-line); background: #f6f7f9; padding: .6em 1em; }
+.art-backend .art-bulk > label { display: flex; flex-direction: column; font-size: .9em; }
+.art-backend .art-bulk legend { font-weight: bold; }
+
+.art-backend .art-form fieldset { border: 1px solid var(--art-line); padding: .7em 1em; margin: 0 0 1em; }
+.art-backend .art-form legend { font-weight: bold; padding: 0 .3em; }
+.art-backend .art-form > fieldset > label, .art-backend .art-card > label { display: block; margin: .3em 0; }
+.art-backend .art-field { display: block; margin: 0 0 .9em; }
+.art-backend .art-field > input[type="text"], .art-backend .art-field > select, .art-backend .art-field > textarea { display: block; width: 100%; box-sizing: border-box; margin-top: .2em; }
+.art-backend .art-label { display: block; font-weight: bold; margin: 0 0 .3em; }
+.art-backend .art-code { font-family: monospace; font-size: .9em; }
+.art-backend .art-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); gap: 1em; margin: 0 0 1em; }
+.art-backend .art-card { border: 1px solid var(--art-line); padding: .7em 1em; margin: 0; }
+.art-backend .art-card h3 { margin: 0 0 .4em; }
+.art-backend .art-buttons { display: flex; flex-wrap: wrap; gap: .6em; align-items: center; margin: 1em 0 0; }
+
+.art-backend .art-editor-grid { display: grid; grid-template-columns: minmax(0, 1fr) 18em; gap: 1.5em; }
+.art-backend .art-editor-side { display: flex; flex-direction: column; gap: 1em; }
+.art-backend .art-slug { display: flex; gap: .3em; align-items: center; flex-wrap: wrap; }
+.art-backend .art-slug input { flex: 1; min-width: 10em; }
+.art-backend .art-slug input[readonly] { background: #f1f3f5; }
+.art-backend .art-preview { display: block; max-width: 100%; margin: .3em 0; }
+.art-backend .art-gallery { display: flex; flex-wrap: wrap; gap: .8em; list-style: none; padding: 0; margin: 0; }
+.art-backend .art-gallery li { width: 8em; font-size: .85em; }
+.art-backend .art-gallery img { display: block; max-width: 100%; margin-bottom: .2em; }
+.art-backend .art-sizes input[type="number"] { width: 6em; }
+@media (max-width: 800px) { .art-backend .art-editor-grid { grid-template-columns: 1fr; } }

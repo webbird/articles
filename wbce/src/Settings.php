@@ -68,6 +68,80 @@ final class Settings
             ? $name : 'default';
     }
 
+    /** @return list<string> the shipped views first, then own ones in views/<name>/ */
+    public static function views(): array
+    {
+        $own = array_map('basename', array_map('dirname', glob(dirname(__DIR__) . '/views/*/config.php') ?: []));
+        return array_values(array_unique(array_merge(self::VIEWS, array_filter($own, static fn (string $v): bool => self::view($v) === $v))));
+    }
+
+    public static function get(\Database $db, int $sectionId): ?array
+    {
+        return $db->fetchRow('SELECT * FROM `{TP}mod_articles_settings` WHERE `section_id` = ?', [$sectionId]);
+    }
+
+    /**
+     * Saves the form of the settings page; $in holds the posted strings.
+     * Another view loads its templates, another gallery its detail content and
+     * image loop (news_img did the same). Templates from the form count only
+     * in expert mode. "Admins only" can only be changed by admins.
+     */
+    public static function save(\Database $db, int $sectionId, array $in, bool $isAdmin): void
+    {
+        $old = self::get($db, $sectionId) ?? throw new \DomainException('ERR_SECTION');
+        $int = static fn (string $key, int $min, int $max): int => max($min, min($max, (int) ($in[$key] ?? 0)));
+        $flag = static fn (string $key): int => ($in[$key] ?? '') === '1' ? 1 : 0;
+
+        $row = [
+            'sort_order'   => $int('sort_order', 0, count(Articles::ORDER) - 1),
+            'per_page'     => $int('per_page', 0, 999),
+            'use_block2'   => $flag('use_block2'),
+            'view'         => self::view((string) ($in['view'] ?? '')),
+            'gallery'      => in_array($in['gallery'] ?? '', self::GALLERIES, true) ? $in['gallery'] : 'fotorama',
+            'articles_dir' => (string) preg_replace('/[^a-zA-Z0-9_-]/', '', (string) ($in['articles_dir'] ?? '')),
+            'expert_mode'  => $flag('expert_mode'),
+            // MB in the form, bytes in the table; never above what PHP accepts
+            'max_upload'   => min($int('max_upload', 1, 2048) * 1048576, ini_parse_quantity((string) ini_get('upload_max_filesize'))),
+            'settings_admins_only' => $isAdmin ? $flag('settings_admins_only') : (int) $old['settings_admins_only'],
+        ];
+        foreach (['preview', 'thumb', 'large'] as $size) {
+            $row[$size . '_width'] = $int($size . '_width', 1, 9999);
+            $row[$size . '_height'] = $int($size . '_height', 1, 9999);
+            $row[$size . '_crop'] = $flag($size . '_crop');
+        }
+        if ((int) $old['expert_mode'] === 1 && $row['expert_mode'] === 1) {
+            foreach (self::VIEW_TEMPLATES as $column) {
+                // browsers send CRLF from textareas
+                $row[$column] = is_string($in[$column] ?? null) ? str_replace("\r\n", "\n", $in[$column]) : (string) $old[$column];
+            }
+        }
+        if ($row['view'] !== $old['view']) {
+            $row = self::viewTemplates($row['view']) + $row;
+        }
+        if ($row['gallery'] !== $old['gallery']) {
+            $row = self::galleryTemplates($row['gallery']) + $row;
+        }
+
+        $set = implode(', ', array_map(static fn (string $column): string => "`$column` = ?", array_keys($row)));
+        Articles::exec($db, "UPDATE `{TP}mod_articles_settings` SET $set WHERE `section_id` = ?", [...array_values($row), $sectionId]);
+    }
+
+    /** Detail content and image loop of js/galleries/<gallery>/settings.php, only the variables it sets. */
+    public static function galleryTemplates(string $gallery): array
+    {
+        if (!in_array($gallery, self::GALLERIES, true)) {
+            return [];
+        }
+        $vars = (static function (string $file): array {
+            include $file;
+            return get_defined_vars();
+        })(dirname(__DIR__) . "/js/galleries/$gallery/settings.php");
+        return array_filter([
+            'tpl_detail_content' => $vars['post_content'] ?? null,
+            'tpl_image_loop'     => $vars['image_loop'] ?? null,
+        ], 'is_string');
+    }
+
     /** Template columns from views/<view>/config.php; every column is set, missing variables become ''. */
     public static function viewTemplates(string $view): array
     {

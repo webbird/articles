@@ -1,0 +1,94 @@
+{#
+    articles/twig/modify_article.twig – add or edit one article
+#}
+<div class="mod_articles art-backend" data-art-section="{{ section_id }}">
+    <p class="art-back"><a href="{{ url_list }}">← {{ t('BACK_TO_LIST') }}</a></p>
+    <h2>{{ exists ? t('EDIT_ARTICLE') : t('ADD_ARTICLE') }}</h2>
+    {% include '_messages.twig' %}
+
+    <form class="art-form art-editor" action="{{ action }}" method="post">
+        {% include '_hidden.twig' %}
+        <input type="hidden" name="art_action" value="article_save">
+        <input type="hidden" name="article_id" value="{{ form.article_id }}">
+
+        <div class="art-editor-grid">
+            <div class="art-editor-main">
+                <label class="art-field">{{ t('TITLE') }}
+                    <input type="text" name="title" value="{{ form.title }}" required maxlength="255" data-art-title>
+                </label>
+                <div class="art-field">
+                    <label for="art-slug-{{ section_id }}">{{ t('SLUG') }}</label>
+                    <div class="art-slug">
+                        <span class="art-muted">{{ link_prefix }}</span>
+                        <input type="text" id="art-slug-{{ section_id }}" name="slug" value="{{ form.slug }}" maxlength="200"
+                               {% if form.slug_locked %}readonly{% endif %} data-art-slug aria-describedby="art-slug-hint-{{ section_id }}">
+                        <span class="art-muted">{{ link_suffix }}</span>
+                        <button type="button" class="art-button" data-art-slug-toggle aria-pressed="{{ form.slug_locked ? 'false' : 'true' }}">{{ t('SLUG_EDIT') }}</button>
+                        <input type="hidden" name="slug_locked" value="{{ form.slug_locked ? 1 : 0 }}" data-art-slug-locked>
+                    </div>
+                    <small id="art-slug-hint-{{ section_id }}" class="art-muted">{{ t('SLUG_HINT') }}</small>
+                </div>
+                <div class="art-field"><span class="art-label">{{ t('TEASER') }}</span>{{ editor_teaser|raw }}</div>
+                <div class="art-field"><span class="art-label">{{ t('CONTENT') }}</span>{{ editor_content|raw }}</div>
+                {% if use_block2 %}
+                    <div class="art-field"><span class="art-label">{{ t('BLOCK2') }}</span>{{ editor_block2|raw }}
+                        <small class="art-muted">{{ t('BLOCK2_HINT') }}</small></div>
+                {% endif %}
+            </div>
+
+            <div class="art-editor-side">
+                <fieldset class="art-card">
+                    <legend>{{ t('PUBLISHING') }}</legend>
+                    <label><input type="checkbox" name="active" value="1"{% if form.active %} checked{% endif %}> {{ t('ACTIVE') }}</label>
+                    <label class="art-field">{{ t('PUBLISHED_FROM') }} <input type="datetime-local" name="published_from" value="{{ form.published_from }}"></label>
+                    <label class="art-field">{{ t('PUBLISHED_UNTIL') }} <input type="datetime-local" name="published_until" value="{{ form.published_until }}"></label>
+                    <small class="art-muted">{{ t('PERIOD_HINT') }}</small>
+                </fieldset>
+
+                <fieldset class="art-card">
+                    <legend>{{ t('PLACEMENT') }}</legend>
+                    <label class="art-field">{{ t('SECTION_AND_GROUP') }}
+                        <select name="place">
+                            {% for place in places %}
+                                <optgroup label="{{ place.label }}">
+                                    {% for o in place.options %}<option value="{{ o.value }}"{% if o.value == form.place %} selected{% endif %}>{{ o.label }}</option>{% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <fieldset class="art-taglist">
+                        <legend>{{ t('TAGS') }}</legend>
+                        {% for tag in tags %}
+                            <label><input type="checkbox" name="tags[]" value="{{ tag.id }}"{% if tag.id in form.tags %} checked{% endif %}> <span class="art-tag"{{ tag.style|raw }}>{{ tag.title }}</span></label>
+                        {% else %}
+                            <span class="art-muted">{{ t('NO_TAGS') }}</span>
+                        {% endfor %}
+                    </fieldset>
+                    <small class="art-muted">{{ t('PLACEMENT_HINT') }}</small>
+                </fieldset>
+
+                <div class="art-card">
+                    <span class="art-label">{{ t('PREVIEW_IMAGE') }}</span>
+                    {% if preview %}<img src="{{ preview }}" alt="" class="art-preview">{% else %}<p class="art-muted">{{ t('NO_IMAGE') }}</p>{% endif %}
+                    <small class="art-muted">{{ t('IMAGES_LATER') }}</small>
+                </div>
+            </div>
+        </div>
+
+        {% if images %}
+            <div class="art-field">
+                <span class="art-label">{{ t('GALLERY') }}</span>
+                <ul class="art-gallery">
+                    {% for image in images %}<li>{% if image.url %}<img src="{{ image.url }}" alt="">{% endif %}<span>{{ image.caption }}</span></li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="art-buttons">
+            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+            <button type="submit" class="art-button" name="save_back" value="1">{{ t('SAVE_BACK') }}</button>
+            {% if url_view %}<a class="art-button" href="{{ url_view }}" target="_blank" rel="noopener">{{ t('VIEW') }}</a>{% endif %}
+            <a href="{{ url_list }}">{{ t('CANCEL') }}</a>
+        </div>
+    </form>
+</div>

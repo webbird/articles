@@ -1,0 +1,106 @@
+{#
+    articles/twig/modify_settings.twig – settings of a section, blocks instead of tabs
+#}
+<div class="mod_articles art-backend" data-art-section="{{ section_id }}">
+    <p class="art-back"><a href="{{ url_list }}">← {{ t('BACK_TO_LIST') }}</a></p>
+    <h2>{{ t('SETTINGS') }}</h2>
+    {% include '_messages.twig' %}
+
+    <form class="art-form" action="{{ action }}" method="post">
+        {% include '_hidden.twig' %}
+        <input type="hidden" name="art_action" value="settings_save">
+
+        <div class="art-cards">
+            <fieldset class="art-card">
+                <legend>{{ t('LIST') }}</legend>
+                <label class="art-field">{{ t('SORT_ORDER') }}
+                    <select name="sort_order">
+                        {% for o in orders %}<option value="{{ o }}"{% if o == form.sort_order %} selected{% endif %}>{{ t('ORDER_' ~ o) }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label class="art-field">{{ t('PER_PAGE') }}
+                    <input type="number" name="per_page" value="{{ form.per_page }}" min="0" max="999" aria-describedby="art-per-page-{{ section_id }}">
+                </label>
+                <small id="art-per-page-{{ section_id }}" class="art-muted">{{ t('PER_PAGE_HINT') }}</small>
+            </fieldset>
+
+            <fieldset class="art-card">
+                <legend>{{ t('DISPLAY') }}</legend>
+                <label class="art-field">{{ t('VIEW_NAME') }}
+                    <select name="view" data-art-preset="{{ t('CONFIRM_VIEW') }}" data-art-initial="{{ form.view }}">
+                        {% for v in views %}<option value="{{ v }}"{% if v == form.view %} selected{% endif %}>{{ v }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label class="art-field">{{ t('GALLERY') }}
+                    <select name="gallery" data-art-preset="{{ t('CONFIRM_GALLERY') }}" data-art-initial="{{ form.gallery }}">
+                        {% for g in galleries %}<option value="{{ g }}"{% if g == form.gallery %} selected{% endif %}>{{ t('GALLERY_' ~ g|upper) }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label><input type="checkbox" name="use_block2" value="1"{% if form.use_block2 %} checked{% endif %}> {{ t('USE_BLOCK2') }}</label>
+                <small class="art-muted">{{ t('PRESET_HINT') }}</small>
+            </fieldset>
+        </div>
+
+        <fieldset class="art-card">
+            <legend>{{ t('IMAGE_SIZES') }}</legend>
+            <table class="art-table art-sizes">
+                <thead><tr>
+                    <th scope="col"><span class="art-sr">{{ t('SIZE') }}</span></th>
+                    <th scope="col">{{ t('WIDTH') }}</th><th scope="col">{{ t('HEIGHT') }}</th>
+                    <th scope="col">{{ t('CROP') }}</th><th scope="col">{{ t('USED_FOR') }}</th>
+                </tr></thead>
+                <tbody>
+                {% for size in ['preview', 'thumb', 'large'] %}
+                    <tr>
+                        <th scope="row">{{ t('SIZE_' ~ size|upper) }}</th>
+                        <td><input type="number" name="{{ size }}_width" value="{{ form[size ~ '_width'] }}" min="1" max="9999" aria-label="{{ t('SIZE_' ~ size|upper) }}: {{ t('WIDTH') }}"></td>
+                        <td><input type="number" name="{{ size }}_height" value="{{ form[size ~ '_height'] }}" min="1" max="9999" aria-label="{{ t('SIZE_' ~ size|upper) }}: {{ t('HEIGHT') }}"></td>
+                        <td><input type="checkbox" name="{{ size }}_crop" value="1"{% if form[size ~ '_crop'] %} checked{% endif %} aria-label="{{ t('SIZE_' ~ size|upper) }}: {{ t('CROP') }}"></td>
+                        <td class="art-muted">{{ t('SIZE_' ~ size|upper ~ '_USE') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <label class="art-field">{{ t('MAX_UPLOAD') }}
+                <input type="number" name="max_upload" value="{{ form.max_upload }}" min="1" max="{{ upload_limit }}"> MB
+            </label>
+            <small class="art-muted">{{ t('IMAGE_SIZES_HINT', upload_limit) }}</small>
+        </fieldset>
+
+        <div class="art-cards">
+            <fieldset class="art-card">
+                <legend>{{ t('ARTICLES_DIR') }}</legend>
+                <label class="art-field">{{ t('ARTICLES_DIR_LABEL') }}
+                    <input type="text" name="articles_dir" value="{{ form.articles_dir }}" placeholder="{{ dir_default }}" pattern="[a-zA-Z0-9_\-]*" maxlength="100">
+                </label>
+                <small class="art-muted">{{ t('ARTICLES_DIR_HINT', dir_default) }}</small>
+            </fieldset>
+            <fieldset class="art-card">
+                <legend>{{ t('OPTIONS') }}</legend>
+                <label><input type="checkbox" name="expert_mode" value="1"{% if form.expert_mode %} checked{% endif %}> {{ t('EXPERT_MODE') }}</label>
+                {% if is_admin %}
+                    <label><input type="checkbox" name="settings_admins_only" value="1"{% if form.settings_admins_only %} checked{% endif %}> {{ t('SETTINGS_ADMINS_ONLY') }}</label>
+                {% endif %}
+                <small class="art-muted">{{ t('EXPERT_MODE_HINT') }}</small>
+            </fieldset>
+        </div>
+
+        {% if form.expert_mode %}
+            <fieldset class="art-card">
+                <legend>{{ t('TEMPLATES') }}</legend>
+                {% for name in templates %}
+                    <label class="art-field">{{ t(name|upper) }}
+                        <textarea name="{{ name }}" rows="{{ name in ['tpl_list_item', 'tpl_detail_content'] ? 12 : 5 }}" spellcheck="false" class="art-code">{{ "\n" ~ form[name] }}</textarea>{# the HTML parser drops the first newline; this one, so a leading newline of the value survives #}
+                    </label>
+                {% endfor %}
+                <small class="art-muted">{{ t('TEMPLATES_HINT') }}</small>
+            </fieldset>
+        {% endif %}
+
+        <div class="art-buttons">
+            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+            <button type="submit" class="art-button" name="save_back" value="1">{{ t('SAVE_BACK') }}</button>
+            <a href="{{ url_list }}">{{ t('CANCEL') }}</a>
+        </div>
+    </form>
+</div>

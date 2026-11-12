@@ -34,23 +34,23 @@ Diese Liste ist die Abnahmecheckliste.
 
 ### Backend: Artikel
 
-- [ ] Liste mit Gruppe, Aktiv-Status, Tag-Anzahl, Zeitraum und Zeitraum-Icon
-- [ ] Sortieren per Drag & Drop und Pfeilen, nur bei benutzerdefinierter Reihenfolge
-- [ ] Aktivieren/Deaktivieren und Löschen einzeln
-- [ ] Massenaktionen: kopieren und verschieben (je mit oder ohne Tags), auch in andere Sections und Seiten; löschen; aktivieren; deaktivieren; Gruppe setzen; Tags setzen; Start- oder Enddatum leeren
-- [ ] Kopien sind inaktiv, ihre Bilder werden mitkopiert
-- [ ] Editor: Titel, Slug, Vorschaubild, Aktiv, Start und Ende, Tags, Gruppe inklusive Wechsel der Section, Kurztext, Langtext, Block 2
-- [ ] „Speichern“ und „Speichern und zurück“, dazu der Ansehen-Link aufs Frontend
-- [ ] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen
-- [ ] Wartung: Access-Dateien erneuern, Artikel ins aktuelle Verzeichnis verschieben, Bildgrößen neu berechnen
+- [x] Liste mit Gruppe, Status, Tag-Anzahl und Zeitraum. Statt des Zeitraum-Icons nennt der Status den Grund: sichtbar, inaktiv, geplant, abgelaufen, versteckt (inaktive Gruppe). Dazu Filter nach Gruppe, Status und Titel
+- [x] Sortieren per Drag & Drop und Pfeilen, nur bei benutzerdefinierter Reihenfolge und ohne Filter
+- [x] Aktivieren/Deaktivieren und Löschen einzeln
+- [x] Massenaktionen: kopieren und verschieben (je mit oder ohne Tags), auch in andere Sections und Seiten; löschen; aktivieren; deaktivieren; Gruppe setzen; Tags setzen; Start- oder Enddatum leeren; Verschieben in eine andere Section legt dort fehlende lokale Tags mit gleichem Namen und gleicher Farbe an und nutzt vorhandene
+- [x] Kopien sind inaktiv, ihre Bilder werden mitkopiert
+- [ ] Editor: Titel, Slug, Vorschaubild, Aktiv, Start und Ende, Tags, Gruppe inklusive Wechsel der Section, Kurztext, Langtext, Block 2 (fertig bis auf das Hochladen des Vorschaubilds, Phase 5)
+- [x] „Speichern“ und „Speichern und zurück“, dazu der Ansehen-Link aufs Frontend
+- [ ] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen (Phase 5; der Editor zeigt die Bilder bisher nur an)
+- [ ] Wartung: Access-Dateien erneuern, Artikel ins aktuelle Verzeichnis verschieben, Bildgrößen neu berechnen (Access-Dateien fertig, der Rest mit Phase 5)
 
 ### Backend: Gruppen, Tags, Einstellungen
 
-- [ ] Gruppen: anlegen, bearbeiten, löschen, sortieren, Bild, Aktiv-Schalter
-- [ ] Tags: anlegen, bearbeiten, löschen, Hintergrund- und Schriftfarbe, global oder pro Section; globale Tags nur für Admins
-- [ ] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Auswahl aus den Bildern der Section), „nur für Admins“
-- [ ] Wechsel von View oder Galerie lädt deren Vorgaben, Wechsel der Galerie nur nach Warnung
-- [ ] Import in leere Sections aus `news_img`, `articles`, News und Topics (Abschnitt 6)
+- [ ] Gruppen: anlegen, bearbeiten, löschen, sortieren, Bild, Aktiv-Schalter (fertig bis auf das Bild, Phase 5)
+- [x] Tags: anlegen, bearbeiten, löschen, Hintergrund- und Schriftfarbe, global oder pro Section; globale Tags nur für Admins
+- [ ] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Auswahl aus den Bildern der Section), „nur für Admins“ (fertig bis auf das Standard-Vorschaubild, Phase 5)
+- [x] Wechsel von View oder Galerie lädt deren Vorgaben, Wechsel der Galerie nur nach Warnung
+- [ ] Import in leere Sections aus `news_img`, `articles`, News und Topics (Abschnitt 6) (aus `news_img` fertig, im Reiter „Wartung“; der Rest mit Phase 6)
 - [ ] Demo-Packs in leere Sections, mit Allowlist für Settings
 
 ### Frontend
@@ -149,7 +149,9 @@ Der Namespace ist `Articles\`, der Autoloader steht wie bei `reservations` in `b
 3. Jede Aktion nennt ihren Zieltyp. `Access` löst das Objekt auf dessen Seite auf und prüft sie. Bei Massenaktionen gilt das für jede ID, bei Kopieren und Verschieben auch für das Ziel.
 4. Schreibende Aktionen laufen nur per POST mit `checkFTAN()`, danach folgt ein Redirect (PRG).
 
-Damit gibt es keine Statusänderung per GET und kein IDKEY. Toggle, Löschen und Pfeile sind Formular-Buttons. Upload und Sortierung nutzen denselben Einstieg und antworten mit JSON.
+Damit gibt es keine Statusänderung per GET und kein IDKEY. Toggle, Löschen und Pfeile sind Formular-Buttons. Drag & Drop schickt die neue Reihenfolge als normales Formular ab, ebenfalls mit Redirect. Der Upload (Phase 5) nutzt denselben Einstieg und antwortet mit JSON.
+
+Umgesetzt in Phase 4: `Access` (Rechte), `Backend` (Masken, Texte, Flash-Meldungen), `Groups`, `Tags`, `Settings::save()` und die Schreibmethoden in `Articles`. Die Masken liegen in `twig/`, Verhalten und Optik in `assets/backend_body.js` und `assets/backend.css`; WBCE bindet beide selbst ein.
 
 Das löst die Hauptursache der Sicherheitsfixes in `news_img`: Prüfungen stehen nicht mehr in jeder Datei einzeln.
 
@@ -189,7 +191,7 @@ Twig über `getTwig()` mit `setDefaultStrategy('html')`, wie in `reservations`. 
 
 | In news_img | In articles |
 |---|---|
-| xdsoft- und nehakadam-Datepicker | Core: `include/date_time_picker` (flatpickr) |
+| xdsoft- und nehakadam-Datepicker | Native Felder `datetime-local`, ohne Bibliothek (flatpickr aus dem Core wäre die Alternative) |
 | Spectrum | Core: `include/wbeColoris` |
 | Font Awesome | Core: `include/font-awesome` |
 | Eigene GD-Routine | Core: `claviska\SimpleImage`, Upload-Prüfung im Modul |
