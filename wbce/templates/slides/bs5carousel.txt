@@ -1,0 +1,65 @@
+<?php // ***** Display the entire block only if there is at least one slide *****
+if(is_array($posts) && !empty($posts)):
+?>
+            <div id="myCarousel" class="carousel slide carousel-fade mb-6" data-bs-ride="carousel" data-bs-interval="6000">
+                <div class="carousel-indicators">
+<?php
+    $first = true;
+    $i = 1;
+    foreach($posts as $p):
+        if($p['image_url'] !== ''):
+?>
+                    <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="<?= ($i-1) ?>" aria-label="Slide <?= $i ?>"<?php if($first): ?> class="active" aria-current="true"<?php endif; ?>>
+                    </button>
+<?php
+            $first = false;
+            $i++;
+        endif;
+    endforeach;
+?>
+                </div>
+                <div class="carousel-inner">
+<?php
+    $first = true;
+    foreach($posts as $p):
+        if($p['image_url'] !== ''):
+?>
+                    <div class="carousel-item<?php if($first): ?> active<?php endif; ?>">
+                        <img
+                            src="<?= $p['image_url'] ?>"
+                            alt=""
+                            aria-hidden="true"
+                            class="d-block w-100"
+                        />
+                        <div class="container">
+                            <div class="carousel-caption text-start">
+                                <h1><?= $p['title'] ?></h1>
+                                <p class="opacity-75">
+                                    <?= $p['content_short'] ?>
+                                </p>
+                                <p>
+                                    <?= $p['content_long'] ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+<?php
+            $first = false;
+        endif;
+    endforeach;
+?>
+            </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true">
+                    </span>
+                    <span class="visually-hidden">Previous
+                    </span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#myCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true">
+                    </span>
+                    <span class="visually-hidden">Next
+                    </span>
+                </button>
+            </div>
+<?php endif; ?>

@@ -55,21 +55,21 @@ Diese Liste ist die Abnahmecheckliste.
 
 ### Frontend
 
-- [ ] Liste mit Paging, Filter über `g`, `tags`, `m`/`y`/`method`
-- [ ] Detailseite über Access-Dateien, Vor/Zurück innerhalb der Gruppe
-- [ ] Block 2 über `MODULES_BLOCK2`, `NEWS_BLOCK2`, `TOPIC_BLOCK2`; die Core-Templates fragen `MODULES_BLOCK2` ab
-- [ ] Alle Platzhalter (Abschnitt 3), `{SYSVAR:MEDIA_REL}`, Tag-Farben mit Auto-Kontrast
-- [ ] „Weiterlesen“ nur bei Langtext oder Galerie
-- [ ] Bild-Fallback: Artikel, Section-Standardbild, Gruppe, Platzhalterkachel mit Initiale
-- [ ] Views `default`, `grid`, `avatar` und eigene Views
-- [ ] Galerien Fotorama, Masonry, Lightcase, keine
-- [ ] Keywords-Meta aus den Tags
-- [ ] Sichtbarkeit überall gleich: aktiv, Titel vorhanden, im Zeitraum, Gruppe aktiv oder keine Gruppe
+- [x] Liste mit Paging, Filter über `g`, `tags`, `m`/`y`/`method`
+- [x] Detailseite über Access-Dateien, Vor/Zurück innerhalb der Gruppe
+- [x] Block 2 über `MODULES_BLOCK2`, `NEWS_BLOCK2`, `TOPIC_BLOCK2`; die Core-Templates fragen `MODULES_BLOCK2` ab
+- [x] Alle Platzhalter (Abschnitt 3), `{SYSVAR:MEDIA_REL}`, Tag-Farben mit Auto-Kontrast
+- [x] „Weiterlesen“ nur bei Langtext oder Galerie
+- [x] Bild-Fallback: Artikel, Gruppe, Section-Standardbild, in Listen danach eine Platzhalterkachel mit Initiale (Reihenfolge wie `news_img` v6.0)
+- [ ] Views `default`, `grid`, `avatar` und eigene Views (übernommen, bisher nur `default` im Vergleich)
+- [ ] Galerien Fotorama, Masonry, Lightcase, keine (übernommen, bisher nur Fotorama im Vergleich)
+- [x] Keywords-Meta aus den Tags
+- [x] Sichtbarkeit überall gleich: aktiv, Titel vorhanden, im Zeitraum, Gruppe aktiv oder keine Gruppe
 
 ### Anbindung
 
-- [ ] RSS mit Filter nach Gruppe, Suche, LinkResolver für TinyMCE und `[articles:NN]`
-- [ ] Droplets für Artikellisten (Gegenstück zu `fetchNewsItems`) und Slider
+- [x] RSS mit Filter nach Gruppe, Suche, LinkResolver für TinyMCE und `[articles:NN]` (TinyMCE-Linkauswahl noch nicht im Backend angesehen)
+- [x] Droplets für Artikellisten (Gegenstück zu `fetchNewsItems`) und Slider
 
 ## 3. Verhältnis zu news_img
 
@@ -99,7 +99,7 @@ In der Bild-Schleife: `[IMAGE] [DESCRIPTION] [THUMB] [THUMBWIDTH] [THUMBHEIGHT] 
 | CSS-Klassen | `mod_nwi_*` | `mod_articles_*` |
 | Konstanten in Access-Dateien | `POST_ID`, `POST_SECTION` | `ARTICLE_ID`, `ARTICLE_SECTION` |
 | LinkResolver | `[news_img:NN]` | `[articles:NN]`, Klasse `ArticlesLinkResolver` |
-| Droplets | `fetchNewsItems`, `nwi_slider` | `articles_list`, `articles_slider` |
+| Droplets | `fetchNewsItems`, `nwi_slider` | `articles_list` mit denselben Parametern wie `fetchNewsItems`, `articles_slider?section_id=` |
 | PHP-Schnittstelle für Droplets | `mod_nwi_get_news_items()` in `functions.inc.php` | Methoden der Klasse `Articles\Api` |
 | Rechteprüfung | in jeder Aktionsdatei einzeln | zentral (Abschnitt 4) |
 
@@ -259,7 +259,7 @@ Getrennte Spalten für Erstellung und Änderung lösen zwei Altlasten aus `news_
 - `CREATED_DATE` kam dort aus dem Änderungsdatum der Access-Datei und ging bei Backups verloren.
 - `posted_when` wurde bei jedem Speichern überschrieben.
 
-`install_struct.sql` läuft über `importSql()`. Dummy-Zeilen und `{TP}search`-Einträge gibt es nicht, die Suche läuft über `search.php`. In Phase 3 wird an `search/search.php` geprüft, ob der Core die Einträge trotzdem braucht.
+`install_struct.sql` läuft über `importSql()`. Dummy-Zeilen und `{TP}search`-Einträge gibt es nicht, die Suche läuft über `search.php`. Geprüft in Phase 3: `search/search.php` liest `{TP}search` nur für Module ohne eigene Suchfunktion.
 
 `precheck.php` verlangt WBCE ≥ 1.7.0 und PHP ≥ 8.2, wie `reservations`. `upgrade.php` ist nur für spätere eigene Versionen da.
 
@@ -271,15 +271,15 @@ Der Import füllt eine leere `articles`-Section aus einer anderen Section. Die Q
 
 | Quelle | Ziel |
 |---|---|
-| Section-Settings | Templates mit `mod_nwi_` → `mod_articles_`, View und Galerie übernommen. Unbekannte Views, etwa `faq` aus 5.0.x, werden zu `default` mit Hinweis im Bericht |
+| Section-Settings | Überschreiben die Einstellungen der Ziel-Section. Templates mit `mod_nwi_` → `mod_articles_`, View und Galerie übernommen. Unbekannte Views, etwa `faq` aus 5.0.x, werden zu `default`, unbekannte Galerien zu `fotorama`, jeweils mit Hinweis im Bericht. `mode = advanced` wird zum Expertenmodus, `posts_dir` zum Zielverzeichnis |
 | Bildgrößen | `resize_preview` → Vorschau, `imgthumbsize` → Thumbnail, `imgmaxwidth`/`imgmaxheight` → Großansicht. `crop_preview` landet auf allen drei Zuschnitt-Schaltern, damit das Ergebnis gleich aussieht |
 | Gruppen | Mit Bild, Aktiv-Status und Reihenfolge |
-| Tags | Pro Section neu angelegt. Globale Tags werden einmal angelegt und über ihren Namen wiederverwendet |
-| Beiträge | Alle Felder. `created_at` aus dem Dateidatum der Access-Datei, sonst aus `posted_when` |
-| Bilder | Vorschau-, Galerie-, Gruppen- und Standardbilder werden kopiert, nicht verschoben. Originale gibt es in `news_img` nicht mehr, die bereits verkleinerten Dateien gelten daher als Original |
+| Tags | Die lokalen Tags der Quell-Section und alle Tags ihrer Beiträge. Lokale werden pro Section neu angelegt. Globale Tags werden einmal angelegt und über ihren Namen wiederverwendet |
+| Beiträge | Alle, auch inaktive. `created_at` aus dem Dateidatum der Access-Datei, sonst aus `posted_when`. `modified_at` aus `posted_when`, Autor aus `posted_by`. Der Link entsteht neu aus Zielverzeichnis, Slug der Quelle und neuer ID |
+| Bilder | Vorschau-, Galerie-, Gruppen- und Standardbilder werden kopiert, nicht verschoben. Originale gibt es in `news_img` nicht mehr, die bereits verkleinerten Dateien gelten daher als Original und zugleich als abgeleitete Größe: Vorschau nach `items/<id>/` und `preview/`, Galeriebild nach `items/<id>/` und `large/`, Galerie-Thumbnail nach `thumb/`. So sieht die importierte Section aus wie die Quelle, ohne neu zu kodieren. Heißt das Vorschaubild wie ein Galeriebild, bekommt es eine Nummer. Fehlende Dateien stehen im Bericht |
 | Zuordnung | Jede Paarung landet in `mod_articles_import` |
 
-Danach legt `AccessFiles` die Dateien für die neuen Artikel an.
+Danach legt `AccessFiles` die Dateien für die sichtbaren neuen Artikel an. Die Datenbank wird in einer Transaktion geschrieben, die Dateien danach. Links in Inhalten auf `.news_img/` bleiben gültig, solange `news_img` mit seinen Medien installiert ist.
 
 ### Weitere Quellen
 
@@ -338,8 +338,18 @@ Der Import kommt vor dem Lesepfad. So liefert er die Daten, an denen sich der Le
 
 ## 10. Tests
 
-- **Vergleich mit der Quelle:** Die importierte Section muss dasselbe HTML liefern wie die `news_img`-Quelle, bis auf die umbenannten CSS-Klassen. Das gilt für Liste, Detail, RSS und Droplet. Jede Abweichung wird begründet.
-- **Unit-Tests:** PHPUnit für `Placeholders`, Sichtbarkeit, Slug und Link, Bildgrößen, Upload-Validierung, Tag-Kontrast, die Abbildung im Import.
+- **Vergleich mit der Quelle:** Die importierte Section muss dasselbe HTML liefern wie die `news_img`-Quelle, bis auf die umbenannten CSS-Klassen. Das gilt für Liste, Detail, RSS und Droplet. Jede Abweichung wird begründet. `tests/reference/compare.php` ruft dieselben Ansichten der `articles`-Section ab, rechnet URLs, IDs und Bildordner um und legt beide Seiten zeilenweise für `diff` ab.
+- **Abweichungen von 5.0.32** (Stand Phase 3), alle gewollt:
+  - Tags bekommen ohne eigene Schriftfarbe eine Kontrastfarbe (v6.0).
+  - Artikel ohne Langtext und Galerie verlinken trotzdem auf ihre Detailseite; der `#`-Link mit `onclick` entfällt. `[SHOW_READ_MORE]` blendet „Weiterlesen“ weiter aus, `[HREF]`, `[AOPEN]` und `[ACLOSE]` bleiben dann leer (v6.0).
+  - Ohne Vorschaubild folgt das Gruppenbild, dann das Standardbild der Section, in Listen zuletzt eine Kachel mit Initiale, auf der Detailseite nichts. `nopic.png` gibt es nicht mehr (v6.0).
+  - Eine inaktive Gruppe versteckt ihre Artikel überall, auch in Zählung, Vor/Zurück und RSS (Variante A).
+  - Ungültige Parameter wie `?g=-1` werden ignoriert, die Liste erscheint ungefiltert (v6.0). 5.0.32 zeigt „Nichts gefunden“.
+  - Titel, Gruppen- und Benutzernamen werden escaped; nach dem Dekodieren der Entities ist der Text gleich.
+  - `[CREATED_DATE]` und `[CREATED_TIME]` sind gefüllt (in `news_img` immer leer), `[PUBLISHED_DATE]` ohne Startdatum zeigt das Erstelldatum statt 1970.
+  - Droplet-Links übernehmen kein `?g=` aus der aufrufenden Seite, `aslist` nutzt die Klassen `mod_articles_list` und `mod_articles_list_item`.
+  - RSS löst `[wblinkNN]` und `[schlüssel:NN]` über den Core-`LinkResolver` auf und antwortet bei unpassender Seite, Section oder Gruppe mit 404.
+- **Unit-Tests:** PHPUnit (`phpunit.xml.dist`, vorerst mit dem PHPUnit 11 aus `reservations/core/vendor`) für `Placeholders`, Sichtbarkeit, Slug und Link, Bildgrößen, Upload-Validierung, Tag-Kontrast, die Abbildung im Import.
 - **Rechte:** Für jede Aktion ein Test mit fremder Objekt-ID.
 - **Matrix:** PHP 8.3 und 8.5 mit `error_reporting=E_ALL`, jeweils MariaDB. Dazu SQLite: `pdo_sqlite` ist in PHP 8.5 aktiv und lässt sich in der Portable-PHP mit `-d extension=pdo_sqlite` laden.
 

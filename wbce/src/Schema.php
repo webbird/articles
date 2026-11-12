@@ -42,6 +42,39 @@ final class Schema
         }
     }
 
+    /**
+     * Imports droplets/*.php in the format of the droplets module (<?php, //:description,
+     * //:usage, code) and updates existing ones by name. Done here because the module's
+     * own importDropletFromFile() needs the backend (getTwig). The droplets stay on
+     * uninstall and then return ''.
+     */
+    public static function installDroplets(\Database $db): void
+    {
+        if (!$db->fetchValue("SELECT COUNT(*) FROM `{TP}addons` WHERE `type` = 'module' AND `directory` = 'droplets'")) {
+            return;
+        }
+        foreach (glob(dirname(__DIR__) . '/droplets/*.php') ?: [] as $file) {
+            [, $description, $usage] = $lines = file($file);
+            $row = [
+                'name'          => basename($file, '.php'),
+                'code'          => implode('', array_slice($lines, 3)),
+                'description'   => trim(substr($description, 3)),
+                'comments'      => trim(substr($usage, 3)),
+                'modified_when' => time(),
+                'modified_by'   => 0,
+                'active'        => 1,
+                'admin_edit'    => 0,
+                'admin_view'    => 0,
+                'show_wysiwyg'  => 0,
+            ];
+            $id = $db->fetchValue('SELECT `id` FROM `{TP}mod_droplets` WHERE `name` = ?', [$row['name']]);
+            $result = $id === '' ? $db->insertRow('{TP}mod_droplets', $row) : $db->upsertRow('{TP}mod_droplets', 'id', ['id' => (int) $id] + $row);
+            if ($result !== true) {
+                throw new \RuntimeException('articles install: droplet ' . $row['name'] . ': ' . (is_string($result) ? $result : $db->getError()));
+            }
+        }
+    }
+
     public static function uninstall(\Database $db): void
     {
         foreach (self::TABLES as $table) {

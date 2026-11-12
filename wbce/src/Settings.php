@@ -12,17 +12,24 @@ namespace Articles;
 
 final class Settings
 {
-    /** Values of a new section; image sizes as in news_img's add.php. */
+    /** Views shipped with the module; own views in views/<name>/ are allowed as well. */
+    public const VIEWS     = ['default', 'grid', 'avatar'];
+    public const GALLERIES = ['fotorama', 'masonry', 'lightcase', 'none'];
+
+    /** Variables of views/<name>/config.php (format of news_img, so its views can be copied) => columns. */
+    private const VIEW_TEMPLATES = [
+        'header'       => 'tpl_list_header',
+        'post_loop'    => 'tpl_list_item',
+        'footer'       => 'tpl_list_footer',
+        'post_header'  => 'tpl_detail_header',
+        'post_content' => 'tpl_detail_content',
+        'post_footer'  => 'tpl_detail_footer',
+        'image_loop'   => 'tpl_image_loop',
+        'block2'       => 'tpl_block2',
+    ];
+
+    /** Values of a new section; image sizes as in news_img's add.php, templates from views/default. */
     public const DEFAULTS = [
-        // shortcut: templates stay empty until the views arrive in Phase 3, then they come from views/default
-        'tpl_list_header'      => '',
-        'tpl_list_item'        => '',
-        'tpl_list_footer'      => '',
-        'tpl_detail_header'    => '',
-        'tpl_detail_content'   => '',
-        'tpl_detail_footer'    => '',
-        'tpl_image_loop'       => '',
-        'tpl_block2'           => '',
         'sort_order'           => 0,
         'per_page'             => 0,
         'preview_width'        => 125,
@@ -47,9 +54,32 @@ final class Settings
     {
         $result = $db->insertRow('{TP}mod_articles_settings', ['section_id' => $sectionId]
             + self::DEFAULTS
+            + self::viewTemplates('default')
             + ['max_upload' => ini_parse_quantity((string) ini_get('upload_max_filesize'))]);
         if ($result !== true) {
             throw new \RuntimeException('articles: settings for section ' . $sectionId . ': ' . $result);
         }
+    }
+
+    /** A view name usable as a folder; unknown or unsafe names fall back to default. */
+    public static function view(string $name): string
+    {
+        return preg_match('/^[a-zA-Z0-9_-]+$/', $name) && is_file(dirname(__DIR__) . "/views/$name/config.php")
+            ? $name : 'default';
+    }
+
+    /** Template columns from views/<view>/config.php; every column is set, missing variables become ''. */
+    public static function viewTemplates(string $view): array
+    {
+        $vars = (static function (string $file): array {
+            include $file;
+            return get_defined_vars();
+        })(dirname(__DIR__) . '/views/' . self::view($view) . '/config.php');
+
+        $templates = [];
+        foreach (self::VIEW_TEMPLATES as $var => $column) {
+            $templates[$column] = (string) ($vars[$var] ?? '');
+        }
+        return $templates;
     }
 }

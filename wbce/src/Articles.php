@@ -1,8 +1,8 @@
 <?php
 /**
  * articles – Articles
- * Reading, saving, copying, moving and deleting articles (from Phase 3 on).
- * Phase 1: removing everything that belongs to a section.
+ * Visibility and order of articles, removing everything that belongs to a section.
+ * Saving, copying and moving follow with the backend (Phase 4).
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
@@ -13,16 +13,48 @@ namespace Articles;
 
 final class Articles
 {
+    /** Setting sort_order => column and direction; the six orders of news_img (3 was posted_when). */
+    public const ORDER = [
+        0 => ['position', 'DESC'],
+        1 => ['published_from', 'DESC'],
+        2 => ['published_until', 'DESC'],
+        3 => ['modified_at', 'DESC'],
+        4 => ['article_id', 'DESC'],
+        5 => ['published_until', 'ASC'],
+    ];
+
+    /**
+     * The one visibility rule for list, count, detail, neighbours, RSS, search,
+     * droplets and access files: active, has a title, inside its period, group
+     * active or no group. $alias is the items table.
+     */
+    public static function visibleSql(string $alias = 'i', ?int $now = null): string
+    {
+        $now ??= time();
+        $a = '`' . $alias . '`';
+        return "$a.`active` = 1 AND $a.`title` <> ''"
+            . " AND ($a.`published_from` = 0 OR $a.`published_from` <= $now)"
+            . " AND ($a.`published_until` = 0 OR $a.`published_until` >= $now)"
+            . " AND ($a.`group_id` = 0 OR EXISTS (SELECT 1 FROM `{TP}mod_articles_groups` gv"
+            . " WHERE gv.`group_id` = $a.`group_id` AND gv.`active` = 1))";
+    }
+
+    /** ORDER BY for a sort_order; article_id breaks ties so pages and neighbours are stable. */
+    public static function orderSql(int $sortOrder, string $alias = 'i'): string
+    {
+        [$column, $direction] = self::ORDER[$sortOrder] ?? self::ORDER[0];
+        return "`$alias`.`$column` $direction, `$alias`.`article_id` $direction";
+    }
+
     /**
      * Deletes all rows of a section, tags no section uses any more (news_img
      * left them behind) and the section's image folders.
      */
     public static function deleteSection(\Database $db, int $sectionId): void
     {
-        $articleIds = array_map('intval', array_column(
-            $db->fetchAll('SELECT `article_id` FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId]),
-            'article_id'
-        ));
+        $articles = $db->fetchAll('SELECT `article_id`, `link` FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId]);
+        $articleIds = array_map('intval', array_column($articles, 'article_id'));
+        $links = array_column($articles, 'link');
         $groupIds = array_map('intval', array_column(
             $db->fetchAll('SELECT `group_id` FROM `{TP}mod_articles_groups` WHERE `section_id` = ?', [$sectionId]),
             'group_id'
@@ -50,7 +82,9 @@ final class Articles
         });
 
         // Files after the commit: a failed transaction must not cost any images.
-        // shortcut: access files are removed from Phase 3 on (AccessFiles), until then there are none
+        foreach ($links as $link) {
+            AccessFiles::remove($link);
+        }
         $folders = array_merge(
             array_map(static fn (int $id): string => "/items/$id", $articleIds),
             array_map(static fn (int $id): string => "/groups/$id", $groupIds),
