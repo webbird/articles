@@ -364,9 +364,22 @@ Getroffen am 2026-11-11.
 | Frage | Entscheidung |
 |---|---|
 | Frontend-Templates mit `[PLATZHALTER]` oder mit Twig? | Platzhalter. Der Import übernimmt Templates ohne Umbau, und von Redakteuren gepflegte Twig-Templates bräuchten eine Sandbox. |
+| Platzhalter über den `LayoutParser` des Cores (`framework/LayoutParser.php`, ab 1.7.0)? (2026-11-12) | Nein, für 1.0 bleibt `Placeholders::render()`. Der `LayoutParser` escapt jeden Wert, solange im Template kein `\|raw` steht; importierte Templates mit `[CONTENT_LONG]`, `[IMAGE]` oder `[TAGS]` müssten dafür umgeschrieben werden. Er escapt außerdem mit `double_encode`, sodass Entities in importierten Titeln doppelt kodiert würden. In Templates, die Redakteure im Expertenmodus bearbeiten, gäbe `[_CONTEXT\|dump]` alle Variablen aus, und `{include}` ist nur ohne gesetzten Partials-Pfad abgeschaltet. Denkbar ist er später für eine eigene Template-Generation mit `{if}` und `{foreach}`, dann mit `\|raw` an den richtigen Stellen und gesperrtem `dump` und `include`. |
 | CSS-Klassen beim Import umschreiben? | Ja, `mod_nwi_` → `mod_articles_`. Eigenes CSS außerhalb des Moduls muss dann angepasst werden, der Bericht weist darauf hin. |
 | „Umstellen“ (Links umschreiben, Weiterleitungen) in 1.0? | Nein. 1.0 speichert die Zuordnung, das Umstellen folgt als eigener Schritt. |
 | Droplet-Namen | `articles_list` und `articles_slider` |
 | Repository und Ort des Konzepts | Eigenes Repository `articles`, dieses Konzept zieht dorthin um |
 | Auslieferung | Zunächst über das Add-on-Repository, nicht als Core-Modul |
 | Slider-Dateien aus `root/wbce` | Werden übernommen, ohne `bs5carousel - Kopie.txt` |
+
+## 12. Nach 1.0
+
+Featurewünsche, eingegangen am 2026-11-13. Sie gehören nicht in 1.0.
+
+| Wunsch | Stand und Ansatz |
+|---|---|
+| Beitragsbild in mindestens zwei Größen: klein für die Übersicht, groß für die Detailseite | Seit Phase 5 liegt jedes Vorschaubild als Original vor. Eine vierte Größe (etwa `[IMAGE_LARGE]`, siehe Abschnitt 4 „Bilder“) braucht nur eine weitere Zeile im Block „Bildgrößen“ und einen Unterordner. „Bildgrößen neu berechnen“ erzeugt sie dann für alle vorhandenen Bilder. |
+| Weitere Größen oder Seitenverhältnisse für verschiedene Ausgabegeräte | Baut auf dem vorigen Punkt auf: mehrere abgeleitete Größen, ausgegeben als `srcset` oder `<picture>`. Offen ist, ob die Größen fest sind oder pro Section frei angelegt werden. Davon hängen die Settings-Spalten ab. |
+| Darstellungsvarianten pro Beitrag: mit oder ohne Bild in Übersicht und Detail, Beitrag hervorheben | Braucht neue Felder am Artikel (z. B. `show_image_list`, `show_image_detail`, `featured`) und Platzhalter oder CSS-Klassen dafür, etwa `[FEATURED_CLASS]`. Bedingungen im Template (`{if}`) gingen mit einer eigenen Template-Generation, siehe die Entscheidung zum `LayoutParser` in Abschnitt 11. |
+| Beitrags-Link (Slug) unabhängig von der Überschrift | Seit Phase 4 umgesetzt: Die Adresse folgt nur bei neuen Artikeln dem Titel. Bei bestehenden ist sie gesperrt und ändert sich nur nach „Adresse ändern“. |
+| „AnyArticles“-Droplet wie anynews für die Ausgabe auf anderen Seiten | Teilweise da: `[[articles_list?…]]` versteht die Parameter von `fetchNewsItems` (Section, Gruppe, Tags, Anzahl, Sortierung, View, `aslist`). Vor dem Umsetzen mit anynews und „News with Images anywhere“ vergleichen (Abschnitt 3), was fehlt, etwa eigene Ausgabe-Templates pro Aufruf. |
