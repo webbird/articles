@@ -50,7 +50,7 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] Tags: anlegen, bearbeiten, löschen, Hintergrund- und Schriftfarbe, global oder pro Section; globale Tags nur für Admins
 - [x] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Kopie des Vorschaubilds eines Artikels der Section), „nur für Admins“
 - [x] Wechsel von View oder Galerie lädt deren Vorgaben, Wechsel der Galerie nur nach Warnung
-- [ ] Import in leere Sections aus `news_img`, `articles`, News und Topics (Abschnitt 6) (aus `news_img` fertig, im Reiter „Wartung“; der Rest mit Phase 6)
+- [ ] Import in leere Sections aus `news_img`, `articles` und Topics (Abschnitt 6) (aus `news_img` fertig, im Reiter „Wartung“; der Rest mit Phase 6)
 - [ ] Demo-Packs in leere Sections, mit Allowlist für Settings
 
 ### Frontend
@@ -61,14 +61,14 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] Alle Platzhalter (Abschnitt 3), `{SYSVAR:MEDIA_REL}`, Tag-Farben mit Auto-Kontrast
 - [x] „Weiterlesen“ nur bei Langtext oder Galerie
 - [x] Bild-Fallback: Artikel, Gruppe, Section-Standardbild, in Listen danach eine Platzhalterkachel mit Initiale (Reihenfolge wie `news_img` v6.0)
-- [ ] Views `default`, `grid`, `avatar` und eigene Views (übernommen, bisher nur `default` im Vergleich)
-- [ ] Galerien Fotorama, Masonry, Lightcase, keine (übernommen, bisher nur Fotorama im Vergleich)
+- [x] Views `default`, `grid`, `avatar` und eigene Views. `default` im Vergleich mit news_img, `grid` und `avatar` am 2026-11-13 im Browser geprüft (Umschalten über die Einstellungen, Liste, Detailseite, Platzhalterkachel, keine offenen Platzhalter, keine JS-Fehler)
+- [x] Galerien Fotorama, Masonry, Lightcase, keine. Am 2026-11-13 im Browser geprüft. Masonry griff nie, weil das Skript vor dem Galerie-HTML lief (schon in news_img v6.0); jetzt erst nach DOM-Ready
 - [x] Keywords-Meta aus den Tags
 - [x] Sichtbarkeit überall gleich: aktiv, Titel vorhanden, im Zeitraum, Gruppe aktiv oder keine Gruppe
 
 ### Anbindung
 
-- [x] RSS mit Filter nach Gruppe, Suche, LinkResolver für TinyMCE und `[articles:NN]` (TinyMCE-Linkauswahl noch nicht im Backend angesehen)
+- [x] RSS mit Filter nach Gruppe, Suche, LinkResolver für TinyMCE und `[articles:NN]`. `ajax_link_items.php` liefert die Artikel. Im Link-Dialog erscheinen sie aber nicht: `tinymce_wbce/plugins/link/plugin.min.js` erkennt in `loadPageItems()` (und beim Vorbelegen eines bestehenden Links) nur `[wblinkNN]`, die Seitenauswahl liefert `[pagelink:NN]`. Core-Fehler, betrifft alle Module; Fix gehört nach `WBCE_CMS` (Stand 2026-11-13)
 - [x] Droplets für Artikellisten (Gegenstück zu `fetchNewsItems`) und Slider
 
 ## 3. Verhältnis zu news_img
@@ -288,7 +288,8 @@ Danach legt `AccessFiles` die Dateien für die sichtbaren neuen Artikel an. Die 
 ### Weitere Quellen
 
 - Andere `articles`-Sections
-- News 3.x und Topics, mit demselben Umfang wie heute in `news_img`
+- Topics, mit demselben Umfang wie heute in `news_img`. Ob ein Testmodul aufzutreiben ist, ist noch offen (2026-11-13)
+- Kein Import aus News 3.x (gestrichen am 2026-11-13)
 - Demo-Packs
 
 Ein Abschlussbericht nennt Anzahl und Hinweise, etwa abweichende Views oder fehlende Bilddateien.
@@ -335,7 +336,7 @@ Entwickelt wird in einem eigenen Repository, eingebunden per Junction in die Por
 | 3 | Lesepfad: Frontend, Platzhalter, Access-Dateien, RSS, Suche, Droplets, LinkResolver | Importierte Section rendert wie die Quelle |
 | 4 | Mockup, danach Backend: Artikel, Gruppen, Tags, Einstellungen, Massenaktionen | Backend-Checkliste erfüllt |
 | 5 | Bilder: Upload, abgeleitete Größen, Neuberechnung, Galerie, Standardbild, Wartungsaktionen | Bild-Checkliste erfüllt |
-| 6 | Weitere Importe und Demo-Packs | Import aus `articles`, News, Topics |
+| 6 | Weitere Importe und Demo-Packs | Import aus `articles` und Topics |
 | 7 | Tests, Doku, Anbindung `reservations`, Pull Request für `simplepagehead` | Abnahme nach Abschnitt 2 |
 
 Der Import kommt vor dem Lesepfad. So liefert er die Daten, an denen sich der Lesepfad direkt gegen `news_img` vergleichen lässt.
