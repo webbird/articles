@@ -64,6 +64,18 @@ final class RenderingTest extends TestCase
         );
     }
 
+    public function testMonthFilterUsesTheTimeOfTheWebsite(): void
+    {
+        defined('TIMEZONE') || define('TIMEZONE', 3600);
+        [$from, $to] = Frontend::monthRange(10, 2026);
+        // 1 October 00:30 on the website is 30 September 23:30 UTC (TIMEZONE 3600): October, not September
+        $justAfterMidnight = gmmktime(0, 30, 0, 10, 1, 2026) - TIMEZONE;
+        $this->assertTrue($from <= $justAfterMidnight && $justAfterMidnight < $to);
+        $this->assertSame(gmmktime(0, 0, 0, 11, 1, 2026) - TIMEZONE, $to);
+        // December ends with the next year
+        $this->assertSame(gmmktime(0, 0, 0, 1, 1, 2027) - TIMEZONE, Frontend::monthRange(12, 2026)[1]);
+    }
+
     public function testUrl(): void
     {
         $this->assertSame('?p=0', Frontend::url('', ['p' => 0, 'g' => null, 'tags' => '']));

@@ -273,7 +273,7 @@ final class Backend
             foreach ($db->fetchAll('SELECT `image_id`, `file`, `caption` FROM `{TP}mod_articles_images` WHERE `article_id` = ? ORDER BY `position`, `image_id`', [$articleId]) as $image) {
                 $images[] = [
                     'id' => (int) $image['image_id'], 'file' => (string) $image['file'], 'caption' => (string) $image['caption'],
-                    'url' => self::mediaUrl("/items/$articleId/thumb/" . $image['file']),
+                    'url' => Frontend::mediaUrl("/items/$articleId/thumb/" . $image['file']),
                 ];
             }
         }
@@ -337,7 +337,7 @@ final class Backend
         $size = @getimagesize(\ARTICLES_MEDIA_PATH . "$folder/$file");
         return [
             'file' => $file,
-            'url'  => self::mediaUrl("$folder/preview/$file"),
+            'url'  => Frontend::mediaUrl("$folder/preview/$file"),
             'size' => $size === false ? '' : $size[0] . ' × ' . $size[1],
         ];
     }
@@ -350,11 +350,5 @@ final class Backend
     private static function date(int $timestamp): string
     {
         return gmdate(DATE_FORMAT, $timestamp + (int) TIMEZONE);
-    }
-
-    /** URL of a file below media/.articles, '' if it does not exist. */
-    public static function mediaUrl(string $path): string
-    {
-        return is_file(\ARTICLES_MEDIA_PATH . $path) ? WB_URL . MEDIA_DIRECTORY . '/.articles' . $path : '';
     }
 }

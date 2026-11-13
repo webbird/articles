@@ -212,11 +212,7 @@ final class Images
     /** One step up or down; renumbers the gallery. */
     public static function stepGallery(\Database $db, int $articleId, int $imageId, bool $up): void
     {
-        $ids = self::galleryIds($db, $articleId);
-        $pos = array_search($imageId, $ids, true);
-        $other = is_int($pos) ? $pos + ($up ? -1 : 1) : -1;
-        if (isset($ids[$other])) {
-            [$ids[$pos], $ids[$other]] = [$ids[$other], $ids[$pos]];
+        if ($ids = Articles::swap(self::galleryIds($db, $articleId), $imageId, $up)) {
             self::saveGallery($db, $articleId, [], $ids, []);
         }
     }

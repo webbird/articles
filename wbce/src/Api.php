@@ -152,13 +152,12 @@ final class Api
             . ' ORDER BY ' . Articles::orderSql($sortOrder),
             [$sectionId]
         ) as $r) {
-            $original = '/items/' . (int) $r['article_id'] . '/' . $r['image'];
             $posts[] = [
                 'article_id'    => (int) $r['article_id'],
                 'title'         => htmlspecialchars((string) $r['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8', false),
                 'image'         => (string) $r['image'],
-                'image_url'     => $r['image'] !== '' && is_file(\ARTICLES_MEDIA_PATH . $original)
-                    ? htmlspecialchars(WB_URL . MEDIA_DIRECTORY . '/.articles' . $original, ENT_QUOTES | ENT_HTML5) : '',
+                'image_url'     => $r['image'] !== ''
+                    ? htmlspecialchars(Frontend::mediaUrl('/items/' . (int) $r['article_id'] . '/' . $r['image']), ENT_QUOTES | ENT_HTML5) : '',
                 'content_short' => (string) $r['teaser'],
                 'content_long'  => (string) $r['content'],
                 'link'          => htmlspecialchars(Frontend::pageUrl((string) $r['link']), ENT_QUOTES | ENT_HTML5),

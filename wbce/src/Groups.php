@@ -71,11 +71,7 @@ final class Groups
 
     public static function step(\Database $db, int $sectionId, int $groupId, bool $up): void
     {
-        $ids = array_map('intval', array_column(self::list($db, $sectionId), 'group_id'));
-        $pos = array_search($groupId, $ids, true);
-        $other = is_int($pos) ? $pos + ($up ? -1 : 1) : -1;
-        if (isset($ids[$other])) {
-            [$ids[$pos], $ids[$other]] = [$ids[$other], $ids[$pos]];
+        if ($ids = Articles::swap(array_map('intval', array_column(self::list($db, $sectionId), 'group_id')), $groupId, $up)) {
             self::reorder($db, $sectionId, $ids);
         }
     }

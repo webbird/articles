@@ -37,6 +37,15 @@ final class BackendTest extends TestCase
         $this->assertSame('visible', Articles::status(['published_from' => $now, 'published_until' => $now] + $a, true, $now));
     }
 
+    public function testArrowsSwapWithTheNeighbour(): void
+    {
+        $this->assertSame([2, 1, 3], Articles::swap([1, 2, 3], 2, true));
+        $this->assertSame([1, 3, 2], Articles::swap([1, 2, 3], 2, false));
+        $this->assertNull(Articles::swap([1, 2, 3], 1, true));
+        $this->assertNull(Articles::swap([1, 2, 3], 3, false));
+        $this->assertNull(Articles::swap([1, 2, 3], 9, true));
+    }
+
     public function testInListIsIntegersOnly(): void
     {
         $this->assertSame('(1,2)', Articles::in(['1', 2, '2', '1; DROP TABLE x']));

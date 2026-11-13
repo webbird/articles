@@ -191,7 +191,7 @@ final class Frontend
             // method 0 was posted_when in news_img, imported as modified_at
             $column = $f['method'] === 1 ? 'published_from' : 'modified_at';
             $sql[] = "i.`$column` >= ? AND i.`$column` < ?";
-            array_push($params, mktime(0, 0, 0, $f['m'], 1, $f['y']), mktime(0, 0, 0, $f['m'] + 1, 1, $f['y']));
+            array_push($params, ...self::monthRange($f['m'], $f['y']));
         }
         if ($listFilters && $f['tags'] !== []) {
             $sql[] = 'i.`article_id` IN (SELECT it.`article_id` FROM `{TP}mod_articles_item_tags` it'
@@ -200,6 +200,17 @@ final class Frontend
             array_push($params, ...$f['tags']);
         }
         return [implode(' AND ', $sql), $params];
+    }
+
+    /**
+     * Start and end (exclusive) of a month in the time shown on the website:
+     * dates are displayed with TIMEZONE added, so the bounds subtract it.
+     *
+     * @return array{int, int}
+     */
+    public static function monthRange(int $month, int $year): array
+    {
+        return [gmmktime(0, 0, 0, $month, 1, $year) - (int) TIMEZONE, gmmktime(0, 0, 0, $month + 1, 1, $year) - (int) TIMEZONE];
     }
 
     /** Values of the pagination placeholders, texts and quirks as in news_img. */
@@ -258,7 +269,7 @@ final class Frontend
         foreach (self::TEXTS as $key) {
             $texts[$key] = \Lang::get('MOD_ARTICLES', $key);
         }
-        $defaultImage = $s['default_image'] !== '' ? $this->mediaUrl("/sections/$sectionId/preview/" . $s['default_image']) : '';
+        $defaultImage = $s['default_image'] !== '' ? self::mediaUrl("/sections/$sectionId/preview/" . $s['default_image']) : '';
         $unknown = '<i>' . \Lang::get('MOD_ARTICLES', 'UNKNOWN_USER') . '</i>';
 
         $all = [];
@@ -267,8 +278,8 @@ final class Frontend
             $title = self::e((string) $r['title'], false);
             $group = $groups[$r['group_id']] ?? null;
             $groupTitle = $group ? self::e((string) $group['title'], false) : '';
-            $groupImage = $group && $group['image'] !== '' ? $this->mediaUrl("/groups/{$group['group_id']}/preview/{$group['image']}") : '';
-            $imageUrl = $r['image'] !== '' ? $this->mediaUrl("/items/$id/preview/{$r['image']}") : '';
+            $groupImage = $group && $group['image'] !== '' ? self::mediaUrl("/groups/{$group['group_id']}/preview/{$group['image']}") : '';
+            $imageUrl = $r['image'] !== '' ? self::mediaUrl("/items/$id/preview/{$r['image']}") : '';
             // Cascade as in news_img v6.0: article, group, section default; else a tile in lists, nothing on the detail page.
             $shown = $imageUrl ?: $groupImage ?: $defaultImage;
             $image = match (true) {
@@ -415,7 +426,7 @@ final class Frontend
     }
 
     /** URL of a file below media/.articles, '' if it does not exist. */
-    private function mediaUrl(string $path): string
+    public static function mediaUrl(string $path): string
     {
         return is_file(\ARTICLES_MEDIA_PATH . $path) ? self::mediaBase() . $path : '';
     }

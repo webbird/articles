@@ -31,6 +31,7 @@ use Articles\Access;
 use Articles\AccessFiles;
 use Articles\Articles;
 use Articles\Backend;
+use Articles\Frontend;
 use Articles\Groups;
 use Articles\Images;
 use Articles\Import;
@@ -162,7 +163,7 @@ try {
             }
             $admin->touchSection($sectionId);
             $json(200, ['status' => 'ok', 'image' => [
-                'id' => $row['image_id'], 'file' => $row['file'], 'url' => Backend::mediaUrl("/items/$id/thumb/" . $row['file']),
+                'id' => $row['image_id'], 'file' => $row['file'], 'url' => Frontend::mediaUrl("/items/$id/thumb/" . $row['file']),
             ]]);
 
         case 'article_toggle':

@@ -203,12 +203,27 @@ final class Articles
             'SELECT i.`article_id` FROM `{TP}mod_articles_items` i WHERE i.`section_id` = ? ORDER BY ' . self::orderSql(0),
             [$sectionId]
         ), 'article_id'));
-        $pos = array_search($id, $ids, true);
-        $other = is_int($pos) ? $pos + ($up ? -1 : 1) : -1;
-        if (isset($ids[$other])) {
-            [$ids[$pos], $ids[$other]] = [$ids[$other], $ids[$pos]];
+        if ($ids = self::swap($ids, $id, $up)) {
             self::reorder($db, $sectionId, $ids);
         }
+    }
+
+    /**
+     * The ids with $id swapped with its neighbour above or below; null if
+     * $id is missing or already first or last. For the arrows of articles, groups and images.
+     *
+     * @param list<int> $ids
+     * @return list<int>|null
+     */
+    public static function swap(array $ids, int $id, bool $up): ?array
+    {
+        $pos = array_search($id, $ids, true);
+        $other = is_int($pos) ? $pos + ($up ? -1 : 1) : -1;
+        if (!isset($ids[$other])) {
+            return null;
+        }
+        [$ids[$pos], $ids[$other]] = [$ids[$other], $ids[$pos]];
+        return $ids;
     }
 
     /**
