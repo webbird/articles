@@ -11,6 +11,18 @@
 // SCRIPT_FILENAME keeps the junction path during development; __DIR__ would resolve it
 require dirname($_SERVER['SCRIPT_FILENAME'], 3) . '/config.php';
 
+// PHP drops a POST above post_max_size completely, FTAN and ids included. Back to
+// the section with the reason instead of a security error; nothing is written.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST === []
+    && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > ini_parse_quantity((string) ini_get('post_max_size'))) {
+    require_once __DIR__ . '/bootstrap.php';
+    // The reason goes in the URL: with display_errors on, PHP has already printed its
+    // warning about the limit, so neither a session (flash) nor a Location header works.
+    $to = Articles\Backend::url((int) ($_GET['page_id'] ?? 0), (int) ($_GET['section_id'] ?? 0), ['art_error' => 'post_too_large']);
+    headers_sent() ? print('<meta http-equiv="refresh" content="0;url=' . htmlspecialchars($to) . '">') : header('Location: ' . $to);
+    exit;
+}
+
 $admin_header = false;
 require WB_PATH . '/modules/admin.php';
 require_once __DIR__ . '/bootstrap.php';

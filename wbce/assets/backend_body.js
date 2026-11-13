@@ -152,10 +152,10 @@
         gallery && gallery.querySelectorAll('.art-gallery-item').forEach(sortable);
 
         // Gallery upload: one request per file, one after the other, new rows without reloading.
-        // A new article has no folder yet; its files go with "save".
+        // Without JS the files go with "save".
         var uploader = root.querySelector('[data-art-uploader]');
         var picker = uploader && uploader.querySelector('input[type="file"]');
-        if (picker && gallery && !picker.hasAttribute('data-art-new')) {
+        if (picker && gallery) {
             var uploadForm = uploader.closest('form');
             var progress = uploader.querySelector('[data-art-uploads]');
             var rowTemplate = root.querySelector('template[data-art-gallery-row]');

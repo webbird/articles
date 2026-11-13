@@ -127,7 +127,7 @@ return [
         'CAPTION'                  => 'Bildtext',
         'GALLERY_ADD'              => 'Bilder hinzufügen',
         'GALLERY_HINT'             => 'Bilder hierher ziehen oder auswählen, sie werden sofort hochgeladen. Bildtexte, Reihenfolge und Löschen gelten mit „Speichern“.',
-        'GALLERY_HINT_NEW'         => 'Die Bilder werden mit „Speichern“ hochgeladen.',
+        'GALLERY_HINT_NEW'         => 'Bilder lassen sich nach dem ersten Speichern hinzufügen.',
         'UPLOAD_DONE'              => 'fertig',
         'DEFAULT_IMAGE'            => 'Standardbild',
         'DEFAULT_IMAGE_FROM'       => 'oder das Vorschaubild eines Artikels übernehmen',
@@ -150,6 +150,7 @@ return [
         'ERR_IMAGE_SIZE'           => 'Die Datei ist zu groß.',
         'ERR_IMAGE_UPLOAD'         => 'Das Hochladen ist fehlgeschlagen.',
         'ERR_IMAGE_WRITE'          => 'Das Bild konnte nicht gespeichert werden.',
+        'ERR_POST_TOO_LARGE'       => 'Die Daten waren zusammen größer als die %s, die der Server annimmt. Es wurde nichts gespeichert.',
 
         // Gruppen und Tags
         'GROUP_ACTIVE'             => 'aktiv',

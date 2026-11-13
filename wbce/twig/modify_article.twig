@@ -94,14 +94,19 @@
                     </li>
                 {% endfor %}
             </ol>
+            {# A new article has no folder yet; many files in one POST could also exceed post_max_size and lose the text #}
+            {% if exists %}
             <div class="art-dropzone" data-art-uploader data-max="{{ max_upload }}"
                  data-msg-size="{{ t('ERR_IMAGE_SIZE') }}" data-msg-type="{{ t('ERR_IMAGE_TYPE') }}" data-msg-failed="{{ t('ERR_IMAGE_UPLOAD') }}" data-msg-done="{{ t('UPLOAD_DONE') }}">
                 <label>{{ t('GALLERY_ADD') }}
-                    <input type="file" name="gallery[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp"{% if not exists %} data-art-new{% endif %}>
+                    <input type="file" name="gallery[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp">
                 </label>
-                <small class="art-muted">{{ t('UPLOAD_HINT', max_upload_mb) }} {{ exists ? t('GALLERY_HINT') : t('GALLERY_HINT_NEW') }}</small>
+                <small class="art-muted">{{ t('UPLOAD_HINT', max_upload_mb) }} {{ t('GALLERY_HINT') }}</small>
                 <ul class="art-uploads" data-art-uploads aria-live="polite"></ul>
             </div>
+            {% else %}
+            <p class="art-muted">{{ t('GALLERY_HINT_NEW') }}</p>
+            {% endif %}
             <template data-art-gallery-row>
                 <li class="art-gallery-item">
                     <input type="hidden" name="image_order[]" value="">

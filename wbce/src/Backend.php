@@ -81,8 +81,9 @@ final class Backend
         $vars = [
             'page_id'    => $pageId,
             'section_id' => $sectionId,
-            'action'     => WB_URL . '/modules/articles/backend.php',
-            'errors'     => $flash['errors'] ?? [],
+            // ids in the URL as well: a POST above post_max_size arrives without its fields (backend.php)
+            'action'     => WB_URL . '/modules/articles/backend.php?' . http_build_query(['page_id' => $pageId, 'section_id' => $sectionId]),
+            'errors'     => array_merge($flash['errors'] ?? [], $param('art_error') === 'post_too_large' ? [self::t('ERR_POST_TOO_LARGE', (string) ini_get('post_max_size'))] : []),
             'success'    => $flash['success'] ?? '',
             'notes'      => $flash['notes'] ?? [],
             'old'        => is_array($flash['old'] ?? null) ? $flash['old'] : null,

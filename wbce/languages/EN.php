@@ -127,7 +127,7 @@ return [
         'CAPTION'                  => 'Caption',
         'GALLERY_ADD'              => 'Add images',
         'GALLERY_HINT'             => 'Drop images here or choose them; they are uploaded right away. Captions, order and deleting apply with "Save".',
-        'GALLERY_HINT_NEW'         => 'The images are uploaded with "Save".',
+        'GALLERY_HINT_NEW'         => 'Images can be added after saving for the first time.',
         'UPLOAD_DONE'              => 'done',
         'DEFAULT_IMAGE'            => 'Default image',
         'DEFAULT_IMAGE_FROM'       => 'or take the preview image of an article',
@@ -150,6 +150,7 @@ return [
         'ERR_IMAGE_SIZE'           => 'The file is too large.',
         'ERR_IMAGE_UPLOAD'         => 'The upload failed.',
         'ERR_IMAGE_WRITE'          => 'The image could not be saved.',
+        'ERR_POST_TOO_LARGE'       => 'The data together was larger than the %s the server accepts. Nothing was saved.',
 
         // Groups and tags
         'GROUP_ACTIVE'             => 'active',

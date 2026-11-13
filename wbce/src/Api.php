@@ -46,7 +46,7 @@ final class Api
         $int = static fn ($v, int $default, int $min, int $max): int
             => max($min, min($max, filter_var($v, FILTER_VALIDATE_INT) === false ? $default : (int) $v));
 
-        $where = [Articles::visibleSql('i')];
+        $where = [Articles::visibleSql('i'), Articles::publicSql()];
         $params = [];
         $ids = array_map('intval', explode(',', (string) $o['group_id']));
         $tags = self::tagList((string) ($o['tags'] !== '' ? $o['tags'] : ($_GET['tags'] ?? ''))); // news_img follows the page's tag filter
@@ -145,7 +145,10 @@ final class Api
         $sortOrder = (int) $db->fetchValue('SELECT `sort_order` FROM `{TP}mod_articles_settings` WHERE `section_id` = ?', [$sectionId]);
         $posts = [];
         foreach ($db->fetchAll(
-            'SELECT i.* FROM `{TP}mod_articles_items` i WHERE i.`section_id` = ? AND ' . Articles::visibleSql('i')
+            'SELECT i.* FROM `{TP}mod_articles_items` i
+               JOIN `{TP}sections` s ON s.`section_id` = i.`section_id`
+               JOIN `{TP}pages` p ON p.`page_id` = s.`page_id`
+              WHERE i.`section_id` = ? AND ' . Articles::visibleSql('i') . ' AND ' . Articles::publicSql()
             . ' ORDER BY ' . Articles::orderSql($sortOrder),
             [$sectionId]
         ) as $r) {

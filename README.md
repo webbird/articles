@@ -11,6 +11,7 @@ Seitenmodul für WBCE 1.7 mit Artikeln, Bildern, Gruppen und Tags. Nachfolger vo
 | `tests/fixtures/` | Testdaten für `news_img` als Importquelle |
 | `tests/reference/` | Referenzausgaben von `news_img` für den Vergleich nach dem Import |
 | `tests/import/` | Import aus `news_img` per Kommandozeile, bis das Backend ihn anbietet |
+| `tests/integration/` | Prüfskripte gegen eine WBCE-Testinstallation, die ihre Änderungen selbst zurücksetzen |
 | `tests/unit/` | PHPUnit-Tests ohne WBCE |
 
 ## Testdaten und Referenzausgaben
@@ -56,6 +57,14 @@ php tests/import/import_news_img.php <wbce-verzeichnis> <quell-section> <ziel-se
 
 - `[[articles_list?…]]` versteht dieselben Parameter wie `fetchNewsItems`, z. B. `group_id_type=section_id&group_id=8&max_news_items=4`, `tags=Saisonal` oder `aslist=1`.
 - `[[articles_slider?section_id=8]]` zeigt die sichtbaren Artikel mit Vorschaubild als Bootstrap-5-Karussell. Mit `tpl=<name>` lässt sich eine andere Vorlage aus `wbce/templates/slides/` wählen.
+
+## Prüfskripte
+
+`droplet_visibility.php` prüft, dass die Droplets nur Artikel öffentlicher oder versteckter Seiten zeigen und Abschnitte außerhalb ihres Zeitraums auslassen. Es ändert dafür kurz die Sichtbarkeit der Seite und den Zeitraum des Abschnitts und stellt beides danach wieder her. Der Abschnitt braucht sichtbare Artikel mit Vorschaubild.
+
+```bash
+php tests/integration/droplet_visibility.php <wbce-verzeichnis> <page_id> <section_id>
+```
 
 ## Unit-Tests
 

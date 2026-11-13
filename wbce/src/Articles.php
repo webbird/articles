@@ -39,6 +39,19 @@ final class Articles
             . " WHERE gv.`group_id` = $a.`group_id` AND gv.`active` = 1))";
     }
 
+    /**
+     * For output outside the section's own page (droplets): the page is public
+     * or hidden and the section inside its period. Pages for registered users
+     * stay out, even for visitors who could see them. $s is sections, $p is pages.
+     */
+    public static function publicSql(string $s = 's', string $p = 'p', ?int $now = null): string
+    {
+        $now ??= time();
+        return "`$p`.`visibility` IN ('public', 'hidden')"
+            . " AND (`$s`.`publ_start` = 0 OR `$s`.`publ_start` <= $now)"
+            . " AND (`$s`.`publ_end` = 0 OR `$s`.`publ_end` >= $now)";
+    }
+
     /** ORDER BY for a sort_order; article_id breaks ties so pages and neighbours are stable. */
     public static function orderSql(int $sortOrder, string $alias = 'i'): string
     {
