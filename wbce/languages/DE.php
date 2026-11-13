@@ -129,6 +129,7 @@ return [
         'GALLERY_HINT'             => 'Bilder hierher ziehen oder auswählen, sie werden sofort hochgeladen. Bildtexte, Reihenfolge und Löschen gelten mit „Speichern“.',
         'GALLERY_HINT_NEW'         => 'Bilder lassen sich nach dem ersten Speichern hinzufügen.',
         'UPLOAD_DONE'              => 'fertig',
+        'CONFIRM_UPLOAD_BUSY'      => 'Es werden noch Bilder hochgeladen. Wer jetzt speichert, bricht die übrigen ab. Trotzdem speichern?',
         'DEFAULT_IMAGE'            => 'Standardbild',
         'DEFAULT_IMAGE_FROM'       => 'oder das Vorschaubild eines Artikels übernehmen',
         'DEFAULT_IMAGE_HINT'       => 'Erscheint, wenn weder der Artikel noch seine Gruppe ein Bild hat. Übernommen wird eine Kopie.',

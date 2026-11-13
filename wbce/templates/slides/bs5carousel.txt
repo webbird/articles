@@ -26,7 +26,10 @@ if(is_array($posts) && !empty($posts)):
 ?>
                     <div class="carousel-item<?php if($first): ?> active<?php endif; ?>">
                         <img
-                            src="<?= $p['image_url'] ?>"
+                            src="<?= $p['image_url'] ?>"<?php if(!$first): ?>
+
+                            loading="lazy"<?php endif; ?>
+
                             alt=""
                             aria-hidden="true"
                             class="d-block w-100"

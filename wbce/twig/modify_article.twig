@@ -97,7 +97,7 @@
             {# A new article has no folder yet; many files in one POST could also exceed post_max_size and lose the text #}
             {% if exists %}
             <div class="art-dropzone" data-art-uploader data-max="{{ max_upload }}"
-                 data-msg-size="{{ t('ERR_IMAGE_SIZE') }}" data-msg-type="{{ t('ERR_IMAGE_TYPE') }}" data-msg-failed="{{ t('ERR_IMAGE_UPLOAD') }}" data-msg-done="{{ t('UPLOAD_DONE') }}">
+                 data-msg-size="{{ t('ERR_IMAGE_SIZE') }}" data-msg-type="{{ t('ERR_IMAGE_TYPE') }}" data-msg-failed="{{ t('ERR_IMAGE_UPLOAD') }}" data-msg-done="{{ t('UPLOAD_DONE') }}" data-msg-busy="{{ t('CONFIRM_UPLOAD_BUSY') }}">
                 <label>{{ t('GALLERY_ADD') }}
                     <input type="file" name="gallery[]" multiple accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp">
                 </label>

@@ -461,11 +461,7 @@ final class Articles
                 // Global tags keep their section 0 row and survive.
                 'DELETE FROM `{TP}mod_articles_tags` WHERE `tag_id` NOT IN (SELECT `tag_id` FROM `{TP}mod_articles_tag_sections`)',
             ] as $sql) {
-                $db->query($sql, str_contains($sql, '?') ? [$sectionId] : []);
-                // transaction() only sees the error of the last query, so check each one
-                if ($db->hasError()) {
-                    throw new \RuntimeException('articles: delete section ' . $sectionId . ': ' . $db->getError());
-                }
+                self::exec($db, $sql, str_contains($sql, '?') ? [$sectionId] : []);
             }
         });
 

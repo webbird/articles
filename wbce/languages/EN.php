@@ -129,6 +129,7 @@ return [
         'GALLERY_HINT'             => 'Drop images here or choose them; they are uploaded right away. Captions, order and deleting apply with "Save".',
         'GALLERY_HINT_NEW'         => 'Images can be added after saving for the first time.',
         'UPLOAD_DONE'              => 'done',
+        'CONFIRM_UPLOAD_BUSY'      => 'Images are still being uploaded. Saving now cancels the rest. Save anyway?',
         'DEFAULT_IMAGE'            => 'Default image',
         'DEFAULT_IMAGE_FROM'       => 'or take the preview image of an article',
         'DEFAULT_IMAGE_HINT'       => 'Shown when neither the article nor its group has an image. A copy is taken.',

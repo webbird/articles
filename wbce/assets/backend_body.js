@@ -228,6 +228,12 @@
                 });
                 next();
             };
+            // Leaving the page aborts the running upload and drops the queue
+            uploadForm.addEventListener('submit', function (e) {
+                if ((busy || queue.length) && !window.confirm(text('busy'))) {
+                    e.preventDefault();
+                }
+            });
             picker.addEventListener('change', function () {
                 take(picker.files);
                 picker.value = ''; // uploaded already, not again with "save"

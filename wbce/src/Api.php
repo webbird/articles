@@ -49,7 +49,8 @@ final class Api
         $where = [Articles::visibleSql('i'), Articles::publicSql()];
         $params = [];
         $ids = array_map('intval', explode(',', (string) $o['group_id']));
-        $tags = self::tagList((string) ($o['tags'] !== '' ? $o['tags'] : ($_GET['tags'] ?? ''))); // news_img follows the page's tag filter
+        // news_img follows the page's tag filter; ?tags[]= is an array and ignored, as in Frontend::filters()
+        $tags = self::tagList((string) ($o['tags'] !== '' ? $o['tags'] : (is_string($_GET['tags'] ?? null) ? $_GET['tags'] : '')));
         $skip = self::tagList((string) $o['skip']);
         $byGroup = $tags === [] && $skip === [] || $bool($o['groups_on_tags']);
         if (!in_array(0, $ids, true) && $byGroup) {
