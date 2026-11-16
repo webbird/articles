@@ -108,7 +108,7 @@ In der Bild-Schleife: `[IMAGE] [DESCRIPTION] [THUMB] [THUMBWIDTH] [THUMBHEIGHT] 
 
 - **News with Images anywhere** und **Blog Menu for News with Images** (beide im Add-on-Repository). In 1.0 deckt das Listen-Droplet den ersten Fall ab. Für das Blog-Menü bleiben die URL-Parameter kompatibel, damit eine Anpassung später einfach ist.
 - **`reservations`** liest Objektbeschreibungen aus `news_img`. Es bekommt eine zweite Quelle `articles:<section_id>`.
-- **`simplepagehead`** (Core) kennt `news_img` fest verdrahtet. Für `articles` braucht es einen Pull Request an `WBCE_CMS`.
+- **`simplepagehead`** (Core) kennt `news_img` fest verdrahtet. Für `articles` braucht es einen Pull Request an `WBCE_CMS`: eine Zeile `$module['articles'] = array('mod_articles_items', 'article_id', 'title', 'teaser', '');`. simplepagehead liest die ID als globale Variable; die Access-Dateien von `articles` setzen dafür seit Phase 7 neben `ARTICLE_ID` auch `$article_id`. Am 2026-11-16 in der Portable mit eingetragener Zeile geprüft (Titel und Kurztext erscheinen im `<head>`), danach zurückgesetzt. Ohne den PR zeigt ein Artikel weiter den Seitentitel.
 
 ## 4. Architektur
 

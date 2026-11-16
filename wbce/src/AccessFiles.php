@@ -2,7 +2,7 @@
 /**
  * articles – AccessFiles
  * Access files of the articles below the pages directory: path, writing, removing.
- * Migrating to another directory follows with the maintenance actions (Phase 5).
+ * Moving them to another directory: Articles::relink() (maintenance tab).
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
@@ -57,7 +57,10 @@ final class AccessFiles
         return !is_file($file) || str_contains((string) file_get_contents($file), "define('ARTICLE_ID'");
     }
 
-    /** File content; the require climbs from the file's folder to the WBCE root. */
+    /**
+     * File content; the require climbs from the file's folder to the WBCE root.
+     * $article_id is read as a global by modules such as simplepagehead (title and description in the head).
+     */
     public static function content(string $link, int $articleId, int $sectionId, int $pageId): string
     {
         $up = str_repeat('/..', substr_count($link, '/') - 1 + substr_count(PAGES_DIRECTORY, '/'));
@@ -65,6 +68,7 @@ final class AccessFiles
             . "// articles: access file of an article, generated, do not edit\n"
             . "\$page_id = $pageId;\n"
             . "\$section_id = $sectionId;\n"
+            . "\$article_id = $articleId;\n"
             . "define('ARTICLE_ID', $articleId);\n"
             . "define('ARTICLE_SECTION', $sectionId);\n"
             . "require __DIR__ . '$up/index.php';\n";
