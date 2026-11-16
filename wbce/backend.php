@@ -145,6 +145,8 @@ try {
             }
 
             if ($target !== $sectionId) {
+                // WBCE Search re-indexes sections whose page changed; $back() touches only this one
+                $admin->touchSection($target);
                 $back([], Backend::t('ARTICLE_MOVED'), $imageErrors);
             }
             $back($post('save_back') === '1' && $imageErrors === [] && $post('image_move') === '' ? [] : ['art_view' => 'edit', 'art_id' => $id], $saved, $imageErrors);
@@ -220,6 +222,9 @@ try {
                     : throw new DomainException('ERR_TARGET'),
                 default                  => throw new DomainException('ERR_ACTION'),
             };
+            if ((str_starts_with($bulk, 'copy') || str_starts_with($bulk, 'move')) && $target !== $sectionId) {
+                $admin->touchSection($target);
+            }
             $back($list, Backend::t('BULK_DONE', count($selected)));
 
         case 'group_save':

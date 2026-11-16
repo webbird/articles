@@ -70,6 +70,7 @@ Diese Liste ist die Abnahmecheckliste.
 
 - [x] RSS mit Filter nach Gruppe, Suche, LinkResolver für TinyMCE und `[articles:NN]`. `ajax_link_items.php` liefert die Artikel. Im Link-Dialog erscheinen sie aber nicht: `tinymce_wbce/plugins/link/plugin.min.js` erkennt in `loadPageItems()` (und beim Vorbelegen eines bestehenden Links) nur `[wblinkNN]`, die Seitenauswahl liefert `[pagelink:NN]`. Core-Fehler, betrifft alle Module; Fix gehört nach `WBCE_CMS` (Stand 2026-11-13)
 - [x] Droplets für Artikellisten (Gegenstück zu `fetchNewsItems`) und Slider
+- [ ] WBCE Search (Core-Modul `wbce_search`, WBCE 1.7): `search_index.php` nach dem Vorbild von `news_img` liefert einen Eintrag pro sichtbarem Artikel (`Articles::visibleSql`) mit Detailseite und Vorschaubild, ohne sichtbare Artikel einen Eintrag für die Seite. Liegt der Abschnitt außerhalb seines Zeitraums, kommen keine Artikel in den Index (WBCE Search prüft nur die Seite). Abgeglichen mit `wbce_search/SEARCH_INDEX_HOWTO.md` (0.6.1), mit Platzhalter-Klassen geprüft (2026-11-16). `backend.php` meldet beim Kopieren und Verschieben auch den Ziel-Abschnitt als geändert. Der Index bleibt nur durch `touchSection()` frisch; Artikel, die allein durch ihr Datum sichtbar werden oder ablaufen, folgen erst mit der nächsten Änderung oder einem „Full rebuild“.<br>**Zurückgestellt (2026-11-16):** Der echte Test gegen `wbce_search` wartet, bis dessen nötige Core-Änderungen im öffentlichen Repository von WBCE stehen. Dann auch entscheiden, ob `search.php` entfällt: WBCE 1.7 liest sie laut HOWTO nicht mehr
 
 ## 3. Verhältnis zu news_img
 
@@ -119,6 +120,7 @@ Ein WBCE-Modul mit wenigen Einstiegsdateien und klaren Klassen, ohne Composer un
 articles/
 ├─ info.php  precheck.php  install.php  install_struct.sql  upgrade.php  uninstall.php
 ├─ add.php  delete.php  modify.php  view.php  search.php  rss.php  LinkResolver.php
+├─ search_index.php       Einträge für WBCE Search (wbce_search), nur von dort gelesen
 ├─ backend.php            zentraler Backend-Einstieg für Masken und Aktionen
 ├─ bootstrap.php          Autoloader, Sprachdateien, Twig
 ├─ src/
