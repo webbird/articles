@@ -6,7 +6,7 @@
 return [
     'MOD_ARTICLES' => [
         // Import
-        'IMPORT_SOURCE_INVALID'    => 'Die Quelle ist kein news_img-Abschnitt.',
+        'IMPORT_SOURCE_INVALID'    => 'Diese Quelle lässt sich nicht importieren.',
         'IMPORT_TARGET_NOT_EMPTY'  => 'Importiert wird nur in einen leeren Abschnitt ohne Artikel und Gruppen.',
         'IMPORT_VIEW_REPLACED'     => 'Die View „%s“ gibt es in articles nicht, verwendet wird „default“.',
         'IMPORT_GALLERY_REPLACED'  => 'Die Galerie „%s“ gibt es in articles nicht, verwendet wird „fotorama“.',
@@ -180,10 +180,18 @@ return [
         'ACCESS_FILES_RUN'         => 'Erneuern',
         'ACCESS_FILES_DONE'        => 'Access-Dateien erneuert.',
         'IMPORT'                   => 'Import',
-        'IMPORT_INFO'              => 'Übernimmt Einstellungen, Gruppen, Tags, Beiträge und Bilder eines news_img-Abschnitts. Die Quelle bleibt unverändert. Nur möglich, solange dieser Abschnitt leer ist.',
+        'IMPORT_INFO'              => 'Übernimmt Einstellungen, Gruppen, Tags, Artikel und Bilder aus einem anderen Abschnitt. Die Quelle bleibt unverändert. Nur möglich, solange dieser Abschnitt leer ist.',
         'IMPORT_SOURCE'            => 'Quelle',
         'IMPORT_RUN'               => 'Importieren',
-        'IMPORT_NO_SOURCES'        => 'Keine news_img-Abschnitte gefunden.',
+        'IMPORT_NO_SOURCES'        => 'Keine Abschnitte gefunden, die du importieren darfst.',
+        'IMPORT_HINT'              => 'Nur Abschnitte, die du bearbeiten darfst. Die Adressen der Artikel entstehen unter dieser Seite neu.',
+        'DEMO'                     => 'Demo-Inhalte',
+        'DEMO_INFO'                => 'Füllt den leeren Abschnitt mit Beispieldaten, zum Ausprobieren und als Vorlage.',
+        'DEMO_PACK'                => 'Paket',
+        'DEMO_RUN'                 => 'Demo-Inhalte anlegen',
+        'DEMO_DONE'                => 'Angelegt: %d Artikel, %d Gruppen, %d Tags, %d Bilder.',
+        'CONFIRM_DEMO'             => 'Demo-Inhalte anlegen? Einige Einstellungen dieses Abschnitts werden dabei gesetzt.',
+        'DEMO_HINT'                => 'Tags entstehen in diesem Abschnitt, gleichnamige vorhandene werden genutzt. Rückgängig nur durch Löschen.',
         'CONFIRM_IMPORT'           => 'Importieren? Die Einstellungen dieses Abschnitts werden überschrieben.',
         'IMPORT_DONE'              => 'Importiert: %d Artikel, %d Gruppen, %d Tags, %d Bilder.',
 

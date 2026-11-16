@@ -1,8 +1,9 @@
 <?php
 /**
  * articles – Import
- * Fills an empty articles section from another section; the source stays
- * untouched. Phase 2: news_img 5.0.x and v6.0 (docs/Konzept.md, section 6).
+ * Fills an empty articles section from another section, the source stays
+ * untouched: news_img 5.0.x and v6.0, another articles section, or a demo
+ * pack from demodata/ (docs/Konzept.md, section 6).
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
@@ -105,10 +106,7 @@ final class Import
             || !($settings = $db->fetchRow('SELECT * FROM ' . $src('settings') . ' WHERE `section_id` = ?', [$sourceSectionId]))) {
             throw new \DomainException('IMPORT_SOURCE_INVALID');
         }
-        if ((int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$targetSectionId]) > 0
-            || (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_groups` WHERE `section_id` = ?', [$targetSectionId]) > 0) {
-            throw new \DomainException('IMPORT_TARGET_NOT_EMPTY');
-        }
+        self::assertEmpty($db, $targetSectionId);
 
         [$mapped, $notes] = self::mapNewsImgSettings($settings);
         $groups = $db->fetchAll('SELECT * FROM ' . $src('groups') . ' WHERE `section_id` = ? ORDER BY `position`', [$sourceSectionId]);
@@ -295,5 +293,198 @@ final class Import
         }
 
         return ['counts' => $counts, 'notes' => $notes];
+    }
+
+    /**
+     * Imports another articles section into an empty one: settings (without
+     * the directory of the access files, the links are built for the target
+     * page), groups, tags, all articles with gallery, and their image folders.
+     *
+     * @return array{counts: array<string, int>, notes: list<array{0: string, 1: string}>}
+     * @throws \DomainException with a MOD_ARTICLES text key when source or target do not fit
+     */
+    public static function fromArticles(\Database $db, int $sourceSectionId, int $targetSectionId, int $targetPageId): array
+    {
+        if ($sourceSectionId === $targetSectionId
+            || $db->fetchValue('SELECT `module` FROM `{TP}sections` WHERE `section_id` = ?', [$sourceSectionId]) !== 'articles'
+            || !($settings = Settings::get($db, $sourceSectionId))) {
+            throw new \DomainException('IMPORT_SOURCE_INVALID');
+        }
+        self::assertEmpty($db, $targetSectionId);
+
+        $now = time();
+        $counts = ['articles' => 0, 'groups' => 0, 'tags' => 0, 'images' => 0];
+        $folders = $settings['default_image'] !== '' ? [["/sections/$sourceSectionId", "/sections/$targetSectionId"]] : [];
+        $tagsBefore = (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_tag_sections` WHERE `section_id` = ?', [$targetSectionId]);
+
+        $db->transaction(static function (\Database $db) use ($settings, $sourceSectionId, $targetSectionId, $targetPageId, $now, &$counts, &$folders): void {
+            $result = $db->upsertRow('{TP}mod_articles_settings', 'section_id', ['section_id' => $targetSectionId, 'articles_dir' => ''] + $settings);
+            if ($result !== true || $db->hasError()) {
+                throw new \RuntimeException('articles import: settings: ' . (is_string($result) ? $result : $db->getError()));
+            }
+            $dir = AccessFiles::dir($db, $targetSectionId, $targetPageId);
+
+            $groupMap = [];
+            foreach ($db->fetchAll('SELECT * FROM `{TP}mod_articles_groups` WHERE `section_id` = ? ORDER BY `position`, `group_id`', [$sourceSectionId]) as $group) {
+                $old = (int) $group['group_id'];
+                $groupMap[$old] = Articles::insert($db, 'groups', ['section_id' => $targetSectionId] + array_diff_key($group, ['group_id' => 0, 'section_id' => 0]));
+                if ($group['image'] !== '') {
+                    $folders[] = ["/groups/$old", "/groups/{$groupMap[$old]}"];
+                }
+                $counts['groups']++;
+            }
+
+            foreach ($db->fetchAll('SELECT * FROM `{TP}mod_articles_items` WHERE `section_id` = ? ORDER BY `position`, `article_id`', [$sourceSectionId]) as $a) {
+                $old = (int) $a['article_id'];
+                $id = Articles::insert($db, 'items', [
+                    'section_id' => $targetSectionId,
+                    'group_id'   => $groupMap[(int) $a['group_id']] ?? 0,
+                ] + array_diff_key($a, ['article_id' => 0, 'section_id' => 0, 'group_id' => 0]));
+                Articles::exec($db, 'UPDATE `{TP}mod_articles_items` SET `link` = ? WHERE `article_id` = ?', [AccessFiles::link($dir, Articles::slugOf($a), $id), $id]);
+                Articles::exec($db, 'INSERT INTO `{TP}mod_articles_images` (`article_id`, `file`, `caption`, `position`)'
+                    . ' SELECT ?, `file`, `caption`, `position` FROM `{TP}mod_articles_images` WHERE `article_id` = ?', [$id, $old]);
+                $counts['images'] += (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_images` WHERE `article_id` = ?', [$id]);
+                // Local tags of the source become tags of the target (same title), global ones stay
+                foreach (Articles::mapTags($db, Articles::tagIdsOf($db, $old), $targetSectionId) as $tagId) {
+                    Articles::exec($db, 'INSERT INTO `{TP}mod_articles_item_tags` (`article_id`, `tag_id`) VALUES (?, ?)', [$id, $tagId]);
+                }
+                Articles::insert($db, 'import', [
+                    'article_id' => $id, 'source_module' => 'articles', 'source_section_id' => $sourceSectionId, 'source_id' => $old, 'imported_at' => $now,
+                ]);
+                $folders[] = ["/items/$old", "/items/$id"];
+                $counts['articles']++;
+            }
+        });
+        $counts['tags'] = (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_tag_sections` WHERE `section_id` = ?', [$targetSectionId]) - $tagsBefore;
+
+        // Files after the commit
+        foreach ($folders as [$from, $to]) {
+            Articles::copyDir(\ARTICLES_MEDIA_PATH . $from, \ARTICLES_MEDIA_PATH . $to);
+        }
+        foreach ($db->fetchAll('SELECT `article_id` FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$targetSectionId]) as $row) {
+            AccessFiles::sync($db, (int) $row['article_id']);
+        }
+        return ['counts' => $counts, 'notes' => []];
+    }
+
+    /** Settings a demo pack may set; the values still go through Settings::save(). */
+    public const DEMO_SETTINGS = [
+        'sort_order', 'per_page', 'use_block2', 'view', 'gallery',
+        'preview_width', 'preview_height', 'preview_crop', 'thumb_width', 'thumb_height', 'thumb_crop',
+        'large_width', 'large_height', 'large_crop',
+    ];
+
+    /** @return array<string, array{name: string, description: string}> demo packs in demodata/<folder>/ */
+    public static function demoPacks(): array
+    {
+        $packs = [];
+        foreach (glob(dirname(__DIR__) . '/demodata/*/data.php') ?: [] as $file) {
+            $folder = basename(dirname($file));
+            $meta = json_decode((string) @file_get_contents(dirname($file) . '/meta.json'), true);
+            $packs[$folder] = ['name' => (string) ($meta['name'] ?? $folder), 'description' => (string) ($meta['description'] ?? '')];
+        }
+        return $packs;
+    }
+
+    /**
+     * Fills an empty section with a demo pack: allowed settings, groups,
+     * tags (an existing tag of the same title is used, new ones are local),
+     * articles with preview image and gallery. The first article of the pack ends up on top.
+     * shortcut: not one transaction (Articles::save() commits per article); a failure halfway leaves a partly filled section, deleting it cleans up.
+     *
+     * @return array{counts: array<string, int>, notes: list<array{0: string, 1: string}>}
+     */
+    public static function demo(\Database $db, string $pack, int $targetSectionId, int $userId): array
+    {
+        // the folder name only counts if demoPacks() lists it, so no path from outside reaches include
+        if (!array_key_exists($pack, self::demoPacks())) {
+            throw new \DomainException('IMPORT_SOURCE_INVALID');
+        }
+        self::assertEmpty($db, $targetSectionId);
+        $dir = dirname(__DIR__) . "/demodata/$pack";
+        $data = (static fn (string $file): mixed => include $file)("$dir/data.php");
+        if (!is_array($data)) {
+            throw new \RuntimeException("articles demo pack $pack: data.php returns no array");
+        }
+        $counts = ['articles' => 0, 'groups' => 0, 'tags' => 0, 'images' => 0];
+        $notes = [];
+
+        // Settings: the allowed keys on top of the current values, checked like the settings form
+        $current = Settings::get($db, $targetSectionId) ?? throw new \DomainException('ERR_SECTION');
+        $in = ['max_upload' => (string) (int) ceil((int) $current['max_upload'] / 1048576)] + array_map('strval', $current);
+        foreach (array_intersect_key(is_array($data['settings'] ?? null) ? $data['settings'] : [], array_flip(self::DEMO_SETTINGS)) as $key => $value) {
+            $in[$key] = (string) $value;
+        }
+        Settings::save($db, $targetSectionId, $in, false);
+        $sizes = Images::sizes(Settings::get($db, $targetSectionId));
+
+        $groups = [];
+        foreach ($data['groups'] ?? [] as $group) {
+            $groups[(string) $group['title']] = Groups::save($db, $targetSectionId, 0, (string) $group['title'], (bool) ($group['active'] ?? true));
+            $counts['groups']++;
+        }
+
+        $tags = [];
+        foreach (Tags::forSection($db, $targetSectionId) as $tag) {
+            $tags[mb_strtolower((string) $tag['title'])] = (int) $tag['tag_id'];
+        }
+        foreach ($data['tags'] ?? [] as $tag) {
+            $key = mb_strtolower((string) $tag['title']);
+            if (!isset($tags[$key])) {
+                $tags[$key] = Tags::save($db, $targetSectionId, 0, (string) $tag['title'], (string) ($tag['color'] ?? ''), (string) ($tag['text_color'] ?? ''), false);
+                $counts['tags']++;
+            }
+        }
+
+        // New articles go on top, so the last one of the pack comes first
+        foreach (array_reverse($data['posts'] ?? []) as $post) {
+            $slug = Articles::slug((string) ($post['slug'] ?? $post['title']));
+            $id = Articles::save($db, [
+                'id' => 0, 'section_id' => $targetSectionId, 'group_id' => $groups[(string) ($post['group'] ?? '')] ?? 0,
+                'title' => (string) $post['title'], 'slug' => $slug, 'active' => (bool) ($post['active'] ?? true),
+                'published_from' => (int) ($post['published_from'] ?? 0), 'published_until' => (int) ($post['published_until'] ?? 0),
+                'teaser' => (string) ($post['teaser'] ?? ''), 'content' => (string) ($post['content'] ?? ''), 'block2' => (string) ($post['block2'] ?? ''),
+                'tags' => array_values(array_filter(array_map(static fn (string $t): int => $tags[mb_strtolower($t)] ?? 0, $post['tags'] ?? []))),
+            ], $userId);
+            $counts['articles']++;
+
+            // Pack images go through the same check and re-encoding as uploads
+            $folder = "$dir/images/" . basename((string) ($post['slug'] ?? ''));
+            $store = static function (string $name, array $derived) use ($folder, $id, $sizes, $pack, &$notes, &$counts): string {
+                $name = basename($name);
+                try {
+                    $file = is_file("$folder/$name") ? Images::store("$folder/$name", $name, "/items/$id", $derived, $sizes) : '';
+                } catch (\DomainException) {
+                    $file = '';
+                }
+                if ($file === '') {
+                    $notes[] = ['IMPORT_FILE_MISSING', "demodata/$pack/images/" . basename($folder) . "/$name"];
+                    return '';
+                }
+                $counts['images']++;
+                return $file;
+            };
+            $preview = (string) ($post['preview_image'] ?? '') !== '' ? $store((string) $post['preview_image'], Images::PREVIEW) : '';
+            if ($preview !== '') {
+                Articles::exec($db, 'UPDATE `{TP}mod_articles_items` SET `image` = ? WHERE `article_id` = ?', [$preview, $id]);
+            }
+            foreach ($post['images'] ?? [] as $name) {
+                $file = $store((string) $name, Images::GALLERY);
+                if ($file !== '') {
+                    Images::addFile($db, $id, $file);
+                }
+            }
+        }
+
+        return ['counts' => $counts, 'notes' => $notes];
+    }
+
+    /** Imports only fill a section without articles and groups. */
+    private static function assertEmpty(\Database $db, int $sectionId): void
+    {
+        if ((int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId]) > 0
+            || (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_groups` WHERE `section_id` = ?', [$sectionId]) > 0) {
+            throw new \DomainException('IMPORT_TARGET_NOT_EMPTY');
+        }
     }
 }

@@ -392,7 +392,7 @@ final class Articles
      *
      * @return list<int>
      */
-    private static function mapTags(\Database $db, array $tagIds, int $target): array
+    public static function mapTags(\Database $db, array $tagIds, int $target): array
     {
         $mapped = [];
         foreach ($tagIds as $tagId) {
@@ -421,7 +421,7 @@ final class Articles
         return $mapped;
     }
 
-    private static function copyDir(string $from, string $to): void
+    public static function copyDir(string $from, string $to): void
     {
         if (!is_dir($from)) {
             return;

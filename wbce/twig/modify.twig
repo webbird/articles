@@ -260,18 +260,39 @@
         {% if maintenance.empty %}
         <form class="art-card" action="{{ action }}" method="post">
             {% include '_hidden.twig' %}
-            <input type="hidden" name="art_action" value="import_news_img">
+            <input type="hidden" name="art_action" value="import">
             <h3>{{ t('IMPORT') }}</h3>
             <p>{{ t('IMPORT_INFO') }}</p>
             {% if maintenance.sources %}
                 <label>{{ t('IMPORT_SOURCE') }}
-                    <select name="source">{% for s in maintenance.sources %}<option value="{{ s.section_id }}">{{ s.label }}</option>{% endfor %}</select>
+                    <select name="source">
+                        {% for module, list in maintenance.sources %}
+                            <optgroup label="{{ module }}">{% for s in list %}<option value="{{ s.value }}">{{ s.label }}</option>{% endfor %}</optgroup>
+                        {% endfor %}
+                    </select>
                 </label>
                 <button type="submit" class="art-button" data-art-confirm="{{ t('CONFIRM_IMPORT') }}">{{ t('IMPORT_RUN') }}</button>
+                <p class="art-muted">{{ t('IMPORT_HINT') }}</p>
             {% else %}
                 <p class="art-muted">{{ t('IMPORT_NO_SOURCES') }}</p>
             {% endif %}
         </form>
+        {% if maintenance.packs %}
+        <form class="art-card" action="{{ action }}" method="post">
+            {% include '_hidden.twig' %}
+            <input type="hidden" name="art_action" value="demo">
+            <h3>{{ t('DEMO') }}</h3>
+            <p>{{ t('DEMO_INFO') }}</p>
+            <fieldset class="art-taglist">
+                <legend>{{ t('DEMO_PACK') }}</legend>
+                {% for key, pack in maintenance.packs %}
+                    <label><input type="radio" name="pack" value="{{ key }}"{% if loop.first %} checked{% endif %}> <strong>{{ pack.name }}</strong><br><small class="art-muted">{{ pack.description }}</small></label>
+                {% endfor %}
+            </fieldset>
+            <button type="submit" class="art-button" data-art-confirm="{{ t('CONFIRM_DEMO') }}">{{ t('DEMO_RUN') }}</button>
+            <p class="art-muted">{{ t('DEMO_HINT') }}</p>
+        </form>
+        {% endif %}
         {% endif %}
     </div>
 {% endif %}

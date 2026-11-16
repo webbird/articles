@@ -43,9 +43,11 @@ Installiert wird im Backend unter Erweiterungen, im Bereich für per FTP hochgel
 
 Das Modul nie über die Modulverwaltung installieren oder aktualisieren, solange es per Junction eingebunden ist: Das schreibt direkt ins Repository.
 
-## Import aus news_img
+## Import und Demo-Inhalte
 
-Im Backend steht der Import im Reiter „Wartung“, solange der Abschnitt leer ist. Für Tests geht er auch per Kommandozeile. Ziel ist ein leerer `articles`-Abschnitt. Die `news_img`-Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import.
+Im Backend stehen der Import und die Demo-Inhalte im Reiter „Wartung“, solange der Abschnitt leer ist. Quelle ist ein `news_img`- oder ein anderer `articles`-Abschnitt, den der Benutzer bearbeiten darf. Die Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import. Die Demo-Pakete liegen in `wbce/demodata/` (Bilder von Pixabay, Quellen in `copyright.csv`).
+
+Der Import aus `news_img` geht für Tests auch per Kommandozeile:
 
 ```bash
 php tests/import/import_news_img.php <wbce-verzeichnis> <quell-section> <ziel-section> <ziel-page>
@@ -70,6 +72,12 @@ php tests/integration/droplet_visibility.php <wbce-verzeichnis> <page_id> <secti
 
 ```bash
 php tests/integration/access_rights.php <wbce-verzeichnis> <page_id> <section_id>
+```
+
+`import_articles_demo.php` importiert einen articles-Abschnitt und das Demo-Paket „Restaurant“ in die Abschnitts-IDs 999999 und 999998, die es nicht gibt, vergleicht das Ergebnis und löscht beide wieder. Es entstehen keine Seiten oder Abschnitte.
+
+```bash
+php tests/integration/import_articles_demo.php <wbce-verzeichnis> <quell-section>
 ```
 
 ## Unit-Tests

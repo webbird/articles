@@ -171,7 +171,12 @@ final class Images
     /** Adds one upload to the gallery of an article (last position); returns the new row. */
     public static function addToGallery(\Database $db, int $articleId, array $upload, int $maxBytes, array $sizes): array
     {
-        $file = self::upload($upload, "/items/$articleId", $maxBytes, self::GALLERY, $sizes);
+        return self::addFile($db, $articleId, self::upload($upload, "/items/$articleId", $maxBytes, self::GALLERY, $sizes));
+    }
+
+    /** Gallery row for a file already stored in the article's folder (last position); removes the file if the row fails. */
+    public static function addFile(\Database $db, int $articleId, string $file): array
+    {
         $position = (int) $db->fetchValue('SELECT MAX(`position`) FROM `{TP}mod_articles_images` WHERE `article_id` = ?', [$articleId]) + 1;
         try {
             $id = Articles::insert($db, 'images', ['article_id' => $articleId, 'file' => $file, 'caption' => '', 'position' => $position]);

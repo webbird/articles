@@ -189,11 +189,11 @@ final class Backend
                 'text_color' => $editTag['text_color'] ?? '', 'global' => (bool) ($editTag['global'] ?? false),
             ],
             'url_tab'   => $tabUrl($tab),
-            'maintenance' => $tab === 'maintenance' ? self::maintenance($db, $sectionId) : [],
+            'maintenance' => $tab === 'maintenance' ? self::maintenance($db, $access, $sectionId) : [],
         ]);
     }
 
-    private static function maintenance(\Database $db, int $sectionId): array
+    private static function maintenance(\Database $db, Access $access, int $sectionId): array
     {
         $now = time();
         $missing = 0;
@@ -208,6 +208,7 @@ final class Backend
         }
         $empty = !(int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$sectionId])
             && !(int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_groups` WHERE `section_id` = ?', [$sectionId]);
+        // Import sources by module, value "module:section"; only for an empty section
         $sources = [];
         if ($empty && (int) $db->fetchValue("SELECT COUNT(*) FROM `{TP}addons` WHERE `directory` = 'news_img'")) {
             foreach ($db->fetchAll(
@@ -216,12 +217,20 @@ final class Backend
                    FROM `{TP}sections` s JOIN `{TP}pages` p ON p.`page_id` = s.`page_id`
                   WHERE s.`module` = 'news_img' ORDER BY p.`page_trail`, s.`position`"
             ) as $s) {
-                $sources[] = ['section_id' => (int) $s['section_id'], 'label' => ($s['menu_title'] ?: $s['page_title']) . ' (#' . (int) $s['section_id'] . ', ' . (int) $s['posts'] . ')'];
+                $sources['news_img'][] = ['value' => 'news_img:' . (int) $s['section_id'], 'label' => ($s['menu_title'] ?: $s['page_title']) . ' (#' . (int) $s['section_id'] . ', ' . (int) $s['posts'] . ')'];
+            }
+        }
+        if ($empty) {
+            foreach ($access->targets() as $target) {
+                $count = (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$target['section_id']]);
+                if ($target['section_id'] !== $sectionId && $count > 0) {
+                    $sources['articles'][] = ['value' => 'articles:' . $target['section_id'], 'label' => substr($target['label'], 0, -1) . ", $count)"];
+                }
             }
         }
         $images = Images::ofSection($db, $sectionId);
         return [
-            'missing' => $missing, 'orphaned' => $orphaned, 'empty' => $empty, 'sources' => $sources,
+            'missing' => $missing, 'orphaned' => $orphaned, 'empty' => $empty, 'sources' => $sources, 'packs' => $empty ? Import::demoPacks() : [],
             'images' => count($images), 'outside' => count(Articles::outsideDir($db, $sectionId)),
             'dir' => '/' . AccessFiles::dir($db, $sectionId, Articles::pageOf($db, $sectionId)) . '/',
         ];

@@ -337,15 +337,26 @@ try {
         case 'articles_relink':
             $back(['art_tab' => 'maintenance'], Backend::t('RELINK_DONE', Articles::relink($db, $sectionId)));
 
-        case 'import_news_img':
+        case 'import':
+        case 'demo':
             $params = ['art_tab' => 'maintenance'];
-            $source = (int) $post('source');
-            $sourcePage = (int) $db->fetchValue("SELECT `page_id` FROM `{TP}sections` WHERE `section_id` = ? AND `module` = 'news_img'", [$source]);
-            if ($sourcePage === 0 || !$admin->get_page_permission($sourcePage, 'admin')) {
-                throw new DomainException('ERR_ACCESS');
+            if ($post('art_action') === 'demo') {
+                $report = Import::demo($db, $post('pack'), $sectionId, $userId);
+            } else {
+                // "module:section"; the user must administer the source's page as well
+                [$module, $source] = array_pad(explode(':', $post('source'), 2), 2, '0');
+                $source = (int) $source;
+                $sourcePage = (int) $db->fetchValue('SELECT `page_id` FROM `{TP}sections` WHERE `section_id` = ? AND `module` = ?', [$source, $module]);
+                if ($sourcePage === 0 || !$admin->get_page_permission($sourcePage, 'admin')) {
+                    throw new DomainException('ERR_ACCESS');
+                }
+                $report = match ($module) {
+                    'news_img' => Import::fromNewsImg($db, $source, $sectionId, $pageId),
+                    'articles' => Import::fromArticles($db, $source, $sectionId, $pageId),
+                    default    => throw new DomainException('ERR_ACCESS'),
+                };
             }
-            $report = Import::fromNewsImg($db, $source, $sectionId, $pageId);
-            $back([], Backend::t('IMPORT_DONE', ...array_values($report['counts'])), [], null,
+            $back([], Backend::t($post('art_action') === 'demo' ? 'DEMO_DONE' : 'IMPORT_DONE', ...array_values($report['counts'])), [], null,
                 array_map(static fn (array $note): string => Backend::t($note[0], $note[1]), $report['notes']));
 
         default:

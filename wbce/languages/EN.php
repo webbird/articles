@@ -6,7 +6,7 @@
 return [
     'MOD_ARTICLES' => [
         // Import
-        'IMPORT_SOURCE_INVALID'    => 'The source is not a news_img section.',
+        'IMPORT_SOURCE_INVALID'    => 'This source cannot be imported.',
         'IMPORT_TARGET_NOT_EMPTY'  => 'Import only works into an empty section without articles and groups.',
         'IMPORT_VIEW_REPLACED'     => 'articles has no view "%s", "default" is used instead.',
         'IMPORT_GALLERY_REPLACED'  => 'articles has no gallery "%s", "fotorama" is used instead.',
@@ -180,10 +180,18 @@ return [
         'ACCESS_FILES_RUN'         => 'Renew',
         'ACCESS_FILES_DONE'        => 'Access files renewed.',
         'IMPORT'                   => 'Import',
-        'IMPORT_INFO'              => 'Takes over settings, groups, tags, posts and images of a news_img section. The source stays unchanged. Only possible while this section is empty.',
+        'IMPORT_INFO'              => 'Takes over settings, groups, tags, articles and images from another section. The source stays unchanged. Only possible while this section is empty.',
         'IMPORT_SOURCE'            => 'Source',
         'IMPORT_RUN'               => 'Import',
-        'IMPORT_NO_SOURCES'        => 'No news_img sections found.',
+        'IMPORT_NO_SOURCES'        => 'No sections found that you may import.',
+        'IMPORT_HINT'              => 'Only sections you may edit. The addresses of the articles are created anew below this page.',
+        'DEMO'                     => 'Demo content',
+        'DEMO_INFO'                => 'Fills the empty section with sample data, to try things out and as a starting point.',
+        'DEMO_PACK'                => 'Pack',
+        'DEMO_RUN'                 => 'Create demo content',
+        'DEMO_DONE'                => 'Created: %d articles, %d groups, %d tags, %d images.',
+        'CONFIRM_DEMO'             => 'Create demo content? Some settings of this section are set along the way.',
+        'DEMO_HINT'                => 'Tags are created in this section; existing ones of the same title are used. Undo only by deleting.',
         'CONFIRM_IMPORT'           => 'Import? The settings of this section are overwritten.',
         'IMPORT_DONE'              => 'Imported: %d articles, %d groups, %d tags, %d images.',
 

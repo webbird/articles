@@ -50,8 +50,8 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] Tags: anlegen, bearbeiten, löschen, Hintergrund- und Schriftfarbe, global oder pro Section; globale Tags nur für Admins
 - [x] Einstellungen: Expertenmodus, Sortierung (6 Varianten), Artikel pro Seite, alle Template-Felder, drei Bildgrößen mit je eigenem Zuschnitt (Abschnitt 4, „Bilder“), maximale Upload-Größe, Galerie, View, Block 2, Zielverzeichnis der Access-Dateien, Standard-Vorschaubild (Upload oder Kopie des Vorschaubilds eines Artikels der Section), „nur für Admins“
 - [x] Wechsel von View oder Galerie lädt deren Vorgaben, Wechsel der Galerie nur nach Warnung
-- [ ] Import in leere Sections aus `news_img`, `articles` und Topics (Abschnitt 6) (aus `news_img` fertig, im Reiter „Wartung“; der Rest mit Phase 6)
-- [ ] Demo-Packs in leere Sections, mit Allowlist für Settings
+- [ ] Import in leere Sections aus `news_img`, `articles` und Topics (Abschnitt 6) (aus `news_img` und `articles` fertig, im Reiter „Wartung“; Topics wartet auf ein Testmodul)
+- [x] Demo-Packs in leere Sections, mit Allowlist für Settings (`Import::DEMO_SETTINGS`, Werte über `Settings::save()`)
 
 ### Frontend
 
@@ -289,10 +289,10 @@ Danach legt `AccessFiles` die Dateien für die sichtbaren neuen Artikel an. Die 
 
 ### Weitere Quellen
 
-- Andere `articles`-Sections
+- Andere `articles`-Sections (`Import::fromArticles`, Phase 6): Einstellungen, Gruppen mit Bild, alle Artikel mit Status, Reihenfolge, Datumsangaben und Galerie, Standardbild. Nicht übernommen wird das Zielverzeichnis, die Links entstehen unter der Zielseite neu. Lokale Tags werden über ihren Titel im Ziel angelegt oder genutzt, globale bleiben. Zuordnung in `mod_articles_import` mit `source_module = 'articles'`
 - Topics, mit demselben Umfang wie heute in `news_img`. Ob ein Testmodul aufzutreiben ist, ist noch offen (2026-11-13)
 - Kein Import aus News 3.x (gestrichen am 2026-11-13)
-- Demo-Packs
+- Demo-Packs (`Import::demo`, Phase 6): „Restaurant“ und „Stadtverwaltung“ aus `news_img` v6.0, in `wbce/demodata/<paket>/` mit `data.php`, `meta.json` und `images/<slug>/`, Felder auf die Namen von articles umgestellt. Einstellungen nur aus `Import::DEMO_SETTINGS` und über `Settings::save()` geprüft. Tags entstehen lokal, ein vorhandener Tag gleichen Titels wird genutzt. Bilder laufen durch `Images::store()` (Prüfung, Neukodierung, alle Größen). Kein gemeinsamer Rollback: Bricht ein Paket mittendrin ab, bleibt ein teilweise gefüllter Abschnitt, den Löschen bereinigt. Die `copyright.csv` der Bilder liegt bei, wird aber noch nicht ausgewertet (geplantes Feature Bildquellen)
 
 Ein Abschlussbericht nennt Anzahl und Hinweise, etwa abweichende Views oder fehlende Bilddateien.
 
