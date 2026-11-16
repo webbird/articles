@@ -50,7 +50,7 @@
 
     <form id="art-bulk-{{ section_id }}" action="{{ action }}" method="post">
         {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="bulk">
-        <table class="art-table art-articles">
+        <div class="art-scroll"><table class="art-table art-articles">
             <caption class="art-sr">{{ t('TAB_ARTICLES') }}</caption>
             <thead>
                 <tr>
@@ -94,7 +94,7 @@
                 <tr><td colspan="{{ sortable ? 8 : 7 }}">{{ filtered ? t('NONE_FILTERED') : t('NO_ARTICLES') }}</td></tr>
             {% endfor %}
             </tbody>
-        </table>
+        </table></div>
         {% if not sortable and filtered %}<p class="art-hint">{{ t('SORT_HINT_FILTER') }}</p>{% endif %}
 
         {% if articles %}
@@ -131,7 +131,7 @@
             {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="{{ name }}">
         </form>
     {% endfor %}
-    <table class="art-table">
+    <div class="art-scroll"><table class="art-table">
         <caption class="art-sr">{{ t('TAB_GROUPS') }}</caption>
         <thead><tr>
             <th scope="col"><span class="art-sr">{{ t('ORDER') }}</span></th>
@@ -163,7 +163,7 @@
             <tr><td colspan="6">{{ t('NO_GROUPS') }}</td></tr>
         {% endfor %}
         </tbody>
-    </table>
+    </table></div>
     <p class="art-hint">{{ t('GROUP_HINT') }}</p>
 
     <form class="art-form" action="{{ action }}" method="post" enctype="multipart/form-data">
@@ -184,7 +184,7 @@
     <form id="art-tag_delete-{{ section_id }}" action="{{ action }}" method="post" hidden>
         {% include '_hidden.twig' %}<input type="hidden" name="art_action" value="tag_delete">
     </form>
-    <table class="art-table">
+    <div class="art-scroll"><table class="art-table">
         <caption class="art-sr">{{ t('TAB_TAGS') }}</caption>
         <thead><tr>
             <th scope="col">{{ t('TAG') }}</th>
@@ -212,7 +212,7 @@
             <tr><td colspan="4">{{ t('NO_TAGS') }}</td></tr>
         {% endfor %}
         </tbody>
-    </table>
+    </table></div>
 
     <form class="art-form" action="{{ action }}" method="post">
         {% include '_hidden.twig' %}

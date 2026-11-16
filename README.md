@@ -68,10 +68,10 @@ php tests/import/import_news_img.php <wbce-verzeichnis> <quell-section> <ziel-se
 php tests/integration/droplet_visibility.php <wbce-verzeichnis> <page_id> <section_id>
 ```
 
-`access_rights.php` prüft die Rechte im Backend (`Articles\Access`) mit fremden IDs, mit einem Ersatz für den angemeldeten Benutzer: Redakteur der Seite, Benutzer ohne Rechte, Admin. Dazu Speichern, Kopieren und Löschen eines Artikels. Es legt nur vorübergehend Zeilen in den articles-Tabellen an, keine Seiten oder Abschnitte. Der Abschnitt braucht mindestens einen Artikel und eine Gruppe.
+`access_rights.php` prüft die Rechte im Backend (`Articles\Access`) mit fremden IDs, mit einem Ersatz für den angemeldeten Benutzer: Redakteur der Seite, Benutzer ohne Rechte, Admin. Dazu Speichern, Kopieren und Löschen eines Artikels und, wenn ein zweiter articles-Abschnitt derselben Seite angegeben ist, das Verschieben dorthin und zurück. Es legt nur vorübergehend Zeilen in den articles-Tabellen an, keine Seiten oder Abschnitte. Der Abschnitt braucht mindestens einen Artikel und eine Gruppe.
 
 ```bash
-php tests/integration/access_rights.php <wbce-verzeichnis> <page_id> <section_id>
+php tests/integration/access_rights.php <wbce-verzeichnis> <page_id> <section_id> [<ziel-section>]
 ```
 
 `import_articles_demo.php` importiert einen articles-Abschnitt und das Demo-Paket „Restaurant“ in die Abschnitts-IDs 999999 und 999998, die es nicht gibt, vergleicht das Ergebnis und löscht beide wieder. Es entstehen keine Seiten oder Abschnitte.

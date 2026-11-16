@@ -43,7 +43,7 @@
 
         <fieldset class="art-card">
             <legend>{{ t('IMAGE_SIZES') }}</legend>
-            <table class="art-table art-sizes">
+            <div class="art-scroll"><table class="art-table art-sizes">
                 <thead><tr>
                     <th scope="col"><span class="art-sr">{{ t('SIZE') }}</span></th>
                     <th scope="col">{{ t('WIDTH') }}</th><th scope="col">{{ t('HEIGHT') }}</th>
@@ -60,7 +60,7 @@
                     </tr>
                 {% endfor %}
                 </tbody>
-            </table>
+            </table></div>
             <label class="art-field">{{ t('MAX_UPLOAD') }}
                 <input type="number" name="max_upload" value="{{ form.max_upload }}" min="1" max="{{ upload_limit }}"> MB
             </label>

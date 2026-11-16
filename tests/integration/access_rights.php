@@ -1,18 +1,19 @@
 <?php
 /**
  * Rights of the backend (Articles\Access) with foreign ids, and the write paths
- * save, copy and delete. Runs against a WBCE test installation with a stand-in
- * for the logged-in user. Creates only rows in the articles tables (no pages or
- * sections) and removes them again, also on errors.
+ * save, copy, move and delete. Runs against a WBCE test installation with a
+ * stand-in for the logged-in user. Creates only rows in the articles tables (no
+ * pages or sections) and removes them again, also on errors.
  *
- * Usage: php access_rights.php <wbce-dir> <page_id> <section_id>
+ * Usage: php access_rights.php <wbce-dir> <page_id> <section_id> [<move_target_section>]
  * The section must be an articles section with at least one article and one group.
+ * Moving is tested only with a second articles section on the same page.
  */
 
 declare(strict_types=1);
 
-if ($argc !== 4 || !is_file($argv[1] . '/config.php') || !ctype_digit($argv[2] . $argv[3])) {
-    fwrite(STDERR, "Usage: php access_rights.php <wbce-dir> <page_id> <section_id>\n");
+if (!in_array($argc, [4, 5], true) || !is_file($argv[1] . '/config.php') || !ctype_digit($argv[2] . $argv[3] . ($argv[4] ?? ''))) {
+    fwrite(STDERR, "Usage: php access_rights.php <wbce-dir> <page_id> <section_id> [<move_target_section>]\n");
     exit(1);
 }
 chdir($argv[1]);
@@ -28,7 +29,7 @@ use Articles\AccessFiles;
 use Articles\Articles;
 use Articles\Tags;
 
-[$pageId, $sectionId] = [(int) $argv[2], (int) $argv[3]];
+[$pageId, $sectionId, $moveTarget] = [(int) $argv[2], (int) $argv[3], (int) ($argv[4] ?? 0)];
 $db = $database;
 $failed = 0;
 $ok = static function (bool $cond, string $what) use (&$failed): void {
@@ -64,6 +65,15 @@ if ($ownArticle === 0 || $ownGroup === 0 || $otherSection === 0) {
     fwrite(STDERR, "Needs an article and a group in section $sectionId and one other section.\n");
     exit(1);
 }
+if ($moveTarget !== 0 && ($moveTarget === $sectionId || (string) $db->fetchValue('SELECT `module` FROM `{TP}sections` WHERE `section_id` = ? AND `page_id` = ?', [$moveTarget, $pageId]) !== 'articles')) {
+    fwrite(STDERR, "Section $moveTarget is not another articles section on page $pageId.\n");
+    exit(1);
+}
+// The articles sections of the page: what the editor of this page may target
+$pageSections = array_map('intval', array_column($db->fetchAll(
+    "SELECT s.`section_id` FROM `{TP}sections` s JOIN `{TP}pages` p ON p.`page_id` = s.`page_id` WHERE s.`page_id` = ? AND s.`module` = 'articles' ORDER BY p.`page_trail`, s.`position`",
+    [$pageId]
+), 'section_id'));
 
 $created = ['items' => [], 'groups' => [], 'tags' => []];
 $adminsOnly = (int) $db->fetchValue('SELECT `settings_admins_only` FROM `{TP}mod_articles_settings` WHERE `section_id` = ?', [$sectionId]);
@@ -102,7 +112,7 @@ try {
     $ok(!$a->tag($foreignTag), 'foreign tag');
     $ok(!$a->tag($globalTag), 'global tag only for admins');
     $ok(!$a->tag(999999999), 'unknown tag');
-    $ok(array_column($a->targets(), 'section_id') === [$sectionId], 'targets: only the own section');
+    $ok(array_column($a->targets(), 'section_id') === $pageSections, 'targets: the articles sections of the own page (' . implode(', ', $pageSections) . ')');
     $ok($a->settings($sectionId), 'settings while open to everyone');
     Articles::exec($db, 'UPDATE `{TP}mod_articles_settings` SET `settings_admins_only` = 1 WHERE `section_id` = ?', [$sectionId]);
     $ok(!(new Access($db, $user([$pageId], false)))->settings($sectionId), 'settings for admins only: editor refused');
@@ -143,6 +153,28 @@ try {
     $ok(is_file(ARTICLES_MEDIA_PATH . "/items/$copy/preview/x.txt"), 'copy: own image folder');
     $ok(Articles::tagIdsOf($db, $copy) === [$ownTag], 'copy: tags taken along');
 
+    if ($moveTarget !== 0) {
+        echo "-- move to section $moveTarget and back\n";
+        Articles::set($db, [$id], 'group_id', $ownGroup);
+        Articles::move($db, [$id], $moveTarget, true);
+        $row = $db->fetchRow('SELECT * FROM `{TP}mod_articles_items` WHERE `article_id` = ?', [$id]);
+        $ok((int) $row['section_id'] === $moveTarget && (int) $row['group_id'] === 0, 'moved: other section, without group');
+        $ok((int) $row['position'] === (int) $db->fetchValue('SELECT MAX(`position`) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$moveTarget]), 'moved: on top of the target');
+        $ok($row['link'] === AccessFiles::link(AccessFiles::dir($db, $moveTarget, $pageId), 'access-test', $id), 'moved: link in the directory of the target');
+        $file = AccessFiles::path((string) $row['link']);
+        $ok(is_file($file) && str_contains((string) file_get_contents($file), "define('ARTICLE_SECTION', $moveTarget)"), 'moved: access file points to the target section');
+        $tags = Articles::tagIdsOf($db, $id);
+        $ok(count($tags) === 1 && $tags !== [$ownTag]
+            && (string) $db->fetchValue('SELECT `title` FROM `{TP}mod_articles_tags` WHERE `tag_id` = ?', [$tags[0]]) === 'access test own'
+            && (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_tag_sections` WHERE `tag_id` = ? AND `section_id` = ?', [$tags[0], $moveTarget]) === 1,
+            'moved with tags: local tag recreated in the target by title');
+        Articles::move($db, [$id], $sectionId, false);
+        $row = $db->fetchRow('SELECT * FROM `{TP}mod_articles_items` WHERE `article_id` = ?', [$id]);
+        $ok((int) $row['section_id'] === $sectionId && Articles::tagIdsOf($db, $id) === [], 'moved back without tags');
+        $ok(str_contains((string) file_get_contents(AccessFiles::path((string) $row['link'])), "define('ARTICLE_SECTION', $sectionId)"), 'moved back: access file points to the own section');
+        $link = (string) $row['link'];
+    }
+
     Articles::delete($db, [$id, $copy]);
     $ok(!(int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `article_id` IN ' . Articles::in([$id, $copy])), 'delete: rows gone');
     $ok(!(int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_item_tags` WHERE `article_id` IN ' . Articles::in([$id, $copy])), 'delete: tag links gone');
@@ -155,7 +187,11 @@ try {
     foreach ($created['groups'] as $group) {
         Articles::exec($db, 'DELETE FROM `{TP}mod_articles_groups` WHERE `group_id` = ?', [$group]);
     }
-    foreach ($created['tags'] as $tag) {
+    // also the tag that moving recreated in the target
+    foreach (array_unique(array_merge($created['tags'], array_map('intval', array_column(
+        $db->fetchAll("SELECT `tag_id` FROM `{TP}mod_articles_tags` WHERE `title` LIKE 'access test%'"),
+        'tag_id'
+    )))) as $tag) {
         Tags::delete($db, $tag);
     }
 }
