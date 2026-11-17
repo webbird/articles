@@ -170,13 +170,15 @@
         {% include '_hidden.twig' %}
         <input type="hidden" name="art_action" value="group_save">
         <input type="hidden" name="group_id" value="{{ group_form.group_id }}">
-        <fieldset class="art-group-form">
+        <fieldset class="art-mini-form">
             <legend>{{ group_form.group_id ? t('EDIT_GROUP') : t('ADD_GROUP') }}</legend>
-            <label>{{ t('TITLE') }} <input type="text" name="title" value="{{ group_form.title }}" required maxlength="255"></label>
-            <label><input type="checkbox" name="active" value="1"{% if group_form.active %} checked{% endif %}> {{ t('GROUP_ACTIVE') }}</label>
-            <div class="art-group-image">{% include '_image.twig' with {image: group_image, field: 'image', remove: 'image_remove'} %}</div>
-            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
-            {% if group_form.group_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+            <label class="art-wide">{{ t('TITLE') }} <input type="text" name="title" value="{{ group_form.title }}" required maxlength="255"></label>
+            <label class="art-check"><input type="checkbox" name="active" value="1"{% if group_form.active %} checked{% endif %}> {{ t('GROUP_ACTIVE') }}</label>
+            <div class="art-row">{% include '_image.twig' with {image: group_image, field: 'image', remove: 'image_remove'} %}</div>
+            <div class="art-row art-buttons">
+                <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+                {% if group_form.group_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+            </div>
         </fieldset>
     </form>
 
@@ -218,17 +220,19 @@
         {% include '_hidden.twig' %}
         <input type="hidden" name="art_action" value="tag_save">
         <input type="hidden" name="tag_id" value="{{ tag_form.tag_id }}">
-        <fieldset>
+        <fieldset class="art-mini-form">
             <legend>{{ tag_form.tag_id ? t('EDIT_TAG') : t('ADD_TAG') }}</legend>
-            <label>{{ t('TITLE') }} <input type="text" name="title" value="{{ tag_form.title }}" required maxlength="255" data-art-tag-title></label>
-            <label>{{ t('TAG_COLOR') }} <input type="text" name="color" value="{{ tag_form.color }}" placeholder="#314B68" size="9" data-art-tag-color></label>
-            <label>{{ t('TAG_TEXT_COLOR') }} <input type="text" name="text_color" value="{{ tag_form.text_color }}" placeholder="{{ t('AUTOMATIC') }}" size="9" data-art-tag-text></label>
-            {% if is_admin %}<label><input type="checkbox" name="global" value="1"{% if tag_form.global %} checked{% endif %}> {{ t('TAG_GLOBAL') }}</label>{% endif %}
-            <span class="art-tag art-tag-preview" aria-hidden="true">{{ tag_form.title ?: t('TAG') }}</span>
-            <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
-            {% if tag_form.tag_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+            <label class="art-wide">{{ t('TITLE') }} <input type="text" name="title" value="{{ tag_form.title }}" required maxlength="255" data-art-tag-title></label>
+            <label class="art-narrow">{{ t('TAG_COLOR') }} <input type="text" name="color" value="{{ tag_form.color }}" placeholder="#314B68" data-art-tag-color></label>
+            <label class="art-narrow">{{ t('TAG_TEXT_COLOR') }} <input type="text" name="text_color" value="{{ tag_form.text_color }}" placeholder="{{ t('AUTOMATIC') }}" data-art-tag-text></label>
+            <div class="art-narrow" aria-hidden="true">{{ t('TAG_PREVIEW') }} <span class="art-tag art-tag-preview">{{ tag_form.title ?: t('TAG') }}</span></div>
+            {% if is_admin %}<label class="art-check"><input type="checkbox" name="global" value="1"{% if tag_form.global %} checked{% endif %}> {{ t('TAG_GLOBAL_CHECK') }}</label>{% endif %}
+            <p class="art-row art-hint">{{ t('TAG_HINT') }}</p>
+            <div class="art-row art-buttons">
+                <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
+                {% if tag_form.tag_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+            </div>
         </fieldset>
-        <p class="art-hint">{{ t('TAG_HINT') }}</p>
     </form>
 
 {% elseif tab == 'maintenance' %}

@@ -91,7 +91,15 @@
 .art-backend .art-dropzone.art-drop-active { border-color: var(--art-accent); background: #eef2f7; }
 .art-backend .art-dropzone label { display: block; font-weight: bold; margin: 0 0 .3em; }
 .art-backend .art-uploads { list-style: none; padding: 0; margin: .4em 0 0; font-size: .9em; }
-.art-backend .art-group-form > label, .art-backend .art-group-image { display: block; margin: 0 0 .6em; }
+/* Small forms (group, tag): label above the field, fields side by side, wrapping on narrow screens */
+.art-backend .art-form > .art-mini-form { display: flex; flex-wrap: wrap; gap: .8em 1.2em; align-items: flex-end; }
+.art-backend .art-form > .art-mini-form > .art-wide, .art-backend .art-form > .art-mini-form > .art-narrow { display: flex; flex-direction: column; gap: .25em; margin: 0; }
+.art-backend .art-mini-form > .art-wide { flex: 1 1 18em; }
+.art-backend .art-mini-form > .art-narrow { flex: 0 1 9em; }
+.art-backend .art-mini-form input[type="text"] { width: 100%; box-sizing: border-box; }
+.art-backend .art-mini-form .art-tag-preview { align-self: flex-start; padding: .35em .7em; }
+.art-backend .art-form > .art-mini-form > .art-check, .art-backend .art-mini-form > .art-row { flex-basis: 100%; margin: 0; }
+.art-backend .art-mini-form > .art-row > label { display: block; margin: .3em 0; }
 .art-backend .art-default-image { display: grid; grid-template-columns: repeat(auto-fit, minmax(16em, 1fr)); gap: 1em; }
 .art-backend .art-sizes input[type="number"] { width: 6em; }
 @media (max-width: 800px) { .art-backend .art-editor-grid { grid-template-columns: 1fr; } }
