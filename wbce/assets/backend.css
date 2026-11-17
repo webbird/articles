@@ -3,6 +3,8 @@
  * of the backend theme.
  */
 .art-backend { --art-line: #d6dae0; --art-muted: #5f6672; --art-accent: #314b68; margin: 0 0 1.5em; }
+/* display rules below would otherwise override the hidden attribute */
+.art-backend [hidden] { display: none !important; }
 .art-backend .art-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .art-backend .art-muted { color: var(--art-muted); }
 .art-backend .art-hint { color: var(--art-muted); font-size: .9em; margin: .4em 0 1em; }
@@ -26,8 +28,11 @@
 .art-backend .art-icon { text-decoration: none; color: var(--art-muted); }
 .art-backend .art-danger { color: #a32d2d; }
 
-.art-backend .art-filter { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: flex-end; margin: 0 0 .8em; }
-.art-backend .art-filter label { display: flex; flex-direction: column; font-size: .9em; }
+.art-backend .art-filter { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: flex-end; margin: 0 0 .8em; font-size: .9em; }
+.art-backend .art-filter label { display: flex; flex-direction: column; }
+/* the backend theme gives select, input and button different heights and margins */
+.art-backend :is(.art-filter, .art-bulk) :is(select, input:not([type="checkbox"]), .art-button) { box-sizing: border-box; height: 2.3em; margin: 0; font-size: 1em; }
+.art-backend :is(.art-filter, .art-bulk) .art-button { padding-block: 0; line-height: 1; }
 
 /* width 0 + min-width 100%: the scroll box adds no width of its own, so the table layout of the WBCE backend does not grow with a wide table */
 .art-backend .art-scroll { overflow-x: auto; width: 0; min-width: 100%; margin: 0 0 1em; }
@@ -56,8 +61,12 @@
 .art-backend .art-taglist legend { font-weight: bold; padding: 0 0 .3em; }
 
 .art-backend .art-bulk { display: flex; flex-wrap: wrap; gap: .6em 1em; align-items: flex-end; border: 1px solid var(--art-line); background: #f6f7f9; padding: .6em 1em; }
-.art-backend .art-bulk > label { display: flex; flex-direction: column; font-size: .9em; }
+.art-backend .art-bulk > :not(legend) { font-size: .9em; margin: 0; }
+.art-backend .art-bulk > label { display: flex; flex-direction: column; }
+.art-backend .art-bulk > button.art-button { font-size: .9em; }
 .art-backend .art-bulk legend { font-weight: bold; }
+.art-backend .art-bulk .art-taglist legend { font-weight: normal; padding: 0; }
+.art-backend .art-bulk .art-taglist label { display: flex; align-items: center; gap: .3em; height: 2.3em; margin: 0; }
 
 .art-backend .art-form fieldset { border: 1px solid var(--art-line); padding: .7em 1em; margin: 0 0 1em; }
 .art-backend .art-form legend { font-weight: bold; padding: 0 .3em; }
