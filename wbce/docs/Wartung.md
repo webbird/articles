@@ -24,7 +24,7 @@ Nach einer Änderung des Verzeichnisses der Detailseiten (siehe [Einstellungen](
 
 ## Import
 
-Der Import füllt einen **leeren** Abschnitt, also einen ohne Artikel und Gruppen, mit dem Inhalt eines anderen Abschnitts. Die Quelle bleibt unverändert, die Einstellungen dieses Abschnitts werden überschrieben. Zur Auswahl stehen `news_img`- und andere `articles`-Abschnitte, deren Seite du bearbeiten darfst. Die Zahl in Klammern ist die Anzahl der Artikel.
+Der Import füllt einen **leeren** Abschnitt, also einen ohne Artikel und Gruppen, mit dem Inhalt eines anderen Abschnitts. Die Quelle bleibt unverändert, die Einstellungen dieses Abschnitts werden überschrieben. Zur Auswahl stehen `news_img`-, Topics- und andere `articles`-Abschnitte, deren Seite du bearbeiten darfst. Die Zahl in Klammern ist die Anzahl der Artikel.
 
 Nach dem Import meldet `articles`, wie viele Artikel, Gruppen, Tags und Bilder übernommen wurden. Hinweise zeigen zum Beispiel fehlende Bilddateien.
 
@@ -43,6 +43,19 @@ Die Adressen der Artikel entstehen neu. Alte Beitragsadressen und Links im Forma
 ### Aus einem anderen articles-Abschnitt
 
 Übernommen werden die Einstellungen (ohne das Verzeichnis der Detailseiten), die Gruppen mit Bild, alle Artikel mit Status, Reihenfolge, Zeitraum, Autor und Galerie sowie das Standardbild. Lokale Tags der Quelle werden über ihren Namen in diesem Abschnitt angelegt oder genutzt, globale bleiben. Die Adressen der Artikel entstehen unter dieser Seite neu.
+
+### Aus Topics
+
+Auch umbenannte Kopien von Topics stehen zur Auswahl, unter ihrem Modulnamen.
+
+| Was | Wie |
+|---|---|
+| Einstellungen | Topics pro Seite und die Sortierung: nach Position oder nach Datum. Andere Sortierungen (Titel, Wichtigkeit, Eventkalender, Kommentare) gibt es in `articles` nicht, dann gilt die benutzerdefinierte Reihenfolge, mit Hinweis. Die Templates von Topics brauchen dessen CSS und eigene Platzhalter, deshalb bleiben die von `articles` |
+| Topics | alle, mit Zeitraum, Autor und Anlagedatum. Öffentlich, Aktuell und Top-Aktuell werden aktiv. Unveröffentlichte, versteckte und nur für angemeldete Besucher sichtbare Topics werden inaktiv, mit Hinweis. Das Zusatzfeld (Extra) landet in Block 2 |
+| Bilder | Das Topic-Bild wird Vorschaubild, die Zusatzbilder werden Galerie, mit Bildtext. Übernommen wird jeweils die größte Fassung (aus `zoom/`), die Größen berechnet `articles` neu |
+| Adresse | Der Dateiname der Quelle bleibt. Nur der Standardname `topicNN` wird durch den Titel ersetzt |
+
+Nicht übernommen werden Kommentare (mit Hinweis auf die Anzahl), Schlüsselwörter, Beschreibungen, Gruppen und „Siehe auch“.
 
 ## Demo-Inhalte
 

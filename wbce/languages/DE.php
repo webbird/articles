@@ -12,6 +12,9 @@ return [
         'IMPORT_GALLERY_REPLACED'  => 'Die Galerie „%s“ gibt es in articles nicht, verwendet wird „fotorama“.',
         'IMPORT_FILE_MISSING'      => 'Bilddatei fehlt in der Quelle: %s',
         'IMPORT_FILE_FAILED'       => 'Bilddatei konnte nicht angelegt werden: %s',
+        'IMPORT_SORT_REPLACED'     => 'Die Sortierung der Quelle gibt es in articles nicht, verwendet wird die benutzerdefinierte Reihenfolge.',
+        'IMPORT_TOPICS_HIDDEN'     => '%s Topics waren versteckt oder nur für angemeldete Besucher sichtbar. Sie sind jetzt inaktiv.',
+        'IMPORT_COMMENTS_SKIPPED'  => '%s Kommentare wurden nicht übernommen, articles hat keine Kommentare.',
 
         // Frontend-Platzhalter [TEXT_*]
         'TEXT_AT'                  => 'um',

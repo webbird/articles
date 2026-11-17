@@ -46,7 +46,7 @@ Das Modul nie über die Modulverwaltung installieren oder aktualisieren, solange
 
 ## Import und Demo-Inhalte
 
-Im Backend stehen der Import und die Demo-Inhalte im Reiter „Wartung“, solange der Abschnitt leer ist. Quelle ist ein `news_img`- oder ein anderer `articles`-Abschnitt, den der Benutzer bearbeiten darf. Die Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import. Die Demo-Pakete liegen in `wbce/demodata/` (Bilder von Pixabay, Quellen in `copyright.csv`).
+Im Backend stehen der Import und die Demo-Inhalte im Reiter „Wartung“, solange der Abschnitt leer ist. Quelle ist ein `news_img`-, Topics- oder ein anderer `articles`-Abschnitt, den der Benutzer bearbeiten darf. Die Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import. Die Demo-Pakete liegen in `wbce/demodata/` (Bilder von Pixabay, Quellen in `copyright.csv`).
 
 Der Import aus `news_img` geht für Tests auch per Kommandozeile:
 
@@ -79,6 +79,12 @@ php tests/integration/access_rights.php <wbce-verzeichnis> <page_id> <section_id
 
 ```bash
 php tests/integration/import_articles_demo.php <wbce-verzeichnis> <quell-section>
+```
+
+`import_topics.php` importiert einen Topics-Abschnitt in die Abschnitts-ID 999997 und vergleicht Texte, Status, Daten, Bilder und Einstellungen. Für die Galerie legt es beim ersten Topic vorübergehend zwei Zusatzbilder an. Danach löscht es alles wieder.
+
+```bash
+php tests/integration/import_topics.php <wbce-verzeichnis> <topics-section>
 ```
 
 ## Unit-Tests

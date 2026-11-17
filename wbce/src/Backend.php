@@ -221,6 +221,21 @@ final class Backend
             }
         }
         if ($empty) {
+            foreach ($db->fetchAll('SELECT DISTINCT `module` FROM `{TP}sections`') as $row) {
+                $module = (string) $row['module'];
+                if (!Import::isTopics($db, $module)) {
+                    continue;
+                }
+                foreach ($db->fetchAll(
+                    "SELECT s.`section_id`, p.`menu_title`, p.`page_title`,
+                            (SELECT COUNT(*) FROM `{TP}mod_$module` t WHERE t.`section_id` = s.`section_id`) AS `posts`
+                       FROM `{TP}sections` s JOIN `{TP}pages` p ON p.`page_id` = s.`page_id`
+                      WHERE s.`module` = ? ORDER BY p.`page_trail`, s.`position`",
+                    [$module]
+                ) as $s) {
+                    $sources[$module][] = ['value' => "$module:" . (int) $s['section_id'], 'label' => ($s['menu_title'] ?: $s['page_title']) . ' (#' . (int) $s['section_id'] . ', ' . (int) $s['posts'] . ')'];
+                }
+            }
             foreach ($access->targets() as $target) {
                 $count = (int) $db->fetchValue('SELECT COUNT(*) FROM `{TP}mod_articles_items` WHERE `section_id` = ?', [$target['section_id']]);
                 if ($target['section_id'] !== $sectionId && $count > 0) {

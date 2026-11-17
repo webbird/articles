@@ -175,16 +175,16 @@ final class Images
     }
 
     /** Gallery row for a file already stored in the article's folder (last position); removes the file if the row fails. */
-    public static function addFile(\Database $db, int $articleId, string $file): array
+    public static function addFile(\Database $db, int $articleId, string $file, string $caption = ''): array
     {
         $position = (int) $db->fetchValue('SELECT MAX(`position`) FROM `{TP}mod_articles_images` WHERE `article_id` = ?', [$articleId]) + 1;
         try {
-            $id = Articles::insert($db, 'images', ['article_id' => $articleId, 'file' => $file, 'caption' => '', 'position' => $position]);
+            $id = Articles::insert($db, 'images', ['article_id' => $articleId, 'file' => $file, 'caption' => $caption, 'position' => $position]);
         } catch (\RuntimeException $e) {
             self::remove("/items/$articleId", $file, self::GALLERY);
             throw $e;
         }
-        return ['image_id' => $id, 'file' => $file, 'caption' => '', 'position' => $position];
+        return ['image_id' => $id, 'file' => $file, 'caption' => $caption, 'position' => $position];
     }
 
     /**

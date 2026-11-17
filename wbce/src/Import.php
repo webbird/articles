@@ -2,8 +2,8 @@
 /**
  * articles – Import
  * Fills an empty articles section from another section, the source stays
- * untouched: news_img 5.0.x and v6.0, another articles section, or a demo
- * pack from demodata/ (docs/Konzept.md, section 6).
+ * untouched: news_img 5.0.x and v6.0, another articles section, Topics, or a
+ * demo pack from demodata/ (docs/Konzept.md, section 6).
  * @module articles  @author Bianka Martinovic
  * @license GNU General Public License   @platform WBCE 1.7.0+
  */
@@ -409,14 +409,7 @@ final class Import
         $counts = ['articles' => 0, 'groups' => 0, 'tags' => 0, 'images' => 0];
         $notes = [];
 
-        // Settings: the allowed keys on top of the current values, checked like the settings form
-        $current = Settings::get($db, $targetSectionId) ?? throw new \DomainException('ERR_SECTION');
-        $in = ['max_upload' => (string) (int) ceil((int) $current['max_upload'] / 1048576)] + array_map('strval', $current);
-        foreach (array_intersect_key(is_array($data['settings'] ?? null) ? $data['settings'] : [], array_flip(self::DEMO_SETTINGS)) as $key => $value) {
-            $in[$key] = (string) $value;
-        }
-        Settings::save($db, $targetSectionId, $in, false);
-        $sizes = Images::sizes(Settings::get($db, $targetSectionId));
+        $sizes = self::applySettings($db, $targetSectionId, array_intersect_key(is_array($data['settings'] ?? null) ? $data['settings'] : [], array_flip(self::DEMO_SETTINGS)));
 
         $groups = [];
         foreach ($data['groups'] ?? [] as $group) {
@@ -477,6 +470,166 @@ final class Import
         }
 
         return ['counts' => $counts, 'notes' => $notes];
+    }
+
+    /**
+     * Imports a Topics section into an empty articles section: page size and
+     * sort order, all topics with picture and additional pictures. The module
+     * may be a renamed copy of Topics, its tables are found by the module name.
+     * Not taken over: templates (they need the CSS and placeholders of Topics),
+     * keywords, descriptions, groups, "see also" and comments.
+     * shortcut: images are stored after the commit, a failure there leaves articles without images (noted in the report).
+     *
+     * @return array{counts: array<string, int>, notes: list<array{0: string, 1: string}>}
+     * @throws \DomainException with a MOD_ARTICLES text key when source or target do not fit
+     */
+    public static function fromTopics(\Database $db, int $sourceSectionId, int $targetSectionId, int $targetPageId): array
+    {
+        $module = (string) $db->fetchValue('SELECT `module` FROM `{TP}sections` WHERE `section_id` = ?', [$sourceSectionId]);
+        if (!self::isTopics($db, $module)
+            || !($settings = $db->fetchRow("SELECT * FROM `{TP}mod_{$module}_settings` WHERE `section_id` = ?", [$sourceSectionId]))) {
+            throw new \DomainException('IMPORT_SOURCE_INVALID');
+        }
+        self::assertEmpty($db, $targetSectionId);
+
+        $notes = [];
+        // Topics sorts by position (0) or date (1) like articles; score, title, event and comments do not exist here
+        $sort = (int) $settings['sort_topics'];
+        if ($sort !== 0 && $sort !== 1) {
+            $notes[] = ['IMPORT_SORT_REPLACED', ''];
+        }
+        $sizes = self::applySettings($db, $targetSectionId, ['sort_order' => $sort === 1 ? 1 : 0, 'per_page' => max(0, (int) $settings['topics_per_page'])]);
+
+        $topics = $db->fetchAll("SELECT * FROM `{TP}mod_$module` WHERE `section_id` = ? ORDER BY `position`, `topic_id`", [$sourceSectionId]);
+        $now = time();
+        $counts = ['articles' => 0, 'groups' => 0, 'tags' => 0, 'images' => 0];
+        $map = [];   // article id => topic
+        $db->transaction(static function (\Database $db) use ($topics, $sourceSectionId, $targetSectionId, $targetPageId, $now, &$map, &$counts): void {
+            $dir = AccessFiles::dir($db, $targetSectionId, $targetPageId);
+            foreach ($topics as $topic) {
+                $topicId = (int) $topic['topic_id'];
+                $id = Articles::insert($db, 'items', [
+                    'section_id'      => $targetSectionId,
+                    'group_id'        => 0,
+                    'position'        => (int) $topic['position'],
+                    // 4 public, 5 current, 6 top; below that unpublished, registered visitors or hidden
+                    'active'          => (int) $topic['active'] >= 4 ? 1 : 0,
+                    'title'           => (string) $topic['title'],
+                    'link'            => '',
+                    'image'           => '',
+                    'teaser'          => (string) $topic['content_short'],
+                    'content'         => (string) $topic['content_long'],
+                    'block2'          => (string) $topic['content_extra'],
+                    'published_from'  => (int) $topic['published_when'],
+                    'published_until' => (int) $topic['published_until'],
+                    'created_at'      => (int) $topic['posted_first'],
+                    'created_by'      => (int) $topic['posted_by'],
+                    'modified_at'     => (int) $topic['posted_modified'] ?: (int) $topic['posted_first'],
+                    'modified_by'     => (int) $topic['posted_by'],
+                ]);
+                // "topic12" is the default link of Topics and says nothing, the title does
+                $link = (string) $topic['link'];
+                $slug = self::slug(basename($link) === "topic$topicId" ? '' : $link, $topicId, (string) $topic['title']);
+                Articles::exec($db, 'UPDATE `{TP}mod_articles_items` SET `link` = ? WHERE `article_id` = ?', [AccessFiles::link($dir, $slug, $id), $id]);
+                Articles::insert($db, 'import', [
+                    'article_id' => $id, 'source_module' => 'topics', 'source_section_id' => $sourceSectionId, 'source_id' => $topicId, 'imported_at' => $now,
+                ]);
+                $map[$id] = $topic;
+                $counts['articles']++;
+            }
+        });
+
+        $hidden = count(array_filter($topics, static fn (array $t): bool => (int) $t['active'] >= 1 && (int) $t['active'] <= 3));
+        if ($hidden > 0) {
+            $notes[] = ['IMPORT_TOPICS_HIDDEN', (string) $hidden];
+        }
+        $comments = $db->tableExists("{TP}mod_{$module}_comments") && $topics !== []
+            ? (int) $db->fetchValue("SELECT COUNT(*) FROM `{TP}mod_{$module}_comments` WHERE `topic_id` IN (" . implode(',', array_map('intval', array_column($topics, 'topic_id'))) . ')')
+            : 0;
+        if ($comments > 0) {
+            $notes[] = ['IMPORT_COMMENTS_SKIPPED', (string) $comments];
+        }
+
+        // Images after the commit, through the same check and re-encoding as uploads; zoom/ holds the largest version
+        $base = realpath(WB_PATH . '/' . ltrim((string) $settings['picture_dir'], '/'));
+        $root = realpath(WB_PATH);
+        if ($base === false || !str_starts_with($base, $root . DIRECTORY_SEPARATOR)) {
+            $base = null;
+            $notes[] = ['IMPORT_FILE_MISSING', (string) $settings['picture_dir']];
+        }
+        foreach ($map as $id => $topic) {
+            $store = static function (string $dir, string $name, array $derived) use ($id, $sizes, $root, &$notes, &$counts): string {
+                $source = is_file("$dir/zoom/$name") ? "$dir/zoom/$name" : "$dir/$name";
+                try {
+                    $file = is_file($source) ? Images::store($source, $name, "/items/$id", $derived, $sizes) : '';
+                } catch (\DomainException) {
+                    $file = '';
+                }
+                if ($file === '') {
+                    $notes[] = ['IMPORT_FILE_MISSING', str_replace('\\', '/', substr($source, strlen($root)))];
+                    return '';
+                }
+                $counts['images']++;
+                return $file;
+            };
+            $picture = basename((string) $topic['picture']);
+            if ($picture !== '' && $base !== null && ($file = $store($base, $picture, Images::PREVIEW)) !== '') {
+                Articles::exec($db, 'UPDATE `{TP}mod_articles_items` SET `image` = ? WHERE `article_id` = ?', [$file, $id]);
+            }
+            foreach ($base === null ? [] : self::topicPictures($db, $module, "$base/topic" . (int) $topic['topic_id'], (int) $topic['topic_id']) as [$name, $caption]) {
+                if (($file = $store("$base/topic" . (int) $topic['topic_id'], $name, Images::GALLERY)) !== '') {
+                    Images::addFile($db, $id, $file, $caption);
+                }
+            }
+            AccessFiles::sync($db, $id);
+        }
+        return ['counts' => $counts, 'notes' => $notes];
+    }
+
+    /** A module with the tables of Topics; copies of Topics carry their folder name in the table names. */
+    public static function isTopics(\Database $db, string $module): bool
+    {
+        return preg_match('/^[a-z0-9_]+$/', $module) === 1 && !in_array($module, ['news_img', 'articles'], true)
+            && $db->fieldExists("{TP}mod_$module", 'topic_id') && $db->tableExists("{TP}mod_{$module}_settings");
+    }
+
+    /**
+     * Additional pictures of a topic like Topics shows them: from the table
+     * addpics if it lists any, else every image in the folder topic<id>/.
+     *
+     * @return list<array{0: string, 1: string}> file name, caption
+     */
+    private static function topicPictures(\Database $db, string $module, string $dir, int $topicId): array
+    {
+        if ($db->tableExists("{TP}mod_{$module}_addpics")) {
+            $rows = $db->fetchAll("SELECT `picname`, `picdesc` FROM `{TP}mod_{$module}_addpics` WHERE `topic_id` = ? ORDER BY `position`", [$topicId]);
+            if ($rows !== []) {
+                return array_map(static fn (array $r): array => [basename((string) $r['picname']), (string) $r['picdesc']], $rows);
+            }
+        }
+        $files = array_values(array_filter(
+            is_dir($dir) ? scandir($dir) : [],
+            static fn (string $f): bool => is_file("$dir/$f") && in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)
+        ));
+        natcasesort($files);
+        return array_map(static fn (string $f): array => [$f, ''], array_values($files));
+    }
+
+    /**
+     * Sets some settings on top of the current ones, checked like the settings form.
+     *
+     * @param array<string, int|string> $values
+     * @return array<string, array{0: int, 1: int, 2: bool}> the image sizes afterwards
+     */
+    private static function applySettings(\Database $db, int $sectionId, array $values): array
+    {
+        $current = Settings::get($db, $sectionId) ?? throw new \DomainException('ERR_SECTION');
+        $in = ['max_upload' => (string) (int) ceil((int) $current['max_upload'] / 1048576)] + array_map('strval', $current);
+        foreach ($values as $key => $value) {
+            $in[$key] = (string) $value;
+        }
+        Settings::save($db, $sectionId, $in, false);
+        return Images::sizes(Settings::get($db, $sectionId));
     }
 
     /** Imports only fill a section without articles and groups. */

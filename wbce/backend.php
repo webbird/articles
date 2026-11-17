@@ -363,7 +363,7 @@ try {
                 $report = match ($module) {
                     'news_img' => Import::fromNewsImg($db, $source, $sectionId, $pageId),
                     'articles' => Import::fromArticles($db, $source, $sectionId, $pageId),
-                    default    => throw new DomainException('ERR_ACCESS'),
+                    default    => Import::fromTopics($db, $source, $sectionId, $pageId),
                 };
             }
             $back([], Backend::t($post('art_action') === 'demo' ? 'DEMO_DONE' : 'IMPORT_DONE', ...array_values($report['counts'])), [], null,

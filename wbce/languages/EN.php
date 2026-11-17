@@ -12,6 +12,9 @@ return [
         'IMPORT_GALLERY_REPLACED'  => 'articles has no gallery "%s", "fotorama" is used instead.',
         'IMPORT_FILE_MISSING'      => 'Image file missing in the source: %s',
         'IMPORT_FILE_FAILED'       => 'Image file could not be created: %s',
+        'IMPORT_SORT_REPLACED'     => 'The sort order of the source does not exist in articles, the custom order is used.',
+        'IMPORT_TOPICS_HIDDEN'     => '%s topics were hidden or visible to registered visitors only. They are inactive now.',
+        'IMPORT_COMMENTS_SKIPPED'  => '%s comments were not taken over, articles has no comments.',
 
         // Frontend placeholders [TEXT_*]
         'TEXT_AT'                  => 'at',
