@@ -14,7 +14,7 @@ final class Settings
 {
     /** Views shipped with the module; own views in views/<name>/ are allowed as well. */
     public const VIEWS     = ['default', 'grid', 'avatar'];
-    public const GALLERIES = ['fotorama', 'masonry', 'lightcase', 'none'];
+    public const GALLERIES = ['fotorama', 'masonry', 'tobii', 'none'];
 
     /** Variables of views/<name>/config.php (format of news_img, so its views can be copied) => columns. */
     private const VIEW_TEMPLATES = [

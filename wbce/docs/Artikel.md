@@ -86,7 +86,7 @@ Die Galerie steht unter dem Inhalt. Bei einem neuen Artikel geht sie erst nach d
 - Wer speichert, während noch Bilder hochgeladen werden, wird gefragt, weil der Rest dann abbricht.
 - Ohne JavaScript werden die ausgewählten Bilder mit „Speichern“ hochgeladen. Der Server nimmt dabei nur eine begrenzte Zahl Dateien auf einmal an, meist 20.
 
-Welche Galerie die Website zeigt (Fotorama, Masonry, Lightcase oder keine), legen die [Einstellungen](Einstellungen.md) fest.
+Welche Galerie die Website zeigt (Fotorama, Masonry, Tobii oder keine), legen die [Einstellungen](Einstellungen.md) fest.
 
 ## Detailseite und Sichtbarkeit
 

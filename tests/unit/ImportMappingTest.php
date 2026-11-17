@@ -72,6 +72,14 @@ final class ImportMappingTest extends TestCase
         self::assertSame([['IMPORT_VIEW_REPLACED', 'faq'], ['IMPORT_GALLERY_REPLACED', 'slick']], $notes);
     }
 
+    public function testLightcaseBecomesTobiiWithNote(): void
+    {
+        [$settings, $notes] = Import::mapNewsImgSettings(['gallery' => 'lightcase'] + self::NEWS_IMG);
+
+        self::assertSame('tobii', $settings['gallery']);
+        self::assertSame([['IMPORT_GALLERY_TOBII', 'lightcase']], $notes);
+    }
+
     public function testDefaultsForMissingAndEmptyValues(): void
     {
         [$settings] = Import::mapNewsImgSettings([

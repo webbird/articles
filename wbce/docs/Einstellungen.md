@@ -28,7 +28,7 @@ Der Button **Einstellungen** öffnet die Einstellungen des Abschnitts. Ist „Ei
 - **Galerie** bestimmt, wie die Bilder der Galerie auf der Detailseite erscheinen:
   - **Fotorama:** Diashow mit Vorschaubildern
   - **Masonry:** Raster mit unterschiedlich hohen Bildern
-  - **Lightcase:** Vorschaubilder, ein Klick öffnet das Bild groß
+  - **Tobii:** Raster aus Vorschaubildern, ein Klick öffnet das Bild groß in einer Lightbox. Dort lässt sich mit Pfeiltasten oder Wischen blättern, der Bildtext steht darunter
   - **Keine:** keine Galerie
 
   Der Wechsel ersetzt nach einer Rückfrage das Template „Detailseite: Inhalt“ und die Bild-Schleife.

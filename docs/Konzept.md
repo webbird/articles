@@ -62,7 +62,8 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] „Weiterlesen“ nur bei Langtext oder Galerie
 - [x] Bild-Fallback: Artikel, Gruppe, Section-Standardbild, in Listen danach eine Platzhalterkachel mit Initiale (Reihenfolge wie `news_img` v6.0)
 - [x] Views `default`, `grid`, `avatar` und eigene Views. `default` im Vergleich mit news_img, `grid` und `avatar` am 2026-11-13 im Browser geprüft (Umschalten über die Einstellungen, Liste, Detailseite, Platzhalterkachel, keine offenen Platzhalter, keine JS-Fehler)
-- [x] Galerien Fotorama, Masonry, Lightcase, keine. Am 2026-11-13 im Browser geprüft. Masonry griff nie, weil das Skript vor dem Galerie-HTML lief (schon in news_img v6.0); jetzt erst nach DOM-Ready
+- [x] Galerien Fotorama, Masonry, Tobii, keine. Am 2026-11-13 im Browser geprüft. Masonry griff nie, weil das Skript vor dem Galerie-HTML lief (schon in news_img v6.0); jetzt erst nach DOM-Ready
+- [x] Lightcase durch Tobii ersetzt (beschlossen und umgesetzt 2026-11-17): Lightcase war veraltet, die Website des Projekts gibt es nicht mehr, und es brauchte jQuery. Ersatz ist [Tobii](https://github.com/midzer/tobii) (MIT, Vanilla JS ohne Abhängigkeiten, 3.2.1 vom 2026-10-28 aus der npm-Registry, Prüfsumme verglichen, rund 23 KB JS und 7 KB CSS, ARIA, Fokus-Falle, Tastatur, Wischen, Bildtexte, Gruppen über `data-group`). Die Galerie `js/galleries/tobii/` bindet die IIFE-Datei ohne Build-Schritt ein, die Beschriftungen der Lightbox kommen aus den Sprachdateien. Das Vorschaubild-Raster, bei Lightcase `flexImages`, übernimmt CSS Grid (`gallery.css`). Der Bildtext steht nur in der Lightbox, Tobii liest ihn aus `alt`. Der Import aus `news_img` bildet `lightcase` auf `tobii` ab, mit Hinweis. Eine Migration in `upgrade.php` gibt es nicht, weil articles noch kein Release hatte. Ein noch gespeichertes `lightcase` lädt kein Skript mehr, die Bilder bleiben dann einfache Links auf die große Fassung
 - [x] Keywords-Meta aus den Tags
 - [x] Sichtbarkeit überall gleich: aktiv, Titel vorhanden, im Zeitraum, Gruppe aktiv oder keine Gruppe
 
@@ -200,7 +201,8 @@ Twig über `getTwig()` mit `setDefaultStrategy('html')`, wie in `reservations`. 
 | `jquery.slugit.js` | Einige Zeilen Vanilla JS |
 | jQuery-UI-Drag-&-Drop, `XBTooltip` | Vanilla JS |
 | dm-uploader | Uploader in `assets/backend_body.js`, nach dem Vorbild von `nwi-uploader.js` aus `v6.0` |
-| Fotorama, Masonry, Lightcase | Bleiben, nur Laufzeitdateien. Lightcase ohne `scss`, `bower.json`, `package.json` und Changelog; `vendor/jQuery/jquery.events.touch.js` wird noch gebraucht |
+| Fotorama, Masonry | Bleiben, nur Laufzeitdateien |
+| Lightcase | Ersetzt durch Tobii 3.2.1 (`tobii.min.js`, `tobii.min.css`, `LICENSE.md`), Vanilla JS ohne jQuery (Abschnitt 2) |
 
 Sprachen liegen in `languages/XX.php` mit dem Namespace `MOD_ARTICLES` und werden über `Lang::loadLanguage(__DIR__)` geladen. Die `TEXT_*`-Platzhalter kommen von dort.
 

@@ -37,7 +37,11 @@ final class Import
             $view    = 'default';
         }
         $gallery = (string) ($s['gallery'] ?? 'fotorama');
-        if (!in_array($gallery, Settings::GALLERIES, true)) {
+        if ($gallery === 'lightcase') {
+            // Lightcase was replaced by Tobii, also a lightbox with thumbnails
+            $notes[] = ['IMPORT_GALLERY_TOBII', $gallery];
+            $gallery = 'tobii';
+        } elseif (!in_array($gallery, Settings::GALLERIES, true)) {
             $notes[] = ['IMPORT_GALLERY_REPLACED', $gallery];
             $gallery = 'fotorama';
         }

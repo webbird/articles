@@ -1,0 +1,7 @@
+/* articles – thumbnail grid of the Tobii gallery; the lightbox itself is styled by tobii.min.css */
+.articles-tobii { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: .5rem; margin: 1em 0; }
+.articles-tobii-item { display: block; overflow: hidden; border-radius: 3px; }
+.articles-tobii-item img { display: block; width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .2s; }
+.articles-tobii-item:hover img, .articles-tobii-item:focus-visible img { transform: scale(1.04); }
+.articles-tobii-item:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .articles-tobii-item img { transition: none; } }
