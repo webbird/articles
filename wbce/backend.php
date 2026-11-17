@@ -136,8 +136,14 @@ try {
                 }
             });
             Images::saveGallery($db, $id, is_array($_POST['caption'] ?? null) ? $_POST['caption'] : [], $ids('image_order'), $ids('image_delete'));
-            foreach (Images::filesOf('gallery') as $file) {
+            $gallery = Images::filesOf('gallery');
+            foreach ($gallery as $file) {
                 $image(static fn () => Images::addToGallery($db, $id, $file, $max, $sizes), (string) $file['name']);
+            }
+            // PHP drops files beyond max_file_uploads without an error; at the limit, more may have been chosen
+            $maxFiles = (int) ini_get('max_file_uploads');
+            if ($maxFiles > 0 && count($gallery) + (int) ((Images::fileOf('image')['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) >= $maxFiles) {
+                $imageErrors[] = Backend::t('ERR_TOO_MANY_FILES', $maxFiles);
             }
             [$imageId, $direction] = array_pad(explode(':', $post('image_move'), 2), 2, '');
             if ((int) $imageId > 0) {
@@ -340,6 +346,10 @@ try {
         case 'import':
         case 'demo':
             $params = ['art_tab' => 'maintenance'];
+            // both overwrite the settings, so "settings for admins only" counts here too
+            if (!$access->settings($sectionId)) {
+                throw new DomainException('ERR_ACCESS');
+            }
             if ($post('art_action') === 'demo') {
                 $report = Import::demo($db, $post('pack'), $sectionId, $userId);
             } else {

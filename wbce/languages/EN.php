@@ -152,6 +152,7 @@ return [
         'ERR_IMAGE_UPLOAD'         => 'The upload failed.',
         'ERR_IMAGE_WRITE'          => 'The image could not be saved.',
         'ERR_POST_TOO_LARGE'       => 'The data together was larger than the %s the server accepts. Nothing was saved.',
+        'ERR_TOO_MANY_FILES'       => 'The server accepts at most %d files per save. If you chose more, please upload the rest again.',
 
         // Groups and tags
         'GROUP_ACTIVE'             => 'active',

@@ -13,11 +13,13 @@ require_once __DIR__ . '/bootstrap.php';
 
 class ArticlesLinkResolver extends LinkResolver
 {
+    /** Visible and planned articles; expired ones or those in an inactive group would leave "[articles:NN]" in the page. */
     public function linkItems(int $sectionId, int $pageId): array
     {
         $items = [];
         foreach ($GLOBALS['database']->fetchAll(
-            'SELECT `article_id`, `title` FROM `{TP}mod_articles_items` WHERE `section_id` = ? AND `active` = 1 ORDER BY `article_id` DESC',
+            'SELECT i.`article_id`, i.`title` FROM `{TP}mod_articles_items` i WHERE i.`section_id` = ? AND '
+            . Articles\Articles::visibleSql('i', null, true) . ' ORDER BY i.`article_id` DESC',
             [$sectionId]
         ) as $row) {
             $items[] = ['label' => (string) $row['title'], 'value' => '[articles:' . (int) $row['article_id'] . ']'];

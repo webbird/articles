@@ -26,14 +26,15 @@ final class Articles
     /**
      * The one visibility rule for list, count, detail, neighbours, RSS, search,
      * droplets and access files: active, has a title, inside its period, group
-     * active or no group. $alias is the items table.
+     * active or no group. $alias is the items table. $orPlanned also lets
+     * through articles that become visible later (for the link picker).
      */
-    public static function visibleSql(string $alias = 'i', ?int $now = null): string
+    public static function visibleSql(string $alias = 'i', ?int $now = null, bool $orPlanned = false): string
     {
         $now ??= time();
         $a = '`' . $alias . '`';
         return "$a.`active` = 1 AND $a.`title` <> ''"
-            . " AND ($a.`published_from` = 0 OR $a.`published_from` <= $now)"
+            . ($orPlanned ? '' : " AND ($a.`published_from` = 0 OR $a.`published_from` <= $now)")
             . " AND ($a.`published_until` = 0 OR $a.`published_until` >= $now)"
             . " AND ($a.`group_id` = 0 OR EXISTS (SELECT 1 FROM `{TP}mod_articles_groups` gv"
             . " WHERE gv.`group_id` = $a.`group_id` AND gv.`active` = 1))";

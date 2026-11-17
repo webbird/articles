@@ -46,6 +46,15 @@ final class BackendTest extends TestCase
         $this->assertNull(Articles::swap([1, 2, 3], 9, true));
     }
 
+    public function testVisibilityRuleCanLetPlannedArticlesThrough(): void
+    {
+        $this->assertStringContainsString('`published_from` <= 100', Articles::visibleSql('i', 100));
+        $planned = Articles::visibleSql('i', 100, true);
+        $this->assertStringNotContainsString('published_from', $planned);
+        $this->assertStringContainsString('`published_until` >= 100', $planned);
+        $this->assertStringContainsString('gv.`active` = 1', $planned);
+    }
+
     public function testInListIsIntegersOnly(): void
     {
         $this->assertSame('(1,2)', Articles::in(['1', 2, '2', '1; DROP TABLE x']));

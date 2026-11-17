@@ -152,6 +152,7 @@ return [
         'ERR_IMAGE_UPLOAD'         => 'Das Hochladen ist fehlgeschlagen.',
         'ERR_IMAGE_WRITE'          => 'Das Bild konnte nicht gespeichert werden.',
         'ERR_POST_TOO_LARGE'       => 'Die Daten waren zusammen größer als die %s, die der Server annimmt. Es wurde nichts gespeichert.',
+        'ERR_TOO_MANY_FILES'       => 'Pro Speichern nimmt der Server höchstens %d Dateien an. Falls du mehr ausgewählt hattest, lade den Rest bitte noch einmal hoch.',
 
         // Gruppen und Tags
         'GROUP_ACTIVE'             => 'aktiv',

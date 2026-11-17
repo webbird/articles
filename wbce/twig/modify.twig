@@ -257,7 +257,7 @@
             <p class="art-muted">{{ t('RELINK_STATE', maintenance.outside) }}</p>
             {% if maintenance.outside %}<button type="submit" class="art-button" data-art-confirm="{{ t('CONFIRM_RELINK', maintenance.outside) }}">{{ t('RELINK_RUN') }}</button>{% endif %}
         </form>
-        {% if maintenance.empty %}
+        {% if maintenance.empty and can_settings %}
         <form class="art-card" action="{{ action }}" method="post">
             {% include '_hidden.twig' %}
             <input type="hidden" name="art_action" value="import">
