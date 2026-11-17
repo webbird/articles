@@ -235,7 +235,7 @@ return [
         'IMAGE_SIZES_HINT'         => 'Applies to new uploads; maintenance adjusts existing images. PHP allows at most %d MB.',
         'ARTICLES_DIR'             => 'Detail pages',
         'ARTICLES_DIR_LABEL'       => 'Directory below /pages',
-        'ARTICLES_DIR_HINT'        => 'Empty: "%s", taken from the page. Existing articles move on their next save.',
+        'ARTICLES_DIR_HINT'        => 'Empty: "%s", taken from the page. Existing articles move on their next save, all at once via the maintenance tab.',
         'EXPERT_MODE'              => 'Expert mode (edit templates)',
         'SETTINGS_ADMINS_ONLY'     => 'Settings for admins only',
         'EXPERT_MODE_HINT'         => 'The templates appear after saving.',
@@ -248,7 +248,7 @@ return [
         'TPL_DETAIL_FOOTER'        => 'Detail page: footer',
         'TPL_IMAGE_LOOP'           => 'Image loop of the gallery',
         'TPL_BLOCK2'               => 'Block 2',
-        'TEMPLATES_HINT'           => 'Placeholders such as [TITLE] or [CONTENT_SHORT] are listed in the documentation.',
+        'TEMPLATES_HINT'           => 'Placeholders such as [TITLE] or [CONTENT_SHORT] are listed in the documentation at modules/articles/docs/Platzhalter.md (in German).',
 
         // Messages
         'SAVED'                    => 'Saved.',

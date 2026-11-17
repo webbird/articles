@@ -1,13 +1,14 @@
 # articles
 
-Seitenmodul für WBCE 1.7 mit Artikeln, Bildern, Gruppen und Tags. Nachfolger von `news_img`, läuft parallel dazu. Das Konzept steht in [docs/Konzept.md](docs/Konzept.md).
+Seitenmodul für WBCE 1.7 mit Artikeln, Bildern, Gruppen und Tags. Nachfolger von `news_img`, läuft parallel dazu. Die Bedienung beschreibt die [Dokumentation](wbce/docs/README.md), die mit dem Modul ausgeliefert wird. Das Konzept steht in [docs/Konzept.md](docs/Konzept.md).
 
 ## Aufbau
 
 | Ordner | Inhalt |
 |---|---|
-| `docs/` | Konzept und Dokumentation |
+| `docs/` | Konzept |
 | `wbce/` | Das Modul selbst. Wird zum Entwickeln per Junction als `modules/articles` in die WBCE-Testinstallation eingebunden |
+| `wbce/docs/` | Dokumentation für Redakteure und Administratoren, wird mit dem Modul ausgeliefert |
 | `tests/fixtures/` | Testdaten für `news_img` als Importquelle |
 | `tests/reference/` | Referenzausgaben von `news_img` für den Vergleich nach dem Import |
 | `tests/import/` | Import aus `news_img` per Kommandozeile, bis das Backend ihn anbietet |

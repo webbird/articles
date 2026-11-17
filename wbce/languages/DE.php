@@ -235,7 +235,7 @@ return [
         'IMAGE_SIZES_HINT'         => 'Gilt für neue Uploads, vorhandene Bilder passt die Wartung an. PHP erlaubt höchstens %d MB.',
         'ARTICLES_DIR'             => 'Detailseiten',
         'ARTICLES_DIR_LABEL'       => 'Verzeichnis unter /pages',
-        'ARTICLES_DIR_HINT'        => 'Leer: „%s“, abgeleitet aus der Seite. Bestehende Artikel ziehen erst beim nächsten Speichern um.',
+        'ARTICLES_DIR_HINT'        => 'Leer: „%s“, abgeleitet aus der Seite. Bestehende Artikel ziehen beim nächsten Speichern um, alle auf einmal über den Reiter Wartung.',
         'EXPERT_MODE'              => 'Expertenmodus (Templates bearbeiten)',
         'SETTINGS_ADMINS_ONLY'     => 'Einstellungen nur für Admins',
         'EXPERT_MODE_HINT'         => 'Die Templates erscheinen nach dem Speichern.',
@@ -248,7 +248,7 @@ return [
         'TPL_DETAIL_FOOTER'        => 'Detailseite: Fuß',
         'TPL_IMAGE_LOOP'           => 'Bild-Schleife der Galerie',
         'TPL_BLOCK2'               => 'Block 2',
-        'TEMPLATES_HINT'           => 'Platzhalter wie [TITLE] oder [CONTENT_SHORT] stehen in der Dokumentation.',
+        'TEMPLATES_HINT'           => 'Platzhalter wie [TITLE] oder [CONTENT_SHORT] stehen in der Dokumentation unter modules/articles/docs/Platzhalter.md.',
 
         // Meldungen
         'SAVED'                    => 'Gespeichert.',
