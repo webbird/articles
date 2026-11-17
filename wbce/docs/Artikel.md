@@ -61,7 +61,7 @@ Als Ziel stehen nur Abschnitte zur Auswahl, deren Seite du bearbeiten darfst.
 
 **Einordnung:**
 - **Abschnitt und Gruppe** wählt die Gruppe. Über diese Auswahl lässt sich der Artikel auch in einen anderen `articles`-Abschnitt verschieben.
-- Tags, die es dort nicht gibt, fallen dabei weg.
+- Tags, die es dort nicht gibt, fallen dabei weg. Mitnehmen lassen sie sich mit der Massenaktion „Verschieben mit Tags“.
 - **Tags** sind die Tags dieses Abschnitts und die globalen Tags.
 
 **Speichern** bleibt im Editor, **Speichern und zurück** führt zur Liste, **Ansehen** öffnet die Detailseite in einem neuen Fenster (nur bei sichtbaren Artikeln). Fehlt etwas oder ist ein Datum ungültig, bleibt die Eingabe im Formular stehen.

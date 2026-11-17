@@ -41,7 +41,7 @@ Diese Liste ist die Abnahmecheckliste.
 - [x] Kopien sind inaktiv, ihre Bilder werden mitkopiert
 - [x] Editor: Titel, Slug, Vorschaubild, Aktiv, Start und Ende, Tags, Gruppe inklusive Wechsel der Section, Kurztext, Langtext, Block 2
 - [x] „Speichern“ und „Speichern und zurück“, dazu der Ansehen-Link aufs Frontend
-- [x] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen. Hochgeladen wird sofort pro Datei, ohne JS und bei neuen Artikeln mit „Speichern“
+- [x] Galerie: Mehrfach-Upload, Bildtexte, Sortierung, Löschen. Hochgeladen wird sofort pro Datei, ohne JS mit „Speichern“. Neue Artikel bekommen die Galerie erst nach dem ersten Speichern
 - [x] Wartung: Access-Dateien erneuern, Artikel ins aktuelle Verzeichnis verschieben, Bildgrößen neu berechnen
 
 ### Backend: Gruppen, Tags, Einstellungen
@@ -361,6 +361,12 @@ Der Import kommt vor dem Lesepfad. So liefert er die Daten, an denen sich der Le
 - **Import im Frontend:** Am 2026-11-16 mit einem vorübergehenden Abschnitt auf der Testseite geprüft. Nach dem Import aus Abschnitt 8 sind Liste und die Detailseiten aller 8 sichtbaren Artikel identisch mit der Quelle (IDs und Bildordner herausgerechnet); das Demo-Paket „Restaurant“ zeigt Liste, Bilder, Tags und Galerie ohne offene Platzhalter oder JS-Fehler.
 - **Droplets:** `tests/integration/droplet_visibility.php` prüft, dass Listen und Slider nur öffentliche oder versteckte Seiten und Abschnitte im Zeitraum zeigen.
 - **Matrix:** PHP 8.3 und 8.5 mit `error_reporting=E_ALL`, jeweils MariaDB. Dazu SQLite: `pdo_sqlite` ist in PHP 8.5 aktiv und lässt sich in der Portable-PHP mit `-d extension=pdo_sqlite` laden.
+- **Abnahme nach Abschnitt 2 (2026-11-17):** Auf frischen Testseiten (news_img mit `seed_news_img.php`, articles per Import und Demo „Restaurant“, Topics, WYSIWYG mit Droplets):
+  - Automatisch: `php -l` aller Dateien und die Unit-Tests auf PHP 8.5, `droplet_visibility.php`, `access_rights.php` (mit Verschieben), `import_articles_demo.php` und `import_topics.php` auf PHP 8.3 und 8.5 ohne Fehler und Warnungen. `compare.php` gegen eine neu aufgenommene Referenz: dieselben Abweichungen wie beim letzten Lauf, also nur die gewollten.
+  - Im Browser (Webserver mit PHP 8.3): jeder Punkt aus Abschnitt 2 bis auf WBCE Search. Kopieren auf eine andere Seite ist geprüft, Verschieben auf eine andere Seite nicht.
+  - Rechte: `backend.php` lehnt jede Aktion mit IDs eines anderen Abschnitts ab (Artikel einzeln und als Massenaktion, Reihenfolge, Speichern, Galerie-Upload, Gruppen, Tags). Mit falscher Seite verweigert WBCE den Zugriff.
+  - Behoben: Auf einer Seite mit mehreren `articles`-Abschnitten setzte jeder Abschnitt ein eigenes `<meta name="keywords">` (so auch `news_img` v6.0). Jetzt setzt es nur der Abschnitt der Detailansicht, auf Listenseiten der erste mit Tags.
+  - Offen, Core: Die `AssetQueue` von WBCE 1.7 ersetzt mit `replace` nur Tags, die schon im `<head>` stehen, nicht andere Einträge der Warteschlange. Das leere `keywords`-Tag von `simplepagehead` bleibt deshalb neben dem von `articles` stehen. Abhilfe gehört nach `WBCE_CMS`: in `AssetQueue::enqueue()` frühere Meta-Einträge mit gleichem Namen verwerfen, wenn `replace` gilt.
 
 ## 11. Entscheidungen
 

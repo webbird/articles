@@ -89,7 +89,7 @@ final class Frontend
             $values['DISPLAY_PREVIOUS_NEXT_LINKS'] = $pagination['DISPLAY_PREVIOUS_NEXT_LINKS'];
             $items[] = Placeholders::render((string) $s['tpl_list_item'], $values);
         }
-        $this->insertKeywords();
+        $this->insertKeywords(false);
 
         return $this->wrap(
             Placeholders::render((string) $s['tpl_list_header'], $pagination, Placeholders::PAGINATION)
@@ -171,7 +171,7 @@ final class Frontend
                 defined($constant) or define($constant, $block2);
             }
         }
-        $this->insertKeywords();
+        $this->insertKeywords(true);
 
         // Gallery script before the output, as in news_img
         return $this->galleryInclude()
@@ -418,11 +418,18 @@ final class Frontend
         }
     }
 
-    private function insertKeywords(): void
+    /**
+     * One keywords tag per page: the WBCE asset queue does not replace queued tags,
+     * so only the detail article's section, or else the first list with tags, sets it.
+     */
+    private function insertKeywords(bool $detail): void
     {
-        if ($this->keywords !== [] && class_exists('I', false)) {
-            \I::insertMetaTag(['name' => 'keywords', 'content' => implode(', ', array_keys($this->keywords))]);
+        static $done = false;
+        if ($done || $this->keywords === [] || (!$detail && defined('ARTICLE_ID')) || !class_exists('I', false)) {
+            return;
         }
+        $done = true;
+        \I::insertMetaTag(['name' => 'keywords', 'content' => implode(', ', array_keys($this->keywords))]);
     }
 
     /** URL of a file below media/.articles, '' if it does not exist. */
