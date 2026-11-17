@@ -27,11 +27,18 @@ class ArticlesLinkResolver extends LinkResolver
         return $items;
     }
 
-    /** Only visible articles: everything else has no access file, the link would end in a 404. */
+    /**
+     * Only visible articles on a page outside the trash and in a section inside its
+     * period; everything else ends in a 404. Private and registered pages stay
+     * linkable, their visitors may see them.
+     */
     public function resolve(int $itemId): ?string
     {
         $link = (string) $GLOBALS['database']->fetchValue(
-            'SELECT i.`link` FROM `{TP}mod_articles_items` i WHERE i.`article_id` = ? AND ' . Articles\Articles::visibleSql('i'),
+            'SELECT i.`link` FROM `{TP}mod_articles_items` i'
+            . ' JOIN `{TP}sections` s ON s.`section_id` = i.`section_id` JOIN `{TP}pages` p ON p.`page_id` = s.`page_id`'
+            . " WHERE i.`article_id` = ? AND p.`visibility` NOT IN ('deleted', 'none') AND "
+            . Articles\Articles::periodSql('s') . ' AND ' . Articles\Articles::visibleSql('i'),
             [$itemId]
         );
         return $link !== '' ? Articles\Frontend::pageUrl($link) : null;

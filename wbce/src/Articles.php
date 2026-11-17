@@ -47,9 +47,14 @@ final class Articles
      */
     public static function publicSql(string $s = 's', string $p = 'p', ?int $now = null): string
     {
+        return "`$p`.`visibility` IN ('public', 'hidden') AND " . self::periodSql($s, $now);
+    }
+
+    /** The section is inside its publication period. $s is sections. */
+    public static function periodSql(string $s = 's', ?int $now = null): string
+    {
         $now ??= time();
-        return "`$p`.`visibility` IN ('public', 'hidden')"
-            . " AND (`$s`.`publ_start` = 0 OR `$s`.`publ_start` <= $now)"
+        return "(`$s`.`publ_start` = 0 OR `$s`.`publ_start` <= $now)"
             . " AND (`$s`.`publ_end` = 0 OR `$s`.`publ_end` >= $now)";
     }
 

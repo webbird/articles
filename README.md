@@ -63,7 +63,7 @@ php tests/import/import_news_img.php <wbce-verzeichnis> <quell-section> <ziel-se
 
 ## Prüfskripte
 
-`droplet_visibility.php` prüft, dass die Droplets nur Artikel öffentlicher oder versteckter Seiten zeigen und Abschnitte außerhalb ihres Zeitraums auslassen. Es ändert dafür kurz die Sichtbarkeit der Seite und den Zeitraum des Abschnitts und stellt beides danach wieder her. Der Abschnitt braucht sichtbare Artikel mit Vorschaubild.
+`droplet_visibility.php` prüft, dass die Droplets nur Artikel öffentlicher oder versteckter Seiten zeigen und Abschnitte außerhalb ihres Zeitraums auslassen. Dazu, dass Links per `[articles:NN]` auch auf privaten und registrierten Seiten aufgelöst werden, nicht aber im Papierkorb, auf Seiten ohne Sichtbarkeit und außerhalb des Zeitraums. Es ändert dafür kurz die Sichtbarkeit der Seite und den Zeitraum des Abschnitts und stellt beides danach wieder her. Der Abschnitt braucht sichtbare Artikel mit Vorschaubild.
 
 ```bash
 php tests/integration/droplet_visibility.php <wbce-verzeichnis> <page_id> <section_id>

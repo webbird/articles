@@ -50,7 +50,7 @@ Die Suche der Website findet sichtbare Artikel über Titel, Kurztext, Langtext u
 
 ## Links auf Artikel
 
-Im Text einer Seite verweist `[articles:46]` auf den Artikel Nummer 46. Beim Anzeigen wird daraus die aktuelle Adresse der Detailseite, auch wenn sich die Adresse später ändert. Solange der Artikel nicht sichtbar ist, bleibt `[articles:46]` als Text im Link stehen.
+Im Text einer Seite verweist `[articles:46]` auf den Artikel Nummer 46. Beim Anzeigen wird daraus die aktuelle Adresse der Detailseite, auch wenn sich die Adresse später ändert. Solange der Artikel nicht sichtbar ist, bleibt `[articles:46]` als Text im Link stehen. Das gilt auch, wenn seine Seite im Papierkorb liegt oder keine Sichtbarkeit hat, oder wenn sein Abschnitt außerhalb seines Zeitraums ist. Auf privaten und nur für registrierte Besucher sichtbaren Seiten funktioniert der Link, angezeigt wird der Artikel dann wie die Seite nur angemeldeten Besuchern.
 
 Der Link-Dialog des Editors bietet die sichtbaren und geplanten Artikel einer Seite zur Auswahl an. In WBCE 1.7.0 erscheint diese Auswahl wegen eines Fehlers im Core noch nicht (gemeldet). Bis zur Korrektur lässt sich `[articles:NN]` als Linkadresse auch von Hand eintragen.
 
