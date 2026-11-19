@@ -123,6 +123,8 @@ articles/
 ├─ add.php  delete.php  modify.php  view.php  search.php  rss.php  LinkResolver.php
 ├─ search_index.php       Einträge für WBCE Search (wbce_search), nur von dort gelesen
 ├─ backend.php            zentraler Backend-Einstieg für Masken und Aktionen
+├─ settings.php           Einstellungen eines Abschnitts als eigene Seite (nur Anzeige)
+├─ article.php            Artikel-Editor als eigene Seite, nutzt settings.php
 ├─ bootstrap.php          Autoloader, Sprachdateien, Twig
 ├─ src/
 │  ├─ Access.php          Rechte: Section, Artikel, Gruppe, Tag
@@ -145,7 +147,7 @@ Der Namespace ist `Articles\`, der Autoloader steht wie bei `reservations` in `b
 
 ### Backend-Ablauf
 
-`backend.php` ist der einzige Backend-Einstieg neben `modify.php`. Jeder Aufruf läuft durch denselben Weg:
+`backend.php` ist der einzige schreibende Backend-Einstieg. Angezeigt wird die Liste über `modify.php`, Einstellungen und Artikel-Editor über `settings.php` und `article.php`: Innerhalb von `admin/pages/modify.php` stünden darunter alle anderen Abschnitte der Seite (seit 2026-11-19). Beide prüfen die Schritte 1 und 2 ebenso und speichern über `backend.php`. Jeder Aufruf von `backend.php` läuft durch denselben Weg:
 
 1. `modules/admin.php` prüft die Seitenrechte.
 2. Die Section muss zur Seite gehören und `articles` sein.

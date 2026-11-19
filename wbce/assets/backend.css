@@ -70,7 +70,9 @@
 .art-backend .art-bulk .art-taglist legend { font-weight: normal; padding: 0; }
 .art-backend .art-bulk .art-taglist label { display: flex; align-items: center; gap: .3em; height: 2.3em; margin: 0; }
 
-.art-backend .art-form fieldset { border: 1px solid var(--art-line); padding: .7em 1em; margin: 0 0 1em; }
+.art-backend .art-form fieldset { border: 1px solid var(--art-line); padding: .7em 1em; margin: 0 0 1em; min-width: 0; }
+/* long template lines would otherwise widen fieldset and WBCE's section table beyond the page */
+.art-backend .CodeMirror { contain: inline-size; }
 .art-backend .art-form legend { font-weight: bold; padding: 0 .3em; }
 .art-backend .art-form > fieldset > label, .art-backend .art-card > label { display: block; margin: .3em 0; }
 .art-backend .art-field { display: block; margin: 0 0 .9em; }

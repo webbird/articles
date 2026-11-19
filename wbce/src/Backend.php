@@ -35,6 +35,12 @@ final class Backend
     /** Backend URL of the section; parameters only count for this section (art_section). */
     public static function url(int $pageId, int $sectionId, array $params = []): string
     {
+        // settings and editor have a page of their own, without the other sections of the page
+        $own = ['settings' => 'settings.php', 'edit' => 'article.php'][$params['art_view'] ?? ''] ?? null;
+        if ($own !== null) {
+            $query = ['page_id' => $pageId, 'section_id' => $sectionId] + array_intersect_key($params, ['art_id' => 0]);
+            return WB_URL . "/modules/articles/$own?" . http_build_query($query, '', '&');
+        }
         $query = ['page_id' => $pageId] + ($params === [] ? [] : ['art_section' => $sectionId] + $params);
         $anchor = '#' . (defined('SEC_ANCHOR') && SEC_ANCHOR ? SEC_ANCHOR : 'sec_anchor_') . $sectionId;
         return ADMIN_URL . '/pages/modify.php?' . http_build_query($query, '', '&') . $anchor;
