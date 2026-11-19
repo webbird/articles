@@ -1,5 +1,23 @@
 /*** avatar layout ****/
-.mod_articles_avatar {}
+/* Colours: the fixed values for older browsers; with color-mix() they follow the
+   text colour of the template, so the view also works in dark templates.
+   Own values set here apply in light and dark templates alike. */
+.mod_articles_avatar {
+  --art-surface: #f3f5f8;
+  --art-card: #fff;
+  --art-line: #e2e8f0;
+  --art-placeholder: #f4f4f4;
+  --art-accent: #314B68;
+}
+@supports (color: color-mix(in srgb, red 5%, transparent)) {
+  .mod_articles_avatar {
+    --art-surface: color-mix(in srgb, currentColor 5%, transparent);
+    --art-card: color-mix(in srgb, currentColor 2%, transparent);
+    --art-line: color-mix(in srgb, currentColor 15%, transparent);
+    --art-placeholder: color-mix(in srgb, currentColor 8%, transparent);
+    --art-accent: color-mix(in srgb, #314B68 60%, currentColor);
+  }
+}
 
 .mod_articles_avatar a {
   text-decoration: none
@@ -58,7 +76,7 @@
   height: 84px;
   margin: 0;
   overflow: hidden;
-  background: #f4f4f4;
+  background: var(--art-placeholder);
   border-radius: 50%;
 }
 
@@ -81,8 +99,8 @@
 }
 
 .mod_articles_avatar .mod_articles_content_short {
-  background-color: #f3f5f8;
-  border: 1px solid #e2e8f0;
+  background-color: var(--art-surface);
+  border: 1px solid var(--art-line);
   border-radius: 8px;
   padding: 18px 20px;
   margin: 1rem 0 1.5rem;
@@ -158,8 +176,8 @@
   gap: 16px;
   width: 100%;
   clear: both;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--art-card);
+  border: 1px solid var(--art-line);
   border-radius: 8px;
   padding: 16px 18px;
 }

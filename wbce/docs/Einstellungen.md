@@ -37,6 +37,8 @@ Der Button **Einstellungen** öffnet die Einstellungen des Abschnitts. Ist „Ei
 
 **Eigene Views:** Ein Ordner `modules/articles/views/<name>/` mit einer `templates.php` (Variablen für die Templates, im Format der mitgelieferten Views) und einer `frontend.css` erscheint automatisch in der Auswahl. Views aus `news_img` heißen dort `config.php`, auch die werden gelesen. Die Vorlagen kommen nur beim Anlegen des Abschnitts, beim Wechsel der View und mit „Templates neu laden“ in den Abschnitt, Änderungen an `templates.php` wirken also erst danach. Das CSS wird im Frontend eingebunden. Die Ausgabe steckt in `<div class="mod_articles_<name>">`, darauf sollte das CSS beschränkt sein.
 
+**Dunkle Templates:** Die mitgelieferten Views und die Masonry-Galerie richten Flächen, Rahmen und die Schrift von „Weiterlesen“ nach der Schriftfarbe des Templates. Auf einem dunklen Template oder mit einem Umschalter für den Dark Mode passen sie sich ohne eigene Einstellungen an. Tags, Buttons und die Kachel mit Initiale bringen Hintergrund und Schriftfarbe selbst mit. Die Farben stehen als CSS-Variablen (`--art-surface`, `--art-line` usw.) in der `frontend.css` der View, die Readme der View beschreibt sie. Ein eigener Wert gilt in hellen und dunklen Templates gleich.
+
 ## Bildgrößen
 
 Jede Größe hat Breite, Höhe und einen Schalter „Zuschneiden“.

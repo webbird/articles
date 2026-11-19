@@ -9,6 +9,12 @@
 .masonry-grid {
   background: #DDD;
 }
+/* follows the text colour of the template, so dark templates get a dark ground */
+@supports (color: color-mix(in srgb, red 5%, transparent)) {
+  .masonry-grid {
+    background: color-mix(in srgb, currentColor 13%, transparent);
+  }
+}
 
 /* clear fix */
 .masonry-grid:after {

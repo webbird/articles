@@ -78,6 +78,27 @@ Die Unterscheidung erfolgt in `Articles\Frontend` je nach Liste oder Detailseite
 (in der Leseansicht gesetzt, in der Liste nicht). Die Kachel-Optik liegt inline
 am Element, damit sie in allen Views einheitlich aussieht.
 
+## Dunkle Templates
+
+Flächen, Rahmen und die Akzentschrift richten sich nach der Schriftfarbe des
+Templates. Auf einem dunklen Template werden die Teaser-Box und die Karten
+dadurch dunkel statt hell, ohne eigene Einstellungen. Tags, Buttons und die
+Platzhalter-Kachel bringen Hintergrund und Schriftfarbe selbst mit und bleiben
+gleich. Die Hex-Werte in der Tabelle sehen nur Browser ohne `color-mix()`
+(vor 2023).
+
+| Variable            | Wofür                                   | ohne `color-mix()` |
+|---------------------|-----------------------------------------|--------------------|
+| `--art-surface`     | Teaser-Box auf der Detailseite          | `#f3f5f8`          |
+| `--art-card`        | Karten (grid, avatar)                   | `#fff`             |
+| `--art-line`        | Rahmen von Box und Karten               | `#e2e8f0`          |
+| `--art-placeholder` | Grund hinter Vorschaubildern            | `#f4f4f4`          |
+| `--art-accent`      | Schrift und Rahmen von „Weiterlesen"    | `#314B68`          |
+
+Eigene Werte setzt du im CSS des Templates, etwa
+`.mod_articles_avatar { --art-surface: #fff8e1; }`. Sie gelten dann in hellen und
+dunklen Templates gleich.
+
 ## Anpassen
 
 - **Avatar-Größe:** `width`/`height` bei `.mod_articles_avatar .mod_articles_teaserpic`

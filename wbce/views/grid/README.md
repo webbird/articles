@@ -97,14 +97,37 @@ am Element, damit sie in allen Views ohne zusätzliches CSS einheitlich aussieht
 grid passt sie zusätzlich an den Kartenkopf an (`min-height: 0`, kein
 Eck-Radius, größere Initiale).
 
+## Dunkle Templates
+
+Flächen, Rahmen und die Akzentschrift richten sich nach der Schriftfarbe des
+Templates. Auf einem dunklen Template werden die Teaser-Box und die Karten
+dadurch dunkel statt hell, ohne eigene Einstellungen. Tags, Buttons und die
+Platzhalter-Kachel bringen Hintergrund und Schriftfarbe selbst mit und bleiben
+gleich. Die Hex-Werte in der Tabelle sehen nur Browser ohne `color-mix()`
+(vor 2023).
+
+| Variable            | Wofür                                   | ohne `color-mix()` |
+|---------------------|-----------------------------------------|--------------------|
+| `--art-surface`     | Teaser-Box auf der Detailseite          | `#f3f5f8`          |
+| `--art-card`        | Karten (grid, avatar)                   | `#fff`             |
+| `--art-line`        | Rahmen von Box und Karten               | `#e2e8f0`          |
+| `--art-placeholder` | Grund hinter Vorschaubildern            | `#f4f4f4`          |
+| `--art-accent`      | Schrift und Rahmen von „Weiterlesen"    | `#314B68`          |
+
+Eigene Werte setzt du im CSS des Templates, etwa
+`.mod_articles_grid { --art-surface: #fff8e1; }`. Sie gelten dann in hellen und
+dunklen Templates gleich.
+
 ## Anpassen
 
 - **Spaltenzahl:** Wrapper-Klasse im `$header` der `templates.php` bzw. in den
   Abschnittseinstellungen.
 - **Bildproportion des Headers:** `aspect-ratio` bei `.mod_articles_teaserpic`
   (Standard `3 / 2`).
-- **Akzentfarbe ändern:** `#314B68` in `frontend.css` (Tag 1, Button) und ggf.
-  die Inline-Farbe der Platzhalter-Kachel in `Articles\Frontend`.
+- **Akzentfarbe ändern:** `--art-accent` für die Schrift von „Weiterlesen"
+  (siehe „Dunkle Templates“), dazu `#314B68` in `frontend.css` (Tag 1,
+  Button-Hover) und ggf. die Inline-Farbe der Platzhalter-Kachel in
+  `Articles\Frontend`.
 - **Eigene Optik ohne Core-Änderung:** am besten eine **eigene View** anlegen
   (Verzeichnis unter `views/` kopieren) und in den Abschnittseinstellungen auswählen,
   statt diese Dateien zu überschreiben – so bleiben Updates problemlos.
