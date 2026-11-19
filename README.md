@@ -44,6 +44,16 @@ Installiert wird im Backend unter Erweiterungen, im Bereich für per FTP hochgel
 
 Das Modul nie über die Modulverwaltung installieren oder aktualisieren, solange es per Junction eingebunden ist: Das schreibt direkt ins Repository.
 
+## Paket bauen
+
+`build.php` packt den Inhalt von `wbce/` in `dist/articles-<version>.zip`, die Version kommt aus `wbce/info.php`. Das ZIP lässt sich im Backend von WBCE unter Erweiterungen installieren. Dateien und Ordner, die mit einem Punkt beginnen, bleiben draußen. `dist/` ist von Git ausgenommen.
+
+```bash
+php build.php [<ausgabe-verzeichnis>]
+```
+
+Das Skript braucht die PHP-Erweiterung `zip`. Die PHP-Version der Portable hat sie, das System-PHP nicht.
+
 ## Import und Demo-Inhalte
 
 Im Backend stehen der Import und die Demo-Inhalte im Reiter „Wartung“, solange der Abschnitt leer ist. Quelle ist ein `news_img`-, Topics- oder ein anderer `articles`-Abschnitt, den der Benutzer bearbeiten darf. Die Quelle wird nur gelesen. Die Access-Dateien der sichtbaren Artikel entstehen beim Import. Die Demo-Pakete liegen in `wbce/demodata/` (Bilder von Pixabay, Quellen in `copyright.csv`).
