@@ -17,6 +17,14 @@ return [
         'IMPORT_TOPICS_HIDDEN'     => '%s Topics waren versteckt oder nur für angemeldete Besucher sichtbar. Sie sind jetzt inaktiv.',
         'IMPORT_COMMENTS_SKIPPED'  => '%s Kommentare wurden nicht übernommen, articles hat keine Kommentare.',
 
+        // Frontend: Hinweis über einer gefilterten Liste
+        'FILTERED_BY'              => 'Gefiltert nach %s.',
+        'FILTER_GROUP'             => 'Gruppe „%s“',
+        'FILTER_TAG'               => 'Tag „%s“',
+        'FILTER_TAGS'              => 'Tags „%s“',
+        'FILTER_MONTH'             => 'Monat %s',
+        'FILTER_SHOW_ALL'          => 'Alle Artikel anzeigen',
+
         // Frontend-Platzhalter [TEXT_*]
         'TEXT_AT'                  => 'um',
         'TEXT_BACK'                => 'Zurück zur Übersicht',
@@ -36,6 +44,7 @@ return [
         'TAB_TAGS'                 => 'Tags',
         'TAB_MAINTENANCE'          => 'Wartung',
         'SETTINGS'                 => 'Einstellungen',
+        'HELP'                     => 'Hilfe',
         'ADD_ARTICLE'              => 'Artikel hinzufügen',
         'EDIT_ARTICLE'             => 'Artikel bearbeiten',
         'BACK_TO_LIST'             => 'Zurück zur Liste',
@@ -232,6 +241,9 @@ return [
         'USE_BLOCK2'               => 'Block 2 verwenden',
         'PRESET_HINT'              => 'Eine andere View lädt deren Templates, eine andere Galerie deren Detail-Template und Bild-Schleife.',
         'CONFIRM_VIEW'             => 'Die Templates werden beim Speichern durch die der neuen View ersetzt. Fortfahren?',
+        'RELOAD_TEMPLATES'         => 'Templates neu laden',
+        'RELOAD_TEMPLATES_HINT'    => 'Ersetzt beim Speichern alle Templates dieses Abschnitts durch die Vorlagen der gewählten View und Galerie. Eigene Änderungen an den Templates gehen dabei verloren.',
+        'CONFIRM_RELOAD_TEMPLATES' => 'Alle Templates werden beim Speichern durch die Vorlagen von View und Galerie ersetzt. Eigene Änderungen gehen verloren. Fortfahren?',
         'CONFIRM_GALLERY'          => 'Detail-Template und Bild-Schleife werden beim Speichern durch die der neuen Galerie ersetzt. Fortfahren?',
         'IMAGE_SIZES'              => 'Bildgrößen',
         'SIZE'                     => 'Größe',

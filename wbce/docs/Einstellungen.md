@@ -32,9 +32,10 @@ Der Button **Einstellungen** öffnet die Einstellungen des Abschnitts. Ist „Ei
   - **Keine:** keine Galerie
 
   Der Wechsel ersetzt nach einer Rückfrage das Template „Detailseite: Inhalt“ und die Bild-Schleife.
+- **Templates neu laden** ersetzt beim Speichern alle Templates durch die Vorlagen der gewählten View und Galerie, auch ohne Wechsel. Das hilft, wenn eigene Änderungen an den Templates verworfen werden sollen oder sich die Vorlagen einer View geändert haben.
 - **Block 2 verwenden** zeigt im Editor das Feld „Block 2“. Sein Inhalt erscheint nur, wenn das Template der Website einen zweiten Inhaltsbereich ausgibt. Die mitgelieferten Core-Templates tun das über `MODULES_BLOCK2`.
 
-**Eigene Views:** Ein Ordner `modules/articles/views/<name>/` mit einer `config.php` (Variablen für die Templates, im Format der mitgelieferten Views) und einer `frontend.css` erscheint automatisch in der Auswahl. Das CSS wird im Frontend eingebunden. Die Ausgabe steckt in `<div class="mod_articles_<name>">`, darauf sollte das CSS beschränkt sein.
+**Eigene Views:** Ein Ordner `modules/articles/views/<name>/` mit einer `templates.php` (Variablen für die Templates, im Format der mitgelieferten Views) und einer `frontend.css` erscheint automatisch in der Auswahl. Views aus `news_img` heißen dort `config.php`, auch die werden gelesen. Die Vorlagen kommen nur beim Anlegen des Abschnitts, beim Wechsel der View und mit „Templates neu laden“ in den Abschnitt, Änderungen an `templates.php` wirken also erst danach. Das CSS wird im Frontend eingebunden. Die Ausgabe steckt in `<div class="mod_articles_<name>">`, darauf sollte das CSS beschränkt sein.
 
 ## Bildgrößen
 
@@ -86,4 +87,4 @@ Im Expertenmodus stehen acht Templates zur Verfügung:
 | Bild-Schleife der Galerie | einmal pro Galeriebild, Ergebnis landet in `[IMAGES]` |
 | Block 2 | Vorlage für den zweiten Inhaltsbereich der Detailseite |
 
-Die Templates sind HTML mit Platzhaltern in eckigen Klammern, etwa `[TITLE]`. Alle Platzhalter stehen unter [Platzhalter](Platzhalter.md). Für eigenes CSS beginnen die Klassen mit `mod_articles_`.
+Die Templates sind HTML mit Platzhaltern in eckigen Klammern, etwa `[TITLE]`. Ist das Core-Modul CodeMirror_Config installiert, zeigen die Felder Syntax-Hervorhebung. Alle Platzhalter stehen unter [Platzhalter](Platzhalter.md). Für eigenes CSS beginnen die Klassen mit `mod_articles_`.

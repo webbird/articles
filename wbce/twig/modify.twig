@@ -9,6 +9,7 @@
             {% endfor %}
         </nav>
         <div class="art-head-actions">
+            {{ help_link|raw }}
             {% if can_settings %}<a class="art-button" href="{{ url_settings }}">{{ t('SETTINGS') }}</a>{% endif %}
             <a class="art-button art-button--primary" href="{{ url_new }}">{{ t('ADD_ARTICLE') }}</a>
         </div>
@@ -35,7 +36,7 @@
         </label>
         <label>{{ t('SEARCH_TITLE') }} <input type="search" name="art_q" value="{{ filter.q }}"></label>
         <button type="submit" class="art-button">{{ t('FILTER') }}</button>
-        {% if filtered %}<a href="{{ url_tab }}">{{ t('FILTER_RESET') }}</a>{% endif %}
+        {% if filtered %}<a class="art-button" href="{{ url_tab }}">{{ t('FILTER_RESET') }}</a>{% endif %}
     </form>
 
     {# Row buttons point at these forms, so no form is nested in the bulk form #}
@@ -177,7 +178,7 @@
             <div class="art-row">{% include '_image.twig' with {image: group_image, field: 'image', remove: 'image_remove'} %}</div>
             <div class="art-row art-buttons">
                 <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
-                {% if group_form.group_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+                {% if group_form.group_id %}<a class="art-button" href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
             </div>
         </fieldset>
     </form>
@@ -230,7 +231,7 @@
             <p class="art-row art-hint">{{ t('TAG_HINT') }}</p>
             <div class="art-row art-buttons">
                 <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
-                {% if tag_form.tag_id %}<a href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
+                {% if tag_form.tag_id %}<a class="art-button" href="{{ url_tab }}">{{ t('CANCEL') }}</a>{% endif %}
             </div>
         </fieldset>
     </form>

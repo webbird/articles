@@ -93,3 +93,5 @@ Die Liste versteht dieselben Parameter wie `news_img`. Ungültige Werte werden i
 | `g=3` | nur Artikel der Gruppe 3 |
 | `tags=Region,Saisonal` | nur Artikel mit mindestens einem dieser Tags |
 | `m=10&y=2026&method=1` | nur Artikel eines Monats. `method=1`: nach „Sichtbar ab“, `method=0`: nach der letzten Änderung |
+
+Ist die Liste nach Gruppe, Tag oder Monat gefiltert, steht darüber ein Hinweis wie „Gefiltert nach Tag „Saisonal“. Alle Artikel anzeigen“. Der Link führt zur ungefilterten Liste. Der Hinweis steht außerhalb der Templates in `<p class="mod_articles_filter">`, per CSS lässt er sich gestalten oder ausblenden.

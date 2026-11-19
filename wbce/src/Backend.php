@@ -91,6 +91,10 @@ final class Backend
             'url_list'   => self::url($pageId, $sectionId),
             'url_settings' => self::url($pageId, $sectionId, ['art_view' => 'settings']),
             'url_new'    => self::url($pageId, $sectionId, ['art_view' => 'edit']),
+            // docs/ in the markdown reader of WBCE (core module MarkdownWbce), tabs from docs/md_reader.json
+            'help_link'  => class_exists('MdReaderLink')
+                ? \MdReaderLink::dir('/modules/articles/docs/')->title('articles')->linkHtml(self::t('HELP'), 'art-button')
+                : '',
         ];
 
         return match ($param('art_view')) {
@@ -334,6 +338,16 @@ final class Backend
         ) as $a) {
             $choices[] = ['id' => (int) $a['article_id'], 'label' => $a['title'] . ': ' . $a['image']];
         }
+        $templates = [
+            'tpl_list_header', 'tpl_list_item', 'tpl_list_footer', 'tpl_detail_header',
+            'tpl_detail_content', 'tpl_detail_footer', 'tpl_image_loop', 'tpl_block2',
+        ];
+        // syntax highlighting from the core module CodeMirror_Config, plain textareas without it
+        if ($form['expert_mode'] && class_exists('CodeEditor')) {
+            foreach ($templates as $name) {
+                \CodeEditor::init("art-$name-$sectionId", 'html', ['height' => 'auto', 'toolbar' => false]);
+            }
+        }
         return self::twig()->render('modify_settings.twig', $vars + [
             'form'      => $form,
             'default_image' => self::imageInfo("/sections/$sectionId", (string) $settings['default_image']),
@@ -345,10 +359,7 @@ final class Backend
             'is_admin'  => $access->isAdmin(),
             'dir_default' => AccessFiles::dir($db, 0, $vars['page_id']),
             'upload_limit' => (int) floor(ini_parse_quantity((string) ini_get('upload_max_filesize')) / 1048576),
-            'templates' => [
-                'tpl_list_header', 'tpl_list_item', 'tpl_list_footer', 'tpl_detail_header',
-                'tpl_detail_content', 'tpl_detail_footer', 'tpl_image_loop', 'tpl_block2',
-            ],
+            'templates' => $templates,
         ]);
     }
 

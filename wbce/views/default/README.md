@@ -1,22 +1,23 @@
 # articles – View „default"
 
 Die Standard-Ansicht des Moduls `articles`. Sie rendert sowohl die
-**Beitragsliste** (Übersicht einer Section) als auch die **Leseansicht**
-eines einzelnen Beitrags.
+**Artikelliste** (Übersicht eines Abschnitts) als auch die **Leseansicht**
+eines einzelnen Artikels.
 
 ## Dateien
 
 | Datei          | Zweck                                                                 |
 |----------------|-----------------------------------------------------------------------|
-| `config.php`   | Default-Templates (Listen-Loop, Header/Footer, Post-Header/-Content/-Footer). |
+| `templates.php`   | Default-Templates (Listen-Loop, Header/Footer, Post-Header/-Content/-Footer). |
 | `frontend.css` | Optik der Ausgabe. Wird im Frontend automatisch eingebunden.          |
 
-> **Wichtig:** `config.php` liefert nur die **Vorlagen**. Im laufenden Betrieb
-> kommen die tatsächlich gerenderten Templates aus den **Section-Settings in
-> der Datenbank** (siehe `Articles\Settings`), nicht direkt aus dieser
-> Datei. Änderungen an `config.php` greifen erst nach einem Settings-Reset der
-> Section. Die `frontend.css` wirkt dagegen sofort (ggf. Browser-Cache mit
-> Strg+F5 leeren).
+> **Wichtig:** `templates.php` liefert nur die **Vorlagen**. Beim Anlegen eines
+> Abschnitts und beim Wechsel der View werden sie in die Abschnittseinstellungen
+> kopiert, gerendert wird danach immer von dort. Änderungen an `templates.php`
+> wirken deshalb erst, wenn du in den Einstellungen des Abschnitts
+> **Templates neu laden** anhakst und speicherst. Eigene Änderungen an den
+> Templates dieses Abschnitts gehen dabei verloren. Die `frontend.css` wirkt
+> dagegen sofort (ggf. Browser-Cache mit Strg+F5 leeren).
 
 ## Optik / Designkonzept
 
@@ -40,7 +41,7 @@ und Platzhalter-Kachel.
 
 ### Komponenten
 
-- **Beitragsliste** (`.mod_articles_group`)
+- **Artikelliste** (`.mod_articles_group`)
   Vorschaubild links als quadratische, beschnittene Kachel
   (`clamp(120px, 22%, 180px)`, `aspect-ratio: 1/1`, `object-fit: cover`),
   Titel/Teaser rechts. Unten eine Flex-Zeile (`.mod_articles_bottom`) mit Tags links
@@ -53,11 +54,11 @@ und Platzhalter-Kachel.
 
 - **Leseansicht – Teaser-Box** (`.mod_articles_content_short`)
   Heller, kühler Lead-Block (`#f3f5f8`, dezenter Rahmen, abgerundet) mit
-  Lead-Typografie. Das Beitragsbild wird einheitlich gerahmt
+  Lead-Typografie. Das Artikelbild wird einheitlich gerahmt
   (`aspect-ratio: 4/3`, `object-fit: cover`, abgerundet).
 
 - **Navigation** (`.mod_articles_nav`)
-  Vor/Zurück/Übersicht unter dem Beitrag bzw. die Paginierung der Liste.
+  Vor/Zurück/Übersicht unter dem Artikel bzw. die Paginierung der Liste.
   Drei gleich breite Flex-Zonen (links/mitte/rechts) – die Mitte bleibt
   zentriert, auch wenn eine Seite leer ist. Neutral gehalten: nur eine dünne
   Trennlinie oben, Links erben Farbe/Schrift, Hover = Unterstreichung.
@@ -66,9 +67,9 @@ und Platzhalter-Kachel.
 - **Tags** (`.mod_articles_tag`)
   Kompakte Pills, die ersten drei in abgestuftem Navy, weitere in `#9BA9B9`.
 
-### Fehlende Beitragsbilder
+### Fehlende Artikelbilder
 
-Ist weder ein Beitrags-, Gruppen- noch ein Section-Standardbild gesetzt, wird
+Ist weder ein Artikel-, Gruppen- noch ein Standardbild des Abschnitts gesetzt, wird
 **kein** Platzhalter-Pixel mehr skaliert:
 
 - **Leseansicht:** gar kein Bild – der Teasertext nutzt die volle Breite.
@@ -85,5 +86,5 @@ am Element, damit sie in allen Views ohne zusätzliches CSS einheitlich aussieht
   Trennlinie-Hover) und ggf. die Inline-Farbe der Platzhalter-Kachel in
   `Articles\Frontend` anpassen.
 - **Eigene Optik ohne Core-Änderung:** am besten eine **eigene View** anlegen
-  (Verzeichnis unter `views/` kopieren) und in den Section-Settings auswählen,
+  (Verzeichnis unter `views/` kopieren) und in den Abschnittseinstellungen auswählen,
   statt diese Default-Dateien zu überschreiben – so bleiben Updates problemlos.

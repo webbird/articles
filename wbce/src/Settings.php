@@ -16,7 +16,7 @@ final class Settings
     public const VIEWS     = ['default', 'grid', 'avatar'];
     public const GALLERIES = ['fotorama', 'masonry', 'tobii', 'none'];
 
-    /** Variables of views/<name>/config.php (format of news_img, so its views can be copied) => columns. */
+    /** Variables of views/<name>/templates.php (format of news_img, so its views can be copied) => columns. */
     private const VIEW_TEMPLATES = [
         'header'       => 'tpl_list_header',
         'post_loop'    => 'tpl_list_item',
@@ -32,11 +32,11 @@ final class Settings
     public const DEFAULTS = [
         'sort_order'           => 0,
         'per_page'             => 0,
-        'preview_width'        => 125,
-        'preview_height'       => 125,
+        'preview_width'        => 250,
+        'preview_height'       => 250,
         'preview_crop'         => 0,
-        'thumb_width'          => 100,
-        'thumb_height'         => 100,
+        'thumb_width'          => 150,
+        'thumb_height'         => 150,
         'thumb_crop'           => 0,
         'large_width'          => 900,
         'large_height'         => 900,
@@ -64,14 +64,24 @@ final class Settings
     /** A view name usable as a folder; unknown or unsafe names fall back to default. */
     public static function view(string $name): string
     {
-        return preg_match('/^[a-zA-Z0-9_-]+$/', $name) && is_file(dirname(__DIR__) . "/views/$name/config.php")
-            ? $name : 'default';
+        return preg_match('/^[a-zA-Z0-9_-]+$/', $name) && self::viewFile($name) !== null ? $name : 'default';
+    }
+
+    /** templates.php of a view; config.php is the older name, as in news_img, and still read. */
+    private static function viewFile(string $name): ?string
+    {
+        foreach (['templates.php', 'config.php'] as $file) {
+            if (is_file($path = dirname(__DIR__) . "/views/$name/$file")) {
+                return $path;
+            }
+        }
+        return null;
     }
 
     /** @return list<string> the shipped views first, then own ones in views/<name>/ */
     public static function views(): array
     {
-        $own = array_map('basename', array_map('dirname', glob(dirname(__DIR__) . '/views/*/config.php') ?: []));
+        $own = array_map('basename', glob(dirname(__DIR__) . '/views/*', GLOB_ONLYDIR) ?: []);
         return array_values(array_unique(array_merge(self::VIEWS, array_filter($own, static fn (string $v): bool => self::view($v) === $v))));
     }
 
@@ -115,10 +125,12 @@ final class Settings
                 $row[$column] = is_string($in[$column] ?? null) ? str_replace("\r\n", "\n", $in[$column]) : (string) $old[$column];
             }
         }
-        if ($row['view'] !== $old['view']) {
+        // "reload templates" brings back the presets of view and gallery, e.g. after editing templates.php
+        $reload = $flag('reload_templates') === 1;
+        if ($reload || $row['view'] !== $old['view']) {
             $row = self::viewTemplates($row['view']) + $row;
         }
-        if ($row['gallery'] !== $old['gallery']) {
+        if ($reload || $row['gallery'] !== $old['gallery']) {
             $row = self::galleryTemplates($row['gallery']) + $row;
         }
 
@@ -142,13 +154,13 @@ final class Settings
         ], 'is_string');
     }
 
-    /** Template columns from views/<view>/config.php; every column is set, missing variables become ''. */
+    /** Template columns from views/<view>/templates.php; every column is set, missing variables become ''. */
     public static function viewTemplates(string $view): array
     {
         $vars = (static function (string $file): array {
             include $file;
             return get_defined_vars();
-        })(dirname(__DIR__) . '/views/' . self::view($view) . '/config.php');
+        })((string) self::viewFile(self::view($view)));
 
         $templates = [];
         foreach (self::VIEW_TEMPLATES as $var => $column) {

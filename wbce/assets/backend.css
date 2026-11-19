@@ -20,12 +20,14 @@
 .art-backend .art-count { font-size: .85em; color: var(--art-muted); font-weight: normal; }
 .art-backend .art-head-actions { display: flex; gap: .5em; padding-bottom: .4em; }
 
-.art-backend .art-button { display: inline-block; padding: .35em .9em; border: 1px solid #9aa3ad; border-radius: 4px; background: #fff; color: inherit; text-decoration: none; cursor: pointer; font: inherit; }
+.art-backend .art-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; padding: .35em .9em; border: 1px solid #9aa3ad; border-radius: 4px; background: #fff; color: inherit; text-decoration: none; cursor: pointer; font: inherit; }
 .art-backend .art-button:hover { background: #f1f3f5; }
 .art-backend .art-button--primary { background: var(--art-accent); border-color: var(--art-accent); color: #fff; }
 .art-backend .art-button--primary:hover { background: #24384f; }
 .art-backend .art-link, .art-backend .art-icon { background: none; border: 0; padding: 0 .2em; color: #1f5fa8; cursor: pointer; font: inherit; text-decoration: underline; }
 .art-backend .art-icon { text-decoration: none; color: var(--art-muted); }
+/* themes such as Argos give every button a min-width and a bottom margin */
+.art-backend :is(.art-button, .art-link, .art-icon, .art-status) { min-width: 0; width: auto; margin: 0; text-transform: none; letter-spacing: normal; }
 .art-backend .art-danger { color: #a32d2d; }
 
 .art-backend .art-filter { display: flex; flex-wrap: wrap; gap: .5em 1em; align-items: flex-end; margin: 0 0 .8em; font-size: .9em; }

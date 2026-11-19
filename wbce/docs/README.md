@@ -8,7 +8,7 @@
 | [Gruppen und Tags](Gruppen-und-Tags.md) | Gruppen mit Bild und Aktiv-Schalter, lokale und globale Tags, Farben |
 | [Einstellungen](Einstellungen.md) | Liste, Darstellung, Bildgrößen, Standardbild, Verzeichnis der Detailseiten, Templates |
 | [Platzhalter](Platzhalter.md) | Alle Platzhalter der Templates, URL-Parameter der Liste |
-| [Wartung, Import und Demo-Inhalte](Wartung.md) | Access-Dateien, Bildgrößen neu berechnen, Umzug der Detailseiten, Import aus `news_img` und `articles`, Demo-Pakete |
+| [Wartung, Import und Demo-Inhalte](Wartung.md) | Access-Dateien, Bildgrößen neu berechnen, Umzug der Detailseiten, Import aus `news_img`, Topics und `articles`, Demo-Pakete |
 | [Droplets, RSS und Links](Droplets.md) | `[[articles_list]]`, `[[articles_slider]]`, RSS-Feed, Links auf Artikel |
 
 Die Dateien liegen im Modul unter `modules/articles/docs/`. Konzept und Hinweise für Entwickler stehen im Repository von `articles`.

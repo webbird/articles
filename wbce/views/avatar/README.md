@@ -12,15 +12,16 @@ Porträtbild + Media-Object-Zeile), nicht auf den Einsatzzweck.
 
 | Datei          | Zweck                                                                 |
 |----------------|-----------------------------------------------------------------------|
-| `config.php`   | Default-Templates (Karten-Loop, Header/Footer, Post-Header/-Content/-Footer). |
+| `templates.php`   | Default-Templates (Karten-Loop, Header/Footer, Post-Header/-Content/-Footer). |
 | `frontend.css` | Optik der Ausgabe. Wird im Frontend automatisch eingebunden.          |
 
-> **Wichtig:** `config.php` liefert nur die **Vorlagen**. Im laufenden Betrieb
-> kommen die tatsächlich gerenderten Templates aus den **Section-Settings in
-> der Datenbank** (siehe `Articles\Settings`), nicht direkt aus dieser
-> Datei. Änderungen an `config.php` greifen erst nach einem Settings-Reset der
-> Section. Die `frontend.css` wirkt dagegen sofort (ggf. Browser-Cache mit
-> Strg+F5 leeren).
+> **Wichtig:** `templates.php` liefert nur die **Vorlagen**. Beim Anlegen eines
+> Abschnitts und beim Wechsel der View werden sie in die Abschnittseinstellungen
+> kopiert, gerendert wird danach immer von dort. Änderungen an `templates.php`
+> wirken deshalb erst, wenn du in den Einstellungen des Abschnitts
+> **Templates neu laden** anhakst und speicherst. Eigene Änderungen an den
+> Templates dieses Abschnitts gehen dabei verloren. Die `frontend.css` wirkt
+> dagegen sofort (ggf. Browser-Cache mit Strg+F5 leeren).
 
 ## Optik / Designkonzept
 
@@ -63,9 +64,9 @@ Inhalt rechts. Eigenständige, etwas verspieltere Farbwelt als default/grid
   gleich breiten Zonen. Eigene Pfeil-Glyphen: `«` / `»` für vor/zurück,
   `^ … ^` um den Übersicht-Link (per CSS, nicht aus dem Template).
 
-### Fehlende Beitragsbilder
+### Fehlende Artikelbilder
 
-Ohne Beitrags-, Gruppen- und Section-Standardbild wird **kein** Platzhalter-
+Ohne Artikel-, Gruppen- und Standardbild des Abschnitts wird **kein** Platzhalter-
 Pixel mehr skaliert:
 
 - **Leseansicht:** gar kein Bild – der Text nutzt die volle Breite.
@@ -81,10 +82,10 @@ am Element, damit sie in allen Views einheitlich aussieht.
 
 - **Avatar-Größe:** `width`/`height` bei `.mod_articles_avatar .mod_articles_teaserpic`
   (Standard 84×84). Für eckige Bilder `border-radius` reduzieren.
-- **Metadaten-Zeile:** im `$post_loop` der `config.php` entfernen, wenn nur
+- **Metadaten-Zeile:** im `$post_loop` der `templates.php` entfernen, wenn nur
   Name/Titel ohne Datum gewünscht ist (z. B. Teamvorstellung).
 - **Tag-Farben:** in `frontend.css` (`.mod_articles_avatar .mod_articles_tag …`); Schrift-
   farbe je Tag entsprechend der Helligkeit mit anpassen.
 - **Eigene Optik ohne Core-Änderung:** am besten eine **eigene View** anlegen
-  (Verzeichnis unter `views/` kopieren) und in den Section-Settings auswählen,
+  (Verzeichnis unter `views/` kopieren) und in den Abschnittseinstellungen auswählen,
   statt diese Dateien zu überschreiben – so bleiben Updates problemlos.

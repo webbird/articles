@@ -92,7 +92,8 @@ final class Frontend
         $this->insertKeywords(false);
 
         return $this->wrap(
-            Placeholders::render((string) $s['tpl_list_header'], $pagination, Placeholders::PAGINATION)
+            $this->filterNotice($f)
+            . Placeholders::render((string) $s['tpl_list_header'], $pagination, Placeholders::PAGINATION)
             . ($items === [] ? \Lang::get('TEXT', 'NONE_FOUND') : implode("\n", $items))
             . Placeholders::render((string) $s['tpl_list_footer'], $pagination, Placeholders::PAGINATION)
         );
@@ -211,6 +212,31 @@ final class Frontend
     public static function monthRange(int $month, int $year): array
     {
         return [gmmktime(0, 0, 0, $month, 1, $year) - (int) TIMEZONE, gmmktime(0, 0, 0, $month + 1, 1, $year) - (int) TIMEZONE];
+    }
+
+    /**
+     * Above a filtered list: what it is filtered by and a link back to all articles.
+     * Outside the templates, so it also shows in sections with old templates.
+     */
+    private function filterNotice(array $f): string
+    {
+        $t = static fn (string $key, string ...$args): string => sprintf((string) \Lang::get('MOD_ARTICLES', $key, $key), ...$args);
+        $parts = [];
+        if ($f['g'] !== null) {
+            $group = $this->db->fetchValue('SELECT `title` FROM `{TP}mod_articles_groups` WHERE `group_id` = ?', [$f['g']]);
+            $parts[] = $t('FILTER_GROUP', self::e((string) ($group ?? $f['g'])));
+        }
+        if ($f['tags'] !== []) {
+            $parts[] = $t(count($f['tags']) > 1 ? 'FILTER_TAGS' : 'FILTER_TAG', self::e(implode(', ', $f['tags'])));
+        }
+        if ($f['m'] !== null && $f['y'] !== null && $f['method'] !== null) {
+            $parts[] = $t('FILTER_MONTH', sprintf('%02d/%d', $f['m'], $f['y']));
+        }
+        if ($parts === []) {
+            return '';
+        }
+        return '<p class="mod_articles_filter">' . $t('FILTERED_BY', implode(', ', $parts))
+            . ' <a href="' . self::e(self::pageUrl((string) $this->settings['page_link'])) . '">' . $t('FILTER_SHOW_ALL') . "</a></p>\n";
     }
 
     /** Values of the pagination placeholders, texts and quirks as in news_img. */

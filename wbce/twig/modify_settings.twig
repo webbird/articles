@@ -36,6 +36,8 @@
                         {% for g in galleries %}<option value="{{ g }}"{% if g == form.gallery %} selected{% endif %}>{{ t('GALLERY_' ~ g|upper) }}</option>{% endfor %}
                     </select>
                 </label>
+                <label><input type="checkbox" name="reload_templates" value="1" data-art-confirm="{{ t('CONFIRM_RELOAD_TEMPLATES') }}"> {{ t('RELOAD_TEMPLATES') }}</label>
+                <p class="art-hint">{{ t('RELOAD_TEMPLATES_HINT') }}</p>
                 <label><input type="checkbox" name="use_block2" value="1"{% if form.use_block2 %} checked{% endif %}> {{ t('USE_BLOCK2') }}</label>
                 <small class="art-muted">{{ t('PRESET_HINT') }}</small>
             </fieldset>
@@ -106,7 +108,7 @@
                 <legend>{{ t('TEMPLATES') }}</legend>
                 {% for name in templates %}
                     <label class="art-field">{{ t(name|upper) }}
-                        <textarea name="{{ name }}" rows="{{ name in ['tpl_list_item', 'tpl_detail_content'] ? 12 : 5 }}" spellcheck="false" class="art-code">{{ "\n" ~ form[name] }}</textarea>{# the HTML parser drops the first newline; this one, so a leading newline of the value survives #}
+                        <textarea name="{{ name }}" id="art-{{ name }}-{{ section_id }}" rows="{{ name in ['tpl_list_item', 'tpl_detail_content'] ? 12 : 5 }}" spellcheck="false" class="art-code">{{ "\n" ~ form[name] }}</textarea>{# the HTML parser drops the first newline; this one, so a leading newline of the value survives #}
                     </label>
                 {% endfor %}
                 <small class="art-muted">{{ t('TEMPLATES_HINT') }}</small>
@@ -116,7 +118,7 @@
         <div class="art-buttons">
             <button type="submit" class="art-button art-button--primary">{{ t('SAVE') }}</button>
             <button type="submit" class="art-button" name="save_back" value="1">{{ t('SAVE_BACK') }}</button>
-            <a href="{{ url_list }}">{{ t('CANCEL') }}</a>
+            <a class="art-button" href="{{ url_list }}">{{ t('CANCEL') }}</a>
         </div>
     </form>
 </div>

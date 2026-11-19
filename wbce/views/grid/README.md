@@ -1,22 +1,23 @@
 # articles – View „grid"
 
-Karten-Ansicht des Moduls `articles`. Die **Beitragsliste** wird als
+Karten-Ansicht des Moduls `articles`. Die **Artikelliste** wird als
 responsives Karten-Raster ausgegeben; die **Leseansicht** eines einzelnen
-Beitrags entspricht der default-View.
+Artikels entspricht der default-View.
 
 ## Dateien
 
 | Datei          | Zweck                                                                 |
 |----------------|-----------------------------------------------------------------------|
-| `config.php`   | Default-Templates (Grid-Wrapper, Karten-Loop, Header/Footer, Post-Header/-Content/-Footer). |
+| `templates.php`   | Default-Templates (Grid-Wrapper, Karten-Loop, Header/Footer, Post-Header/-Content/-Footer). |
 | `frontend.css` | Optik der Ausgabe. Wird im Frontend automatisch eingebunden.          |
 
-> **Wichtig:** `config.php` liefert nur die **Vorlagen**. Im laufenden Betrieb
-> kommen die tatsächlich gerenderten Templates aus den **Section-Settings in
-> der Datenbank** (siehe `Articles\Settings`), nicht direkt aus dieser
-> Datei. Änderungen an `config.php` greifen erst nach einem Settings-Reset der
-> Section. Die `frontend.css` wirkt dagegen sofort (ggf. Browser-Cache mit
-> Strg+F5 leeren).
+> **Wichtig:** `templates.php` liefert nur die **Vorlagen**. Beim Anlegen eines
+> Abschnitts und beim Wechsel der View werden sie in die Abschnittseinstellungen
+> kopiert, gerendert wird danach immer von dort. Änderungen an `templates.php`
+> wirken deshalb erst, wenn du in den Einstellungen des Abschnitts
+> **Templates neu laden** anhakst und speicherst. Eigene Änderungen an den
+> Templates dieses Abschnitts gehen dabei verloren. Die `frontend.css` wirkt
+> dagegen sofort (ggf. Browser-Cache mit Strg+F5 leeren).
 
 ## Optik / Designkonzept
 
@@ -39,7 +40,7 @@ bewusst eigenständig (kein Erben von `.mod_articles_default`).
 ### Raster
 
 - Spaltenzahl über die Wrapper-Klasse `mod_articles_grid_2columns` …
-  `mod_articles_grid_5columns` (im `$header` der `config.php` gesetzt).
+  `mod_articles_grid_5columns` (im `$header` der `templates.php` gesetzt).
 - **Responsive:** unter 600px Breite immer einspaltig, unabhängig von der
   gewählten Spaltenzahl.
 
@@ -52,7 +53,7 @@ bewusst eigenständig (kein Erben von `.mod_articles_default`).
 
 - **Bildbereich / Header** (`.mod_articles_teaserpic`)
   Feste `aspect-ratio: 3/2` mit `object-fit: cover`. Dadurch hat der Header
-  **mit Bild und mit Platzhalter-Kachel die gleiche Höhe** – Beiträge ohne
+  **mit Bild und mit Platzhalter-Kachel die gleiche Höhe** – Artikel ohne
   Bild bekommen keinen schmaleren Kopf.
 
 - **Textbereich** (`.mod_articles_teasertext`)
@@ -72,7 +73,7 @@ bewusst eigenständig (kein Erben von `.mod_articles_default`).
 
 - **Leseansicht – Teaser-Box** (`.mod_articles_content_short`)
   Identisch zur default-View: heller, kühler Lead-Block (`#f3f5f8`, dezenter
-  Rahmen, abgerundet) mit Lead-Typografie; Beitragsbild einheitlich gerahmt
+  Rahmen, abgerundet) mit Lead-Typografie; Artikelbild einheitlich gerahmt
   (`aspect-ratio: 4/3`, `object-fit: cover`).
 
 - **Navigation** (`.mod_articles_nav`)
@@ -80,9 +81,9 @@ bewusst eigenständig (kein Erben von `.mod_articles_default`).
   gleich breiten Zonen – die Mitte bleibt zentriert, auch wenn eine Seite
   leer ist. Richtungspfeile (← / →) per CSS an Prev/Next-Links.
 
-### Fehlende Beitragsbilder
+### Fehlende Artikelbilder
 
-Ist weder ein Beitrags-, Gruppen- noch ein Section-Standardbild gesetzt, wird
+Ist weder ein Artikel-, Gruppen- noch ein Standardbild des Abschnitts gesetzt, wird
 **kein** Platzhalter-Pixel mehr skaliert:
 
 - **Leseansicht:** gar kein Bild – der Teasertext nutzt die volle Breite.
@@ -98,12 +99,12 @@ Eck-Radius, größere Initiale).
 
 ## Anpassen
 
-- **Spaltenzahl:** Wrapper-Klasse im `$header` der `config.php` bzw. in den
-  Section-Settings.
+- **Spaltenzahl:** Wrapper-Klasse im `$header` der `templates.php` bzw. in den
+  Abschnittseinstellungen.
 - **Bildproportion des Headers:** `aspect-ratio` bei `.mod_articles_teaserpic`
   (Standard `3 / 2`).
 - **Akzentfarbe ändern:** `#314B68` in `frontend.css` (Tag 1, Button) und ggf.
   die Inline-Farbe der Platzhalter-Kachel in `Articles\Frontend`.
 - **Eigene Optik ohne Core-Änderung:** am besten eine **eigene View** anlegen
-  (Verzeichnis unter `views/` kopieren) und in den Section-Settings auswählen,
+  (Verzeichnis unter `views/` kopieren) und in den Abschnittseinstellungen auswählen,
   statt diese Dateien zu überschreiben – so bleiben Updates problemlos.

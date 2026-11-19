@@ -1,0 +1,12 @@
+{
+    "title": "articles",
+    "docs": [
+        { "file": "README.md",            "label": "Übersicht" },
+        { "file": "Artikel.md",           "label": "Artikel" },
+        { "file": "Gruppen-und-Tags.md",  "label": "Gruppen und Tags" },
+        { "file": "Einstellungen.md",     "label": "Einstellungen" },
+        { "file": "Platzhalter.md",       "label": "Platzhalter" },
+        { "file": "Wartung.md",           "label": "Wartung und Import" },
+        { "file": "Droplets.md",          "label": "Droplets, RSS und Links" }
+    ]
+}

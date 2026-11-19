@@ -17,6 +17,14 @@ return [
         'IMPORT_TOPICS_HIDDEN'     => '%s topics were hidden or visible to registered visitors only. They are inactive now.',
         'IMPORT_COMMENTS_SKIPPED'  => '%s comments were not taken over, articles has no comments.',
 
+        // Frontend: notice above a filtered list
+        'FILTERED_BY'              => 'Filtered by %s.',
+        'FILTER_GROUP'             => 'group "%s"',
+        'FILTER_TAG'               => 'tag "%s"',
+        'FILTER_TAGS'              => 'tags "%s"',
+        'FILTER_MONTH'             => 'month %s',
+        'FILTER_SHOW_ALL'          => 'Show all articles',
+
         // Frontend placeholders [TEXT_*]
         'TEXT_AT'                  => 'at',
         'TEXT_BACK'                => 'Back',
@@ -36,6 +44,7 @@ return [
         'TAB_TAGS'                 => 'Tags',
         'TAB_MAINTENANCE'          => 'Maintenance',
         'SETTINGS'                 => 'Settings',
+        'HELP'                     => 'Help',
         'ADD_ARTICLE'              => 'Add article',
         'EDIT_ARTICLE'             => 'Edit article',
         'BACK_TO_LIST'             => 'Back to the list',
@@ -232,6 +241,9 @@ return [
         'USE_BLOCK2'               => 'Use block 2',
         'PRESET_HINT'              => 'Another view loads its templates, another gallery its detail template and image loop.',
         'CONFIRM_VIEW'             => 'Saving replaces the templates with those of the new view. Continue?',
+        'RELOAD_TEMPLATES'         => 'Reload templates',
+        'RELOAD_TEMPLATES_HINT'    => 'On saving, replaces all templates of this section with the presets of the selected view and gallery. Your own changes to the templates are lost.',
+        'CONFIRM_RELOAD_TEMPLATES' => 'Saving replaces all templates with the presets of view and gallery. Your own changes are lost. Continue?',
         'CONFIRM_GALLERY'          => 'Saving replaces the detail template and image loop with those of the new gallery. Continue?',
         'IMAGE_SIZES'              => 'Image sizes',
         'SIZE'                     => 'Size',
