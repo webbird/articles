@@ -12,3 +12,11 @@ require_once __DIR__ . '/bootstrap.php';
 
 Articles\Schema::install($database);
 Articles\Schema::installDroplets($database);
+
+// 0.2.0 dropped Lightcase: such sections get Tobii and its templates, as a gallery change in the settings would
+$tobii = Articles\Settings::galleryTemplates('tobii');
+Articles\Articles::exec(
+    $database,
+    'UPDATE `{TP}mod_articles_settings` SET `gallery` = ?, `tpl_detail_content` = ?, `tpl_image_loop` = ? WHERE `gallery` = ?',
+    ['tobii', $tobii['tpl_detail_content'], $tobii['tpl_image_loop'], 'lightcase']
+);
