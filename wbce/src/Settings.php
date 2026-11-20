@@ -131,15 +131,20 @@ final class Settings
             $row = self::viewTemplates($row['view']) + $row;
         }
         if ($reload || $row['gallery'] !== $old['gallery']) {
-            $row = self::galleryTemplates($row['gallery']) + $row;
+            $row = self::galleryTemplates($row['gallery'], $row['view']) + $row;
         }
 
         $set = implode(', ', array_map(static fn (string $column): string => "`$column` = ?", array_keys($row)));
         Articles::exec($db, "UPDATE `{TP}mod_articles_settings` SET $set WHERE `section_id` = ?", [...array_values($row), $sectionId]);
     }
 
-    /** Detail content and image loop of js/galleries/<gallery>/settings.php, only the variables it sets. */
-    public static function galleryTemplates(string $gallery): array
+    /**
+     * Detail content and image loop of js/galleries/<gallery>/settings.php, only the variables it sets.
+     * The detail content is that of the view with only its image block (the element around [IMAGES])
+     * swapped for the gallery's, so the view keeps its own layout. A view without such a block gets
+     * the gallery's detail content as it is.
+     */
+    public static function galleryTemplates(string $gallery, string $view = 'default'): array
     {
         if (!in_array($gallery, self::GALLERIES, true)) {
             return [];
@@ -148,8 +153,20 @@ final class Settings
             include $file;
             return get_defined_vars();
         })(dirname(__DIR__) . "/js/galleries/$gallery/settings.php");
+        $content = $vars['post_content'] ?? null;
+        if (is_string($content)) {
+            $block = (string) preg_replace('/^\s*\[CONTENT\](?:<br\s*\/?>)?\s*/', '', $content);
+            $merged = preg_replace_callback(
+                '/<div\b[^>]*>\s*\[IMAGES\]\s*<\/div>\s*/',
+                static fn (): string => $block === '' ? '' : $block . "\n",
+                self::viewTemplates($view)['tpl_detail_content'],
+                1,
+                $count
+            );
+            $content = $count === 1 ? $merged : $content;
+        }
         return array_filter([
-            'tpl_detail_content' => $vars['post_content'] ?? null,
+            'tpl_detail_content' => $content,
             'tpl_image_loop'     => $vars['image_loop'] ?? null,
         ], 'is_string');
     }

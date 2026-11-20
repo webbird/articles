@@ -31,7 +31,7 @@ Der Button **Einstellungen** öffnet die Einstellungen des Abschnitts. Ist „Ei
   - **Tobii:** Raster aus Vorschaubildern, ein Klick öffnet das Bild groß in einer Lightbox. Dort lässt sich mit Pfeiltasten oder Wischen blättern, der Bildtext steht darunter
   - **Keine:** keine Galerie
 
-  Der Wechsel ersetzt nach einer Rückfrage das Template „Detailseite: Inhalt“ und die Bild-Schleife.
+  Der Wechsel ersetzt nach einer Rückfrage die Bild-Schleife und im Template „Detailseite: Inhalt“ den Bildblock, also das Element um `[IMAGES]`. Der Rest kommt aus der Vorlage der View, die Kurztext-Box bleibt also. Eigene Änderungen an diesem Template gehen dabei verloren. Hat eine eigene View keinen solchen Block, gilt das Template der Galerie.
 - **Templates neu laden** ersetzt beim Speichern alle Templates durch die Vorlagen der gewählten View und Galerie, auch ohne Wechsel. Das hilft, wenn eigene Änderungen an den Templates verworfen werden sollen oder sich die Vorlagen einer View geändert haben.
 - **Block 2 verwenden** zeigt im Editor das Feld „Block 2“. Sein Inhalt erscheint nur, wenn das Template der Website einen zweiten Inhaltsbereich ausgibt. Die mitgelieferten Core-Templates tun das über `MODULES_BLOCK2`.
 
